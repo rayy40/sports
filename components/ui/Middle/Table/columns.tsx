@@ -18,6 +18,8 @@ export const columns: ColumnDef<Fixtures>[] = [
   {
     accessorKey: "fixture",
     header: "Date",
+    enableColumnFilter: true,
+    size: 120,
     cell: ({ row }) => {
       const { timestamp }: Fixture = row.getValue("fixture");
       const formattedDate = formatDate(timestamp);
@@ -124,6 +126,7 @@ export const columns: ColumnDef<Fixtures>[] = [
   {
     accessorKey: "goals",
     header: "Score",
+    size: 100,
     cell: ({ row }) => {
       const goals: HalftimeOrGoals = row.getValue("goals");
       const isHomeWinner = goals.home > goals.away;

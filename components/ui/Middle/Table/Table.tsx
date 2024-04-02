@@ -29,6 +29,10 @@ const Table = ({ fixtures, sport }: Props) => {
   const leagueInfos = useMemo(() => getLeagues(fixtures), [fixtures]);
 
   const table = useReactTable({
+    defaultColumn: {
+      minSize: 0,
+      size: 0,
+    },
     data: fixtures,
     columns,
     onColumnFiltersChange: setColumnFilters,
@@ -78,7 +82,7 @@ const Table = ({ fixtures, sport }: Props) => {
             />
           </div>
         </div>
-        <List rows={rows} fixtures={fixtures} />
+        <List table={table} rows={rows} />
       </div>
     </div>
   );
