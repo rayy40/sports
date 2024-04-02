@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import Tabs from "../../Tabs";
 import List from "./List";
 import { Fixtures, Sports, StatusType } from "@/lib/types";
-import { getTeams } from "@/lib/utils";
+import { getLeagues, getTeams } from "@/lib/utils";
 import { tabs } from "@/lib/constants";
 import { FilterDropDown } from "@/components/FilterDropDown";
 import { columns } from "@/components/ui/Middle/Table/columns";
 import {
   ColumnFiltersState,
-  VisibilityState,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
@@ -23,16 +22,11 @@ type Props = {
 
 const Table = ({ fixtures, sport }: Props) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [status, setStatus] = useState<StatusType>("Scheduled");
+  const [status, setStatus] = useState<StatusType>("AllGames");
 
   const teamInfos = useMemo(() => getTeams(fixtures), [fixtures]);
 
-  useEffect(() => {
-    setColumnFilters(() => {
-      return [{ id: "fixture", value: "Scheduled" }];
-    });
-  }, []);
+  const leagueInfos = useMemo(() => getLeagues(fixtures), [fixtures]);
 
   const table = useReactTable({
     data: fixtures,
@@ -40,10 +34,11 @@ const Table = ({ fixtures, sport }: Props) => {
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
     state: {
       columnFilters,
-      columnVisibility,
+      columnVisibility: {
+        league: false,
+      },
     },
   });
 
@@ -72,7 +67,13 @@ const Table = ({ fixtures, sport }: Props) => {
           ))}
           <div className="ml-auto flex gap-2 relative">
             <FilterDropDown
-              teams={teamInfos}
+              title={"League"}
+              labels={leagueInfos}
+              column={table.getColumn("league")}
+            />
+            <FilterDropDown
+              title={"Team"}
+              labels={teamInfos}
               column={table.getColumn("teams")}
             />
           </div>

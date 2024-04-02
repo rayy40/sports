@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
-  AllTeam,
+  AllTeamOrAllLeague,
   FetchState,
   FilteredFixtures,
   Fixtures,
@@ -72,6 +72,7 @@ export const formatDate = (timestamp: number) => {
 
 export const filterFixturesByStatus = (data: Fixtures[]) => {
   const filteredFixtures: FilteredFixtures = {
+    AllGames: [],
     Scheduled: [],
     InPlay: [],
     Finished: [],
@@ -99,11 +100,37 @@ export const filterFixturesByStatus = (data: Fixtures[]) => {
 };
 
 export const getTeams = (fixtures: Fixtures[]) => {
-  const teamInfo: AllTeam[] = [];
+  const teamInfo: AllTeamOrAllLeague[] = [];
+  const uniqueIds = new Set<number>();
+
   fixtures.forEach((fixture) => {
-    teamInfo.push({ id: fixture.teams.home.id, name: fixture.teams.home.name });
-    teamInfo.push({ id: fixture.teams.away.id, name: fixture.teams.away.name });
+    if (!uniqueIds.has(fixture.teams.home.id || fixture.teams.away.id)) {
+      teamInfo.push({
+        id: fixture.teams.home.id,
+        name: fixture.teams.home.name,
+      });
+      teamInfo.push({
+        id: fixture.teams.away.id,
+        name: fixture.teams.away.name,
+      });
+      uniqueIds.add(fixture.teams.home.id);
+      uniqueIds.add(fixture.teams.away.id);
+    }
   });
 
   return teamInfo;
+};
+
+export const getLeagues = (fixtures: Fixtures[]) => {
+  const leagueInfo: AllTeamOrAllLeague[] = [];
+  const uniqueIds = new Set<number>();
+
+  fixtures.forEach((fixture) => {
+    if (!uniqueIds.has(fixture.league.id)) {
+      leagueInfo.push({ id: fixture.league.id, name: fixture.league.name });
+      uniqueIds.add(fixture.league.id);
+    }
+  });
+
+  return leagueInfo;
 };

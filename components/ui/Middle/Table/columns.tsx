@@ -6,6 +6,7 @@ import {
   Fixture,
   Fixtures,
   HalftimeOrGoals,
+  League,
   StatusType,
   Teams,
 } from "@/lib/types";
@@ -37,6 +38,19 @@ export const columns: ColumnDef<Fixtures>[] = [
       const fixture: Fixture = row.getValue(id);
 
       return status.includes(fixture.status.short);
+    },
+  },
+  {
+    accessorKey: "league",
+    header: "League",
+    cell: ({ row }) => {
+      const leagueInfo: League = row.getValue("league");
+
+      return <span>{leagueInfo.name}</span>;
+    },
+    filterFn: (row, id, value) => {
+      const leagueInfo: League = row.getValue(id);
+      return value.includes(leagueInfo.name);
     },
   },
   {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, SyntheticEvent, useState } from "react";
 
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Button } from "@/components/ui/Shadcn/button";
@@ -23,63 +23,61 @@ import {
   PopoverTrigger,
 } from "@/components/ui/Shadcn/popover";
 import { Column } from "@tanstack/react-table";
-import { AllTeam } from "@/lib/types";
+import { AllTeamOrAllLeague } from "@/lib/types";
+import { X } from "lucide-react";
 
 interface FilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
-  teams: AllTeam[];
+  labels: AllTeamOrAllLeague[];
+  title: string;
 }
 
 export function FilterDropDown<TData, TValue>({
   column,
-  teams,
+  labels,
+  title,
 }: FilterProps<TData, TValue>) {
   const [open, setOpen] = useState(false);
-  const facets = column?.getFacetedUniqueValues();
-  const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const [selectedValue, setSelectedValue] = useState("");
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const handleRemoveFilter = (e: SyntheticEvent<HTMLElement>) => {
+    e.stopPropagation();
+    column?.setFilterValue("");
+    setOpen(false);
+    setSelectedValue("");
+  };
 
   if (isDesktop) {
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="secondary" className="w-[180px] justify-start">
-            By Teams
+          <Button
+            variant="secondary"
+            className="w-[180px] relative justify-start"
+          >
+            <p className="max-w-[85%] overflow-hidden text-ellipsis">
+              {selectedValue ? selectedValue : `Filter: By ${title}`}
+            </p>
+            {selectedValue && (
+              <span
+                onClick={(e: SyntheticEvent<HTMLElement>) =>
+                  handleRemoveFilter(e)
+                }
+                className="w-5 absolute right-2 z-50 ml-auto"
+              >
+                <X className="w-4 font-bold text-secondary-foreground/40 hover:text-secondary-foreground" />
+              </span>
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[180px] p-0" align="end">
-          <Command>
-            <CommandInput placeholder="Filter status..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                {teams.map((team) => {
-                  const isSelected = selectedValues.has(team.name);
-                  return (
-                    <CommandItem
-                      className="text-popover-foreground rounded-md py-2"
-                      key={team.id}
-                      value={team.name}
-                      onSelect={() => {
-                        if (isSelected) {
-                          selectedValues.delete(team.name);
-                        } else {
-                          selectedValues.add(team.name);
-                        }
-                        const filterValues = Array.from(selectedValues);
-                        column?.setFilterValue(
-                          filterValues.length ? filterValues : undefined
-                        );
-                        setOpen(false);
-                      }}
-                    >
-                      {team.name}
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
+          <StatusList
+            setOpen={setOpen}
+            labels={labels}
+            column={column!}
+            setSelectedValue={setSelectedValue}
+          />
         </PopoverContent>
       </Popover>
     );
@@ -88,25 +86,47 @@ export function FilterDropDown<TData, TValue>({
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="secondary" className="w-[180px] justify-start">
-          By League
+        <Button
+          variant="secondary"
+          className="w-[180px] relative justify-start"
+        >
+          <p className="max-w-[85%] overflow-hidden text-ellipsis">
+            {selectedValue ? selectedValue : `Filter: By ${title}`}
+          </p>
+          {selectedValue && (
+            <span
+              onClick={(e) => handleRemoveFilter(e)}
+              className="w-5 absolute right-2 z-50 ml-auto"
+            >
+              <X className="w-4 font-bold text-secondary-foreground/40 hover:text-secondary-foreground" />
+            </span>
+          )}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <StatusList setOpen={setOpen} teams={teams} />
+          <StatusList
+            setOpen={setOpen}
+            labels={labels}
+            column={column!}
+            setSelectedValue={setSelectedValue}
+          />
         </div>
       </DrawerContent>
     </Drawer>
   );
 }
 
-function StatusList({
+function StatusList<TData, TValue>({
   setOpen,
-  teams,
+  column,
+  labels,
+  setSelectedValue,
 }: {
   setOpen: (open: boolean) => void;
-  teams: AllTeam[];
+  setSelectedValue: Dispatch<SetStateAction<string>>;
+  column: Column<TData, TValue>;
+  labels: AllTeamOrAllLeague[];
 }) {
   return (
     <Command>
@@ -114,17 +134,19 @@ function StatusList({
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>
-          {teams.map((status) => {
+          {labels.map((label) => {
             return (
               <CommandItem
-                className="text-popover-foreground rounded-md"
-                key={status.id}
-                value={status.name}
-                onSelect={(value) => {
+                className="text-popover-foreground rounded-md py-2"
+                key={label.id}
+                value={label.name}
+                onSelect={() => {
+                  column?.setFilterValue(label.name);
+                  setSelectedValue(label.name);
                   setOpen(false);
                 }}
               >
-                {status.name}
+                {label.name}
               </CommandItem>
             );
           })}
