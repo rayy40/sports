@@ -2,32 +2,158 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
+::-webkit-scrollbar {
+  width: 7.5px;
+}
+::-webkit-scrollbar-track {
+  background-color: hsla(0, 0%, 76.5%, 0.4392156862745098);
+  border-radius: 17.5px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 20px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+@layer base {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --background: 0 0% 94%;
+    --foreground: 0 0% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+
+    --popover: 0 0% 88%;
+    --popover-foreground: 0 0% 50%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 17.5%;
+
+    --secondary: 0 0% 88%;
+    --secondary-foreground: 0 0% 39%;
+
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 45 89% 55%;
+    --accent-foreground: 220.9 39.3% 11%;
+
+    --home: 163 49% 77.5%;
+    --home-foreground: ;
+
+    --away: 0 87% 87.5%;
+    --away-foreground: ;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 224 71.4% 4.1%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 210 20% 98%;
+    --primary-foreground: 220.9 39.3% 11%;
+
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 216 12.2% 83.9%;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer components {
+  .underline-hover {
+    position: relative;
+    &::after {
+      content: " ";
+      position: absolute;
+      left: 0;
+      bottom: -0.5px;
+      opacity: 0.6;
+      width: 100%;
+      color: transparent;
+      background: rgb(185, 186, 187);
+      height: 1px;
+      transform: scaleX(1);
+      transform-origin: left;
+      transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1) 0.2s;
+    }
+    &:hover::after {
+      transform: scaleX(0);
+      transition-delay: 0s;
+    }
+  }
+  .underline-tabs {
+    position: relative;
+    &::after {
+      content: " ";
+      width: 100%;
+      height: 3px;
+      border-radius: 8px;
+      background: rgb(253, 207, 19);
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 0);
+    }
+  }
+  .loading-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .icon {
+      font-size: 2.5rem;
+    }
+  }
+  .error-container {
+    width: 80%;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-size: 1.1rem;
+    text-align: center;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer base {
+  * {
+    @apply border-border;
   }
 }
