@@ -7,7 +7,8 @@ type StatusType =
   | "Postponed"
   | "Cancelled"
   | "Abandoned"
-  | "NotPlayed";
+  | "NotPlayed"
+  | "AllGames";
 
 export type TableFixtures = {
   date: number;
@@ -57,6 +58,7 @@ export interface ShortStatusMap {
   Cancelled: string[];
   Abandoned: string[];
   NotPlayed: string[];
+  AllGames: string[];
 }
 
 export interface FilteredFixtures {
@@ -67,6 +69,7 @@ export interface FilteredFixtures {
   Cancelled: Fixtures[];
   Abandoned: Fixtures[];
   NotPlayed: Fixtures[];
+  AllGames: Fixtures[];
 }
 
 export interface Fixtures {
@@ -134,7 +137,7 @@ export interface FulltimeOrExtratimeOrPenalty {
   away?: null;
 }
 
-export interface AllTeam {
+export interface AllTeamOrAllLeague {
   id: number;
   name: string;
 }
