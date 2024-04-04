@@ -1,8 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
+  APIResponse,
   AllTeamOrAllLeague,
-  FetchState,
   FilteredFixtures,
   Fixtures,
   StatusType,
@@ -13,51 +13,17 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export async function fetchData<T>(
-  url: string,
-  timeout: number = 10000 // Default timeout of 10 seconds
-): Promise<FetchState<T>> {
-  const controller = new AbortController();
-  const signal = controller.signal;
-
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-  }, timeout);
-
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "x-rapidapi-host": "v3.football.api-sports.io",
-        "x-rapidapi-key": process.env.RAPIDAPI_KEY!,
-      },
-      signal,
-    });
-    clearTimeout(timeoutId);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data from ${url}`);
-    }
-    const data: { response: T[] } = await response.json();
-    return {
-      loading: false,
-      data: data.response,
-      error: null,
-    };
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if ((error as Error).name === "AbortError") {
-      return {
-        loading: false,
-        data: null,
-        error: new Error("Request timed out"),
-      };
-    }
-    return {
-      loading: false,
-      data: null,
-      error: error as Error,
-    };
-  }
+export async function getAPIData<T>(param: string) {
+  const response = await fetch(`https://v3.football.api-sports.io/${param}`, {
+    method: "GET",
+    headers: {
+      "x-rapidapi-host": "v3.football.api-sports.io",
+      "x-rapidapi-key":
+        process.env.RAPIDAPI_KEY ?? process.env.NEXT_PUBLIC_RAPIDAPI_KEY!,
+    },
+  });
+  const data: Promise<APIResponse<T>> = response.json();
+  return data;
 }
 
 export const formatDate = (timestamp: number) => {
@@ -103,7 +69,7 @@ export const getTeams = (fixtures: Fixtures[]) => {
   const teamInfo: AllTeamOrAllLeague[] = [];
   const uniqueIds = new Set<number>();
 
-  fixtures.forEach((fixture) => {
+  fixtures?.forEach((fixture) => {
     if (!uniqueIds.has(fixture.teams.home.id || fixture.teams.away.id)) {
       teamInfo.push({
         id: fixture.teams.home.id,
@@ -125,7 +91,7 @@ export const getLeagues = (fixtures: Fixtures[]) => {
   const leagueInfo: AllTeamOrAllLeague[] = [];
   const uniqueIds = new Set<number>();
 
-  fixtures.forEach((fixture) => {
+  fixtures?.forEach((fixture) => {
     if (!uniqueIds.has(fixture.league.id)) {
       leagueInfo.push({ id: fixture.league.id, name: fixture.league.name });
       uniqueIds.add(fixture.league.id);
