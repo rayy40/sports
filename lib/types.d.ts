@@ -44,7 +44,7 @@ export interface APIResponse<T> {
   response?: T[] | null;
 }
 
-export interface Countries {
+export interface Country {
   name: string;
   code: string;
   flag: string;
@@ -140,4 +140,33 @@ export interface FulltimeOrExtratimeOrPenalty {
 export interface AllTeamOrAllLeague {
   id: number;
   name: string;
+}
+export interface Leagues {
+  league: League;
+  country: Country;
+  seasons?: SeasonsEntity[] | null;
+}
+export interface SeasonsEntity {
+  year: number;
+  start: string;
+  end: string;
+  current: boolean;
+  coverage: Coverage;
+}
+export interface Coverage {
+  fixtures: LeagueFixtures;
+  standings: boolean;
+  players: boolean;
+  top_scorers: boolean;
+  top_assists: boolean;
+  top_cards: boolean;
+  injuries: boolean;
+  predictions: boolean;
+  odds: boolean;
+}
+export interface LeagueFixtures {
+  events: boolean;
+  lineups: boolean;
+  statistics_fixtures: boolean;
+  statistics_players: boolean;
 }
