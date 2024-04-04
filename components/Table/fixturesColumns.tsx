@@ -14,7 +14,7 @@ import { formatDate } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 
-export const columns: ColumnDef<Fixtures>[] = [
+export const fixturesColumns: ColumnDef<Fixtures>[] = [
   {
     accessorKey: "fixture",
     header: "Date",
@@ -45,6 +45,7 @@ export const columns: ColumnDef<Fixtures>[] = [
   {
     accessorKey: "league",
     header: "League",
+    enableColumnFilter: true,
     cell: ({ row }) => {
       const leagueInfo: League = row.getValue("league");
 

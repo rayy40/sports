@@ -1,22 +1,23 @@
-import { Fixtures } from "@/lib/types";
-import { Row, Table as TableProp, flexRender } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useRef } from "react";
+
 import {
   Table,
-  TableCell,
-  TableRow,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
-} from "../../table";
-import { useRef } from "react";
+  TableRow,
+} from "@/components/ui/Shadcn/table";
+import { Fixtures } from "@/lib/types";
+import { flexRender, Row, Table as TableProp } from "@tanstack/react-table";
+import { useVirtualizer } from "@tanstack/react-virtual";
 
 type Props = {
   table: TableProp<Fixtures>;
   rows: Row<Fixtures>[];
 };
 
-const List = ({ rows, table }: Props) => {
+const FixturesTable = ({ rows, table }: Props) => {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
@@ -41,7 +42,7 @@ const List = ({ rows, table }: Props) => {
           <TableHeader className="relative">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
-                className="bg-primary sticky top-0 left-0 z-50 shadow-sm w-full"
+                className="bg-primary border-b-border/40 sticky top-0 left-0 z-50 shadow-sm w-full"
                 key={headerGroup.id}
               >
                 {headerGroup.headers.map((header) => {
@@ -108,4 +109,4 @@ const List = ({ rows, table }: Props) => {
   );
 };
 
-export default List;
+export default FixturesTable;
