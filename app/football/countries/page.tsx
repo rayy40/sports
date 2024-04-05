@@ -11,6 +11,8 @@ import BoxList from "@/components/ui/BoxList";
 const Countries = () => {
   const [country, setCountry] = useState<string>("");
   const [countries, setCountries] = useState<Country[]>([]);
+  const [isInitialDataLoaded, setIsInitialDataLoaded] =
+    useState<boolean>(false);
 
   const { data, error, isLoading } = useQuery({
     queryKey: ["countries"],
@@ -22,6 +24,7 @@ const Countries = () => {
   useEffect(() => {
     if (data?.response) {
       setCountries(data.response);
+      setIsInitialDataLoaded(true);
     }
   }, [data]);
 
@@ -52,12 +55,12 @@ const Countries = () => {
           placeholder="Search country"
         />
       </div>
-      {isLoading ? (
+      {isLoading || !isInitialDataLoaded ? (
         <div className="flex items-center justify-center">
           <p>Loading...</p>
         </div>
       ) : (
-        <div className="grid p-6 pt-0 grid-cols-3">
+        <div className="grid p-6 pt-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {countries.length > 0 ? (
             countries.map((country, index) => (
               <BoxList

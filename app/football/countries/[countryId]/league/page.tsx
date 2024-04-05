@@ -11,8 +11,10 @@ import BoxList from "@/components/ui/BoxList";
 
 const Leagues = () => {
   const { countryId } = useParams();
-  const [league, setCountry] = useState<string>("");
+  const [league, setLeague] = useState<string>("");
   const [leagues, setLeagues] = useState<Leagues[]>([]);
+  const [isInitialDataLoaded, setIsInitialDataLoaded] =
+    useState<boolean>(false);
 
   const { data, error, isLoading } = useQuery({
     queryKey: [`${countryId}-Leagues`],
@@ -25,6 +27,7 @@ const Leagues = () => {
   useEffect(() => {
     if (data?.response) {
       setLeagues(data.response);
+      setIsInitialDataLoaded(true);
     }
   }, [data]);
 
@@ -42,7 +45,7 @@ const Leagues = () => {
       setLeagues(data?.response ?? []);
     }
 
-    setCountry(keyword);
+    setLeague(keyword);
   };
 
   return (
@@ -57,18 +60,18 @@ const Leagues = () => {
           placeholder="Search league"
         />
       </div>
-      {isLoading ? (
+      {isLoading || !isInitialDataLoaded ? (
         <div className="flex items-center justify-center">
           <p>Loading...</p>
         </div>
       ) : (
-        <div className="grid p-6 pt-0 grid-cols-3">
+        <div className="grid p-6 pt-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {leagues.length > 0 ? (
             leagues.map((league, index) => (
               <BoxList
                 key={index}
                 name={league.league.name}
-                flag={league.league.flag}
+                flag={league.league.logo}
                 url={`/football/league/${league.league.name.toLowerCase()}`}
               />
             ))
