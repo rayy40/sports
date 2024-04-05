@@ -1,18 +1,23 @@
 "use client";
 
-import { StatusType } from "@/lib/types";
 import { ColumnFiltersState } from "@tanstack/react-table";
 import React, { Dispatch, SetStateAction } from "react";
 
-type Props = {
+type Props<T> = {
   label: string;
-  id: StatusType;
+  id: T;
   setColumnFilters: Dispatch<SetStateAction<ColumnFiltersState>>;
-  status: StatusType;
-  setStatus: Dispatch<SetStateAction<StatusType>>;
+  status: T;
+  setStatus: Dispatch<SetStateAction<T>>;
 };
 
-const Tabs = ({ label, id, status, setStatus, setColumnFilters }: Props) => {
+const Tabs = <T,>({
+  label,
+  id,
+  status,
+  setStatus,
+  setColumnFilters,
+}: Props<T>) => {
   const handleTabClick = () => {
     setColumnFilters(() => {
       return [{ id: "fixture", value: id }];

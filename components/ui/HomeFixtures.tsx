@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 
 import { FilterDropDown } from "@/components/Table/FilterDropDown";
 import { fixturesColumns } from "../Table/fixturesColumns";
-import { tabs } from "@/lib/constants";
+import { statusTabs } from "@/lib/constants";
 import { Fixtures, Sports, StatusType } from "@/lib/types";
 import {
   formatDatePattern,
@@ -77,8 +77,8 @@ const HomeFixtures = ({ sport }: Props) => {
       </div>
       <div className="p-3 pt-0">
         <div className="flex items-end gap-4 border-b border-b-border">
-          {tabs.map((tab) => (
-            <Tabs
+          {statusTabs.map((tab) => (
+            <Tabs<StatusType>
               key={tab.status}
               setColumnFilters={setColumnFilters}
               status={status}
