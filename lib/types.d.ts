@@ -10,15 +10,21 @@ type StatusType =
   | "NotPlayed"
   | "AllGames";
 
+type DetailedTabsType =
+  | "Fixtures"
+  | "Standings"
+  | "Top Scorers"
+  | "Top Assists";
+
 export type TableFixtures = {
   date: number;
   teams: Teams;
   score: HalftimeOrGoals;
 };
 
-export type Tabs = {
+export type Tabs<T> = {
   label: string;
-  status: StatusType;
+  status: T;
 };
 
 export type FetchState<T> = {
@@ -169,4 +175,9 @@ export interface LeagueFixtures {
   lineups: boolean;
   statistics_fixtures: boolean;
   statistics_players: boolean;
+}
+
+export interface DetailedLeagueState {
+  detailedLeague: Leagues | null;
+  setDetailedLeague: (league: Leagues) => void;
 }
