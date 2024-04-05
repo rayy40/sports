@@ -1,6 +1,6 @@
 import WorldLogo from "@/Assets/Logos/WorldLogo";
-import { Link } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 const BoxList = ({ name, flag, url }: Props) => {
   return (
     <Link href={url}>
-      <div className="min-w-[200px] flex items-center justify-between p-4 border hover:bg-secondary/80 cursor-pointer transition-colors">
+      <div className="min-w-[200px] flex gap-8 items-center justify-between p-4 border hover:bg-secondary/80 cursor-pointer transition-colors">
         <h3>{name}</h3>
         {flag ? (
           <Image
