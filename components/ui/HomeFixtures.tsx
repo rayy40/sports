@@ -6,7 +6,12 @@ import { FilterDropDown } from "@/components/Table/FilterDropDown";
 import { fixturesColumns } from "../Table/fixturesColumns";
 import { tabs } from "@/lib/constants";
 import { Fixtures, Sports, StatusType } from "@/lib/types";
-import { getAPIData, getLeagues, getTeams } from "@/lib/utils";
+import {
+  formatDatePattern,
+  getAPIData,
+  getLeagues,
+  getTeams,
+} from "@/lib/utils";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -25,10 +30,12 @@ type Props = {
 const HomeFixtures = ({ sport }: Props) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [status, setStatus] = useState<StatusType>("AllGames");
+  const [date, setDate] = useState(new Date());
 
   const { data, error, isFetched, isLoading } = useQuery({
     queryKey: ["fixturesByDate"],
-    queryFn: () => getAPIData<Fixtures>(`fixtures?date=${"2024-03-03"}`),
+    queryFn: () =>
+      getAPIData<Fixtures>(`fixtures?date=${formatDatePattern(date)}`),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
