@@ -77,6 +77,9 @@ const config = {
         container: "0 0 10px -2.5px rgba(0,0,0,0.25)",
         team: "0 0 7.5px -2px rgba(0,0,0,0.2)",
       },
+      gridTemplateColumns: {
+        list: "1fr 100px 1fr",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
