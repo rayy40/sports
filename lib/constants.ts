@@ -41,6 +41,7 @@ export const statusTabs: Tabs<StatusType>[] = [
 export const detailedTabs: Tabs<DetailedTabsType>[] = [
   { status: "Fixtures", label: "Fixtures" },
   { status: "Standings", label: "Standings" },
+  { status: "Stats", label: "Stats" },
 ];
 
 export const statusFilters = [
@@ -48,4 +49,11 @@ export const statusFilters = [
   { id: "Scheduled", name: "Not Started" },
   { id: "InPlay", name: "Live" },
   { id: "Finished", name: "Finished" },
+];
+
+export const stats = [
+  "top scorers",
+  "top assists",
+  "yellow cards",
+  "red cards",
 ];
