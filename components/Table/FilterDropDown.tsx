@@ -23,12 +23,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/Shadcn/popover";
 import { Column } from "@tanstack/react-table";
-import { AllTeamOrAllLeague } from "@/lib/types";
+import { Filters } from "@/lib/types";
 import { X } from "lucide-react";
 
 interface FilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
-  labels: AllTeamOrAllLeague[];
+  labels: Filters[];
   title: string;
 }
 
@@ -54,7 +54,7 @@ export function FilterDropDown<TData, TValue>({
         <PopoverTrigger asChild>
           <Button
             variant="secondary"
-            className="w-[180px] relative justify-start"
+            className="w-[160px] relative justify-start capitalize"
           >
             <p className="max-w-[85%] overflow-hidden text-ellipsis">
               {selectedValue ? selectedValue : `Filter: By ${title}`}
@@ -71,7 +71,7 @@ export function FilterDropDown<TData, TValue>({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[180px] p-0" align="end">
+        <PopoverContent className="w-[160px] p-0" align="end">
           <StatusList
             setOpen={setOpen}
             labels={labels}
@@ -88,7 +88,7 @@ export function FilterDropDown<TData, TValue>({
       <DrawerTrigger asChild>
         <Button
           variant="secondary"
-          className="w-[180px] relative justify-start"
+          className="w-[160px] relative justify-start capitalize"
         >
           <p className="max-w-[85%] overflow-hidden text-ellipsis">
             {selectedValue ? selectedValue : `Filter: By ${title}`}
@@ -126,7 +126,7 @@ function StatusList<TData, TValue>({
   setOpen: (open: boolean) => void;
   setSelectedValue: Dispatch<SetStateAction<string>>;
   column: Column<TData, TValue>;
-  labels: AllTeamOrAllLeague[];
+  labels: Filters[];
 }) {
   return (
     <Command>
@@ -137,11 +137,11 @@ function StatusList<TData, TValue>({
           {labels.map((label) => {
             return (
               <CommandItem
-                className="text-popover-foreground rounded-md py-2"
+                className="text-popover-foreground rounded-md py-2 capitalize"
                 key={label.id}
                 value={label.name}
                 onSelect={() => {
-                  column?.setFilterValue(label.name);
+                  column?.setFilterValue(label.id);
                   setSelectedValue(label.name);
                   setOpen(false);
                 }}
