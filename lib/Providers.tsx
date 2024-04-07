@@ -11,7 +11,7 @@ const Providers = ({ children }: { children: ReactNode }) => {
           queries: {
             refetchOnWindowFocus: false,
             refetchOnMount: false,
-            staleTime: 5 * 60 * 1000,
+            staleTime: 60 * 60 * 1000,
             retry: 3,
             retryDelay: 1000,
           },
