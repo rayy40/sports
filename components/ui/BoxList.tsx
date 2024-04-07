@@ -5,16 +5,16 @@ import React from "react";
 
 type Props = {
   name: string;
-  flag?: string;
+  logo: string | undefined;
   url: string;
 };
 
-const BoxList = ({ name, flag, url }: Props) => {
+const BoxList = ({ name, logo, url }: Props) => {
   return (
     <Link href={url}>
       <div className="min-w-[200px] flex gap-8 items-center justify-between p-4 border hover:bg-secondary/80 cursor-pointer transition-colors">
         <h3>{name}</h3>
-        {flag ? (
+        {logo ? (
           <Image
             loading="lazy"
             width={40}
@@ -24,8 +24,8 @@ const BoxList = ({ name, flag, url }: Props) => {
               aspectRatio: "1/1",
               objectFit: "cover",
             }}
-            src={flag}
-            alt={name}
+            src={logo}
+            alt={name + "-logo"}
           />
         ) : (
           <WorldLogo />
