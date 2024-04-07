@@ -1,22 +1,21 @@
 import Sidebar from "@/components/ui/Sidebar";
 import Hero from "@/components/ui/Hero";
 import HomeFixtures from "@/components/ui/HomeFixtures";
-import { Country, Fixtures } from "@/lib/types";
-import { getAPIData } from "@/lib/utils";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
 import React from "react";
+import { getCountries, getFixturesByDate } from "@/services/api";
 
 const Football = async () => {
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
     queryKey: ["countries", "fixturesByDate"],
     queryFn: () => {
-      getAPIData<Country>("countries");
-      getAPIData<Fixtures>(`fixtures?date=${"2024-03-03"}`);
+      getCountries();
+      getFixturesByDate("2024-03-03");
     },
   });
 

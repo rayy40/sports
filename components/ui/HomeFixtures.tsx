@@ -5,13 +5,8 @@ import React, { useMemo, useState } from "react";
 import { FilterDropDown } from "@/components/Table/FilterDropDown";
 import { fixturesColumns } from "../Table/fixturesColumns";
 import { statusTabs } from "@/lib/constants";
-import { Fixtures, Sports, StatusType } from "@/lib/types";
-import {
-  formatDatePattern,
-  getAPIData,
-  getLeagues,
-  getTeams,
-} from "@/lib/utils";
+import { Sports, StatusType } from "@/lib/types";
+import { formatDatePattern, getLeagues, getTeams } from "@/lib/utils";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -21,7 +16,7 @@ import {
 
 import Tabs from "./Tabs";
 import FixturesTable from "./FixturesTable";
-import { useQuery } from "@tanstack/react-query";
+import { useFixturesByDate } from "@/services/queries";
 
 type Props = {
   sport: Sports;
@@ -32,20 +27,16 @@ const HomeFixtures = ({ sport }: Props) => {
   const [status, setStatus] = useState<StatusType>("AllGames");
   const [date, setDate] = useState(new Date());
 
-  const { data, error, isFetched, isLoading } = useQuery({
-    queryKey: ["fixturesByDate"],
-    queryFn: () =>
-      getAPIData<Fixtures>(`fixtures?date=${formatDatePattern(date)}`),
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
+  const fixturesByDateQuery = useFixturesByDate(formatDatePattern(date));
 
-  const teamInfos = useMemo(() => getTeams(data?.response!), [data?.response]);
+  const teamInfos = useMemo(
+    () => getTeams(fixturesByDateQuery?.data!),
+    [fixturesByDateQuery?.data]
+  );
 
   const leagueInfos = useMemo(
-    () => getLeagues(data?.response!),
-    [data?.response]
+    () => getLeagues(fixturesByDateQuery?.data!),
+    [fixturesByDateQuery?.data]
   );
 
   const table = useReactTable({
@@ -53,7 +44,7 @@ const HomeFixtures = ({ sport }: Props) => {
       minSize: 0,
       size: 0,
     },
-    data: data?.response ?? [],
+    data: fixturesByDateQuery?.data ?? [],
     columns: fixturesColumns,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -65,6 +56,10 @@ const HomeFixtures = ({ sport }: Props) => {
       },
     },
   });
+
+  if (fixturesByDateQuery?.isFetching) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="rounded-lg shadow-container bg-primary">

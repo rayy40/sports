@@ -4,9 +4,10 @@ import React, { ChangeEvent, useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/Shadcn/input";
 import { Country } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-import { getAPIData } from "@/lib/utils";
 import BoxList from "@/components/ui/BoxList";
+import { useCountries } from "@/services/queries";
+import { filterSearch } from "@/lib/utils";
+import { BounceLoader } from "react-spinners";
 
 const Countries = () => {
   const [country, setCountry] = useState<string>("");
@@ -14,50 +15,44 @@ const Countries = () => {
   const [isInitialDataLoaded, setIsInitialDataLoaded] =
     useState<boolean>(false);
 
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["countries"],
-    queryFn: () => getAPIData<Country>("countries"),
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-  });
+  const countriesQuery = useCountries();
 
   useEffect(() => {
-    if (data?.response) {
-      setCountries(data.response);
+    if (countriesQuery?.data && !isInitialDataLoaded) {
+      setCountries(countriesQuery?.data);
       setIsInitialDataLoaded(true);
     }
-  }, [data]);
+  }, [countriesQuery, isInitialDataLoaded]);
 
-  const filter = (e: ChangeEvent<HTMLInputElement>) => {
-    const keyword = e.target.value;
-
-    if (keyword !== "") {
-      const results = data?.response?.filter((country) => {
-        return country.name.toLowerCase().startsWith(keyword.toLowerCase());
-      });
-      setCountries(results ?? []);
-    } else {
-      setCountries(data?.response ?? []);
+  const handleFilter = (e: ChangeEvent<HTMLInputElement>) => {
+    if (countriesQuery?.data) {
+      filterSearch(e, countriesQuery?.data, setCountries, setCountry);
     }
-
-    setCountry(keyword);
   };
 
+  if (countriesQuery?.isError) {
+    return (
+      <div className="flex w-full h-screen items-center justify-center">
+        <p>{countriesQuery.error.message}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="font-sans relative">
+    <div className="font-sans min-h-screen relative">
       <div className="flex sticky p-6 shadow-sm bg-background top-0 items-end justify-between">
         <h2 className="font-medium text-[1.75rem]">Countries</h2>
         <Input
           className="max-w-[300px]"
           value={country}
           type="search"
-          onChange={filter}
+          onChange={(e) => handleFilter(e)}
           placeholder="Search country"
         />
       </div>
-      {isLoading || !isInitialDataLoaded ? (
-        <div className="flex items-center justify-center">
-          <p>Loading...</p>
+      {countriesQuery?.isFetching || !isInitialDataLoaded ? (
+        <div className="flex h-[calc(100vh-90px)] items-center justify-center">
+          <BounceLoader color="hsl(45,89%,55%)" />
         </div>
       ) : (
         <div className="grid p-6 pt-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -65,8 +60,8 @@ const Countries = () => {
             countries.map((country, index) => (
               <BoxList
                 key={index}
-                name={country.name}
-                flag={country.flag}
+                logo={country?.flag}
+                name={country?.name}
                 url={`/football/countries/${country.code}/league`}
               />
             ))

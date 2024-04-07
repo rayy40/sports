@@ -1,51 +1,39 @@
 "use client";
 
-import React, { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/Shadcn/input";
-import { Leagues } from "@/lib/types";
+import { League } from "@/lib/types";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { getAPIData } from "@/lib/utils";
 import BoxList from "@/components/ui/BoxList";
+import { useLeaguesByCountryId } from "@/services/queries";
+import { BounceLoader } from "react-spinners";
+import { filterSearch, refactorLeagues } from "@/lib/utils";
 
 const Leagues = () => {
   const { countryId } = useParams();
   const [league, setLeague] = useState<string>("");
-  const [leagues, setLeagues] = useState<Leagues[]>([]);
+  const [leagues, setLeagues] = useState<League[]>([]);
   const [isInitialDataLoaded, setIsInitialDataLoaded] =
     useState<boolean>(false);
 
-  const { data, error, isLoading } = useQuery({
-    queryKey: [`${countryId}-Leagues`],
-    queryFn: () => getAPIData<Leagues>(`leagues?code=${countryId}`),
-    staleTime: Infinity,
-    enabled: !!countryId,
-    refetchOnWindowFocus: false,
-  });
+  const leaguesQuery = useLeaguesByCountryId(countryId);
 
   useEffect(() => {
-    if (data?.response) {
-      setLeagues(data.response);
+    if (leaguesQuery?.data && !isInitialDataLoaded) {
+      setLeagues(refactorLeagues(leaguesQuery?.data));
       setIsInitialDataLoaded(true);
     }
-  }, [data]);
+  }, [leaguesQuery, isInitialDataLoaded]);
 
-  const filter = (e: ChangeEvent<HTMLInputElement>) => {
-    const keyword = e.target.value;
-
-    if (keyword !== "") {
-      const results = data?.response?.filter((league) => {
-        return league.league.name
-          .toLowerCase()
-          .startsWith(keyword.toLowerCase());
+  const handleFilter = (e: ChangeEvent<HTMLInputElement>) => {
+    if (leaguesQuery.data) {
+      const leaguesData: League[] = [];
+      leaguesQuery.data.forEach((league) => {
+        leaguesData.push(league.league);
       });
-      setLeagues(results ?? []);
-    } else {
-      setLeagues(data?.response ?? []);
+      filterSearch(e, leaguesData, setLeagues, setLeague);
     }
-
-    setLeague(keyword);
   };
 
   return (
@@ -56,13 +44,13 @@ const Leagues = () => {
           className="max-w-[300px]"
           value={league}
           type="search"
-          onChange={filter}
+          onChange={(e) => handleFilter(e)}
           placeholder="Search league"
         />
       </div>
-      {isLoading || !isInitialDataLoaded ? (
-        <div className="flex items-center justify-center">
-          <p>Loading...</p>
+      {leaguesQuery?.isFetching || !isInitialDataLoaded ? (
+        <div className="flex h-[calc(100vh-90px)] items-center justify-center">
+          <BounceLoader color="hsl(45,89%,55%)" />
         </div>
       ) : (
         <div className="grid p-6 pt-0 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -70,9 +58,9 @@ const Leagues = () => {
             leagues.map((league, index) => (
               <BoxList
                 key={index}
-                name={league.league.name}
-                flag={league.league.logo}
-                url={`/football/league/${league.league.name.toLowerCase()}`}
+                logo={league.logo}
+                name={league.name}
+                url={`/football/league/${league.id}`}
               />
             ))
           ) : (
