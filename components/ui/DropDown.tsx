@@ -8,32 +8,33 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/Shadcn/dropdown-menu";
-import { SeasonsEntity } from "@/lib/types";
+import { ButtonVariants } from "@/lib/types";
 
-type Props<T> = {
+type Props = {
   title: string;
-  data?: SeasonsEntity[] | null;
+  data?: number[] | string[];
   value: string;
   setValue: (value: string) => void;
+  variant?: ButtonVariants;
 };
 
-export function DropDown<T>({ title, data, value, setValue }: Props<T>) {
+export function DropDown({ title, data, value, setValue, variant }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="capitalize w-28" variant="outline">
+        <Button className="capitalize w-[130px]" variant={variant ?? "outline"}>
           {title}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="max-h-[200px] overflow-y-auto w-28">
+      <DropdownMenuContent className="max-h-[200px] overflow-y-auto w-[130px]">
         <DropdownMenuRadioGroup value={value} onValueChange={setValue}>
           {data?.map((v, index) => (
             <DropdownMenuRadioItem
-              className="font-sans font-medium"
+              className="font-sans font-medium capitalize text-center"
               key={index}
-              value={v.year.toString()}
+              value={v.toString()}
             >
-              {v.year}
+              {v}
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
