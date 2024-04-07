@@ -3,34 +3,38 @@
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
+import { BounceLoader } from "react-spinners";
 
+import PlayerStats from "@/components/PlayerStats";
+import Standings from "@/components/Standings";
+import { FilterDropDown } from "@/components/Table/FilterDropDown";
+import { fixturesListColumns } from "@/components/Table/fixturesListColumns";
+import { DropDown } from "@/components/ui/DropDown";
+import FixturesList from "@/components/ui/FixturesList";
 import Tabs from "@/components/ui/Tabs";
-import { detailedTabs, statusFilters } from "@/lib/constants";
+import { detailedTabs, stats, statusFilters } from "@/lib/constants";
 import { DetailedTabsType } from "@/lib/types";
-import { getStandings, getTeams } from "@/lib/utils";
+import { getSeasonsList, getStandings, getTeams } from "@/lib/utils";
+import {
+  useFixturesByLeagueIdAndSeason,
+  useLeagueById,
+  useStandingsByLeagueIdAndSeason,
+  useTopAssistsByLeagueIdAndSeason,
+  useTopScorersByLeagueIdAndSeason,
+} from "@/services/queries";
 import {
   ColumnFiltersState,
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { DropDown } from "@/components/ui/DropDown";
-import { fixturesListColumns } from "@/components/Table/fixturesListColumns";
-import FixturesList from "@/components/ui/FixturesList";
-import { FilterDropDown } from "@/components/Table/FilterDropDown";
-import { BounceLoader } from "react-spinners";
-import Standings from "@/components/Standings";
-import {
-  useFixturesByLeagueIdAndSeason,
-  useLeagueById,
-  useStandingsByLeagueIdAndSeason,
-} from "@/services/queries";
 
 const DetailedLeague = () => {
   const { leagueId } = useParams();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [status, setStatus] = useState<DetailedTabsType>("Fixtures");
   const [season, setSeason] = useState<string | null>(null);
+  const [stat, setStat] = useState<string>("top assists");
 
   const leagueQuery = useLeagueById(leagueId);
 
@@ -45,6 +49,16 @@ const DetailedLeague = () => {
   );
 
   const standingsQuery = useStandingsByLeagueIdAndSeason(
+    leagueId,
+    season ?? initialSeason
+  );
+
+  const topScorerQuery = useTopScorersByLeagueIdAndSeason(
+    leagueId,
+    season ?? initialSeason
+  );
+
+  const topAssistQuery = useTopAssistsByLeagueIdAndSeason(
     leagueId,
     season ?? initialSeason
   );
@@ -64,21 +78,91 @@ const DetailedLeague = () => {
     },
   });
 
+  //Issue with stale standings data.
   useEffect(() => {
-    if (status === "Standings" && !standingsQuery.isStale) {
+    if (status === "Standings") {
       standingsQuery.refetchStandings();
     }
-  }, [status, standingsQuery]);
+  }, [status]);
+
+  useEffect(() => {
+    if (status === "Stats") {
+      if (stat === "top scorers") {
+        topScorerQuery.refetchTopScorer();
+      } else if (stat === "top assists") {
+        topAssistQuery.refetchTopAssist();
+      }
+      console.log(stat);
+    }
+  }, [stat, status]);
 
   const teamInfos = useMemo(
     () => getTeams(fixturesQuery.data!),
     [fixturesQuery.data]
   );
 
+  const seasonsList = useMemo(
+    () =>
+      leagueQuery?.data?.seasons && getSeasonsList(leagueQuery?.data?.seasons!),
+    [leagueQuery]
+  );
+
   const standingsByGroups = useMemo(
     () => getStandings(standingsQuery?.data?.[0]?.league!),
     [standingsQuery]
   );
+
+  const renderList = () => {
+    if (status === "Stats") {
+      switch (stat) {
+        case "top scorers":
+          return <PlayerStats type="goal" data={topScorerQuery?.data} />;
+        case "top assists":
+          return <PlayerStats type="assist" data={topAssistQuery?.data} />;
+      }
+    } else if (status === "Standings") {
+      return <Standings data={standingsByGroups} />;
+    } else {
+      return (
+        <FixturesList
+          table={fixturesTable}
+          rows={fixturesTable?.getRowModel()?.rows}
+        />
+      );
+    }
+  };
+
+  const renderFilters = () => {
+    switch (status) {
+      case "Fixtures":
+        return (
+          <div className="flex gap-4">
+            <FilterDropDown
+              title={"status"}
+              labels={statusFilters}
+              column={fixturesTable.getColumn("fixture")}
+            />
+            <FilterDropDown
+              title={"teams"}
+              labels={teamInfos}
+              column={fixturesTable.getColumn("teams")}
+            />
+          </div>
+        );
+      case "Stats":
+        return (
+          <DropDown
+            title={stat}
+            data={stats}
+            setValue={setStat}
+            value={stat}
+            variant={"secondary"}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   if (leagueQuery.isFetching) {
     return (
@@ -90,7 +174,7 @@ const DetailedLeague = () => {
 
   return (
     <div className="font-sans relative">
-      <div className="flex flex-col sticky p-6 pb-0 gap-6 shadow-sm bg-background top-0">
+      <div className="flex flex-col sticky z-20 p-6 pb-0 gap-6 shadow-sm bg-background top-0">
         <div className="flex items-center gap-4">
           <Image
             width={50}
@@ -113,7 +197,7 @@ const DetailedLeague = () => {
           <div className="ml-auto">
             <DropDown
               title="seasons"
-              data={leagueQuery?.data?.seasons?.slice().reverse()}
+              data={seasonsList!}
               setValue={setSeason}
               value={season ?? initialSeason}
             />
@@ -131,34 +215,18 @@ const DetailedLeague = () => {
               />
             ))}
           </div>
-          {status !== "Standings" && (
-            <div className="flex gap-4">
-              <FilterDropDown
-                title={"status"}
-                labels={statusFilters}
-                column={fixturesTable.getColumn("fixture")}
-              />
-              <FilterDropDown
-                title={"teams"}
-                labels={teamInfos}
-                column={fixturesTable.getColumn("teams")}
-              />
-            </div>
-          )}
+          {renderFilters()}
         </div>
       </div>
       <div className="h-[calc(100vh-150px)]">
-        {fixturesQuery.isFetching || standingsQuery.isFetching ? (
+        {fixturesQuery.isFetching ||
+        standingsQuery.isFetching ||
+        topScorerQuery.isFetching ? (
           <div className="w-full h-full flex items-center justify-center">
             <BounceLoader color="hsl(45,89%,55%)" />
           </div>
-        ) : status === "Standings" ? (
-          <Standings data={standingsByGroups} />
         ) : (
-          <FixturesList
-            table={fixturesTable}
-            rows={fixturesTable?.getRowModel()?.rows}
-          />
+          renderList()
         )}
       </div>
     </div>
