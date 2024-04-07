@@ -1,4 +1,4 @@
-import { ShortStatusMap, Tabs } from "./types";
+import { DetailedTabsType, ShortStatusMap, StatusType, Tabs } from "./types";
 
 export const shortStatusMap: ShortStatusMap = {
   Scheduled: ["TBD", "NS"],
@@ -31,9 +31,21 @@ export const shortStatusMap: ShortStatusMap = {
   ],
 };
 
-export const tabs: Tabs[] = [
+export const statusTabs: Tabs<StatusType>[] = [
   { status: "AllGames", label: "All Games" },
   { status: "Scheduled", label: "Not Started" },
   { status: "InPlay", label: "Live" },
   { status: "Finished", label: "Finished" },
+];
+
+export const detailedTabs: Tabs<DetailedTabsType>[] = [
+  { status: "Fixtures", label: "Fixtures" },
+  { status: "Standings", label: "Standings" },
+];
+
+export const statusFilters = [
+  { id: "AllGames", name: "All Games" },
+  { id: "Scheduled", name: "Not Started" },
+  { id: "InPlay", name: "Live" },
+  { id: "Finished", name: "Finished" },
 ];
