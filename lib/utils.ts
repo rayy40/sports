@@ -10,6 +10,7 @@ import {
   StandingsEntity,
   Leagues,
   League,
+  SeasonsEntity,
 } from "./types";
 import { shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
@@ -139,6 +140,16 @@ export const formatDatePattern = (date: Date) => {
   return formattedDate;
 };
 
+export const formatDatePatternLong = (dt: string) => {
+  const date = new Date(dt);
+  const formattedDate = date.toLocaleString("en-US", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+  return formattedDate;
+};
+
 export const filterSearch = <T extends { name: string }>(
   e: ChangeEvent<HTMLInputElement>,
   data: T[],
@@ -157,4 +168,15 @@ export const filterSearch = <T extends { name: string }>(
   }
 
   setValue(keyword);
+};
+
+export const getSeasonsList = (seasonsList: SeasonsEntity[]) => {
+  const seasons: number[] = [];
+  seasonsList
+    .slice()
+    .reverse()
+    .forEach((season) => {
+      seasons.push(season.year);
+    });
+  return seasons;
 };
