@@ -3,22 +3,19 @@
 import React from "react";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
-import { Country } from "@/lib/types";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { getAPIData } from "@/lib/utils";
+import { useCountries } from "@/services/queries";
 
 const Sidebar = () => {
   const uniqueCountryCodes = new Set();
-  const { data, error, isFetched, isLoading } = useQuery({
-    queryKey: ["countries"],
-    queryFn: () => getAPIData<Country>("countries"),
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-  });
+  const countriesQuery = useCountries();
 
-  if (isLoading) {
+  if (countriesQuery.isFetching) {
     return <p>Loading...</p>;
+  }
+
+  if (countriesQuery.isError) {
+    console.error(countriesQuery.error.message);
   }
 
   return (
@@ -34,7 +31,7 @@ const Sidebar = () => {
       </div>
       <div>
         <div className="h-[calc(100vh-100px)] overflow-y-auto">
-          {data?.response
+          {countriesQuery.data
             ?.filter((country) => country.code)
             .map((country) => {
               if (!uniqueCountryCodes.has(country.code)) {
