@@ -1,7 +1,5 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
-
 import { Button } from "@/components/ui/Shadcn/button";
 import {
   DropdownMenu,
@@ -20,7 +18,6 @@ type Props<T> = {
 };
 
 export function DropDown<T>({ title, data, value, setValue }: Props<T>) {
-  console.log(data);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
