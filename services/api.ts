@@ -4,6 +4,7 @@ import {
   Country,
   Fixtures,
   Leagues,
+  PlayerStats,
   StandingsReponse,
 } from "@/lib/types";
 
@@ -59,6 +60,28 @@ export const getStandingsByLeagueIdAndSeason = async (
   return (
     await axiosInstance.get<APIResponse<StandingsReponse>>(
       `/standings?league=${leagueId}&season=${season}`
+    )
+  ).data.response;
+};
+
+export const getTopScorersByLeagueIdAndSeason = async (
+  leagueId: string | string[],
+  season: string | undefined
+) => {
+  return (
+    await axiosInstance.get<APIResponse<PlayerStats>>(
+      `/players/topscorers?league=${leagueId}&season=${season}`
+    )
+  ).data.response;
+};
+
+export const getTopAssistsByLeagueIdAndSeason = async (
+  leagueId: string | string[],
+  season: string | undefined
+) => {
+  return (
+    await axiosInstance.get<APIResponse<PlayerStats>>(
+      `/players/topassists?league=${leagueId}&season=${season}`
     )
   ).data.response;
 };

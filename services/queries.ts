@@ -6,6 +6,8 @@ import {
   getLeagueById,
   getLeaguesByCountry,
   getStandingsByLeagueIdAndSeason,
+  getTopAssistsByLeagueIdAndSeason,
+  getTopScorersByLeagueIdAndSeason,
 } from "./api";
 
 export function useCountries() {
@@ -20,6 +22,7 @@ export function useFixturesByDate(date: string) {
   return useQuery({
     queryKey: ["fixtures", date],
     queryFn: () => getFixturesByDate(date),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -45,6 +48,7 @@ export function useFixturesByLeagueIdAndSeason(
   return useQuery({
     queryKey: ["fixtures", leagueId, season],
     queryFn: () => getFixtureByLeagueIdAndSeason(leagueId, season),
+    staleTime: 5 * 60 * 1000,
     enabled: !!leagueId && !!season,
   });
 }
@@ -56,6 +60,7 @@ export function useStandingsByLeagueIdAndSeason(
   const query = useQuery({
     queryKey: ["standings", leagueId, season],
     queryFn: () => getStandingsByLeagueIdAndSeason(leagueId, season),
+    staleTime: 1000,
     enabled: false,
   });
   const refetchStandings = () => {
@@ -63,4 +68,36 @@ export function useStandingsByLeagueIdAndSeason(
   };
 
   return { ...query, refetchStandings };
+}
+
+export function useTopScorersByLeagueIdAndSeason(
+  leagueId: string | string[],
+  season: string
+) {
+  const query = useQuery({
+    queryKey: ["topScorers", leagueId, season],
+    queryFn: () => getTopScorersByLeagueIdAndSeason(leagueId, season),
+    enabled: false,
+  });
+  const refetchTopScorer = () => {
+    query.refetch();
+  };
+
+  return { ...query, refetchTopScorer };
+}
+
+export function useTopAssistsByLeagueIdAndSeason(
+  leagueId: string | string[],
+  season: string
+) {
+  const query = useQuery({
+    queryKey: ["topAssists", leagueId, season],
+    queryFn: () => getTopAssistsByLeagueIdAndSeason(leagueId, season),
+    enabled: false,
+  });
+  const refetchTopAssist = () => {
+    query.refetch();
+  };
+
+  return { ...query, refetchTopAssist };
 }
