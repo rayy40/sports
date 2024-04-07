@@ -8,7 +8,7 @@ import {
   StatusType,
   Teams,
 } from "@/lib/types";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDatePatternLong } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -18,19 +18,19 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
     accessorKey: "fixture",
     header: "Date",
     enableColumnFilter: true,
-    size: 100,
+    size: 150,
     cell: ({ row }) => {
-      const { timestamp }: Fixture = row.getValue("fixture");
-      const formattedDate = formatDate(timestamp);
+      const { date }: Fixture = row.getValue("fixture");
+      const formattedDate = formatDatePatternLong(date);
 
       return (
-        <div className="flex flex-col font-medium px-2 pl-3 w-[80px] items-center">
-          <p className="text-sm text-center uppercase text-primary-foreground">
-            {formattedDate.date}
+        <div className="flex flex-col px-2 pl-6 w-[150px] items-start">
+          <p className="text-[0.925rem] text-left font-medium text-primary-foreground">
+            {formattedDate}
           </p>
-          <span className="text-sm text-center text-muted-foreground">
+          {/* <span className="text-sm text-center text-muted-foreground">
             {formattedDate.time}
-          </span>
+          </span> */}
         </div>
       );
     },
