@@ -1,7 +1,7 @@
 "use client";
 
-import { AllOrHomeOrAway, StandingsEntity, Team } from "@/lib/types";
-import { ColumnDef } from "@tanstack/react-table";
+import { AllOrHomeOrAway, Goals, StandingsEntity, Team } from "@/lib/types";
+import { ColumnDef, Getter } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,7 +12,7 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
     cell: ({ row }) => {
       const rank: number = row.getValue("rank");
 
-      return <p>{rank}</p>;
+      return <p className="pl-6 text-[0.975rem]">{rank}</p>;
     },
   },
   {
@@ -25,8 +25,8 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
         <Link href={`/football/teams/${teamInfo.id}`}>
           <div className="flex items-center gap-3">
             <Image
-              width={25}
-              height={25}
+              width={37.5}
+              height={37.5}
               style={{
                 objectFit: "contain",
                 borderRadius: "50%",
@@ -35,64 +35,70 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
               src={teamInfo.logo}
               alt={`${teamInfo.name}-logo`}
             />
-            <p>{teamInfo.name}</p>
+            <p className="text-[1rem]">{teamInfo.name}</p>
           </div>
         </Link>
       );
     },
   },
   {
-    accessorKey: "all",
+    id: "played",
+    accessorFn: (row) => row?.all,
     header: "Played",
-    cell: ({ row }) => {
-      const matches: AllOrHomeOrAway = row.getValue("all");
+    cell: ({ getValue }: { getValue: Getter<AllOrHomeOrAway | undefined> }) => {
+      const matches = getValue();
 
-      return <p>{matches.played}</p>;
+      return <p className="text-center text-[0.975rem]">{matches?.played}</p>;
     },
   },
   {
-    accessorKey: "all",
+    id: "win",
+    accessorFn: (row) => row?.all,
     header: "Won",
-    cell: ({ row }) => {
-      const matches: AllOrHomeOrAway = row.getValue("all");
+    cell: ({ getValue }: { getValue: Getter<AllOrHomeOrAway | undefined> }) => {
+      const matches = getValue();
 
-      return <p>{matches.win}</p>;
+      return <p className="text-center text-[0.975rem]">{matches?.win}</p>;
     },
   },
   {
-    accessorKey: "all",
+    id: "drawn",
+    accessorFn: (row) => row?.all,
     header: "Drawn",
-    cell: ({ row }) => {
-      const matches: AllOrHomeOrAway = row.getValue("all");
+    cell: ({ getValue }: { getValue: Getter<AllOrHomeOrAway | undefined> }) => {
+      const matches = getValue();
 
-      return <p>{matches.draw}</p>;
+      return <p className="text-center text-[0.975rem]">{matches?.draw}</p>;
     },
   },
   {
-    accessorKey: "all",
+    id: "lost",
+    accessorFn: (row) => row?.all,
     header: "Lost",
-    cell: ({ row }) => {
-      const matches: AllOrHomeOrAway = row.getValue("all");
+    cell: ({ getValue }: { getValue: Getter<AllOrHomeOrAway | undefined> }) => {
+      const matches = getValue();
 
-      return <p>{matches.lose}</p>;
+      return <p className="text-center text-[0.975rem]">{matches?.lose}</p>;
     },
   },
   {
-    accessorKey: "all",
+    id: "goalsFor",
+    accessorFn: (row) => row?.all?.goals,
     header: "GF",
-    cell: ({ row }) => {
-      const matches: AllOrHomeOrAway = row.getValue("all");
+    cell: ({ getValue }: { getValue: Getter<Goals | undefined> }) => {
+      const goals = getValue();
 
-      return <p>{matches.goals.for}</p>;
+      return <p className="text-center text-[0.975rem]">{goals?.for}</p>;
     },
   },
   {
-    accessorKey: "all",
+    id: "goalsAgainst",
+    accessorFn: (row) => row?.all?.goals,
     header: "GA",
-    cell: ({ row }) => {
-      const matches: AllOrHomeOrAway = row.getValue("all");
+    cell: ({ getValue }: { getValue: Getter<Goals | undefined> }) => {
+      const goals = getValue();
 
-      return <p>{matches.goals.against}</p>;
+      return <p className="text-center text-[0.975rem]">{goals?.against}</p>;
     },
   },
   {
@@ -101,7 +107,7 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
     cell: ({ row }) => {
       const goalDiff: number = row.getValue("goalsDiff");
 
-      return <p>{goalDiff}</p>;
+      return <p className="text-center text-[0.975rem]">{goalDiff}</p>;
     },
   },
   {
@@ -110,7 +116,9 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
     cell: ({ row }) => {
       const points: number = row.getValue("points");
 
-      return <p className="font-medium">{points}</p>;
+      return (
+        <p className="text-center text-[0.975rem] font-medium">{points}</p>
+      );
     },
   },
   {
@@ -118,8 +126,32 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
     header: "Form",
     cell: ({ row }) => {
       const form: string = row.getValue("form");
+      const renderColor = (char: string) => {
+        switch (char) {
+          case "W":
+            return "hsl(163,49%,52.5%)";
+          case "L":
+            return "hsl(0,87%,72.5%)";
+          case "D":
+            return "hsl(0,0%,72.5%)";
+          default:
+            return "hsl(0,0%,92.5%)";
+        }
+      };
 
-      return <div className=""></div>;
+      return (
+        <div className="flex gap-1 items-center justify-center">
+          {form.split("").map((char, index) => (
+            <div
+              style={{
+                backgroundColor: renderColor(char),
+              }}
+              className="size-5 rounded-full"
+              key={index}
+            ></div>
+          ))}
+        </div>
+      );
     },
   },
 ];
