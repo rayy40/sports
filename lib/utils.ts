@@ -2,12 +2,17 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
   APIResponse,
-  AllTeamOrAllLeague,
+  Filters,
   FilteredFixtures,
   Fixtures,
   StatusType,
+  StandingsType,
+  StandingsEntity,
+  Leagues,
+  League,
 } from "./types";
 import { shortStatusMap } from "./constants";
+import { ChangeEvent, Dispatch, SetStateAction } from "react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -66,7 +71,7 @@ export const filterFixturesByStatus = (data: Fixtures[]) => {
 };
 
 export const getTeams = (fixtures: Fixtures[]) => {
-  const teamInfo: AllTeamOrAllLeague[] = [];
+  const teamInfo: Filters[] = [];
   const uniqueIds = new Set<number>();
 
   fixtures?.forEach((fixture) => {
@@ -88,7 +93,7 @@ export const getTeams = (fixtures: Fixtures[]) => {
 };
 
 export const getLeagues = (fixtures: Fixtures[]) => {
-  const leagueInfo: AllTeamOrAllLeague[] = [];
+  const leagueInfo: Filters[] = [];
   const uniqueIds = new Set<number>();
 
   fixtures?.forEach((fixture) => {
@@ -101,9 +106,55 @@ export const getLeagues = (fixtures: Fixtures[]) => {
   return leagueInfo;
 };
 
+export const refactorLeagues = (leagues: Leagues[]) => {
+  const leaguesData: League[] = [];
+  leagues.forEach((league) => {
+    leaguesData.push(league.league);
+  });
+  return leaguesData;
+};
+
+export const getStandings = (standings: StandingsType) => {
+  const standingsByGroup: { [groupName: string]: StandingsEntity[] } = {};
+
+  standings?.standings?.filter(Boolean).forEach((standing) => {
+    if (standing !== null) {
+      standing.forEach((s) => {
+        const groupName = s.group;
+        if (!standingsByGroup[groupName]) {
+          standingsByGroup[groupName] = [];
+        }
+        standingsByGroup[groupName].push(s);
+      });
+    }
+  });
+
+  return standingsByGroup;
+};
+
 export const formatDatePattern = (date: Date) => {
   const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
     .toString()
     .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
   return formattedDate;
+};
+
+export const filterSearch = <T extends { name: string }>(
+  e: ChangeEvent<HTMLInputElement>,
+  data: T[],
+  setData: Dispatch<SetStateAction<T[]>>,
+  setValue: Dispatch<SetStateAction<string>>
+) => {
+  const keyword = e.target.value;
+
+  if (keyword !== "") {
+    const results = data?.filter((d) => {
+      return d.name.toLowerCase().startsWith(keyword.toLowerCase());
+    });
+    setData(results ?? []);
+  } else {
+    setData(data ?? []);
+  }
+
+  setValue(keyword);
 };
