@@ -1,4 +1,4 @@
-import { StandingsEntity } from "@/lib/types";
+import { StandingsEntity, StandingsReponse } from "@/lib/types";
 import React from "react";
 import {
   TableBody,
@@ -16,9 +16,7 @@ import {
 import { standingsColumns } from "./Table/standingsColumns";
 
 type Props = {
-  data: {
-    [groupName: string]: StandingsEntity[];
-  };
+  data?: StandingsReponse[] | null;
 };
 
 const STable = ({ standing }: { standing: StandingsEntity[] }) => {
@@ -29,7 +27,7 @@ const STable = ({ standing }: { standing: StandingsEntity[] }) => {
   });
 
   return (
-    <Table>
+    <Table className="border-b">
       <TableHeader>
         {standingsTable?.getHeaderGroups().map((headerGroup) => (
           <TableRow
@@ -58,7 +56,7 @@ const STable = ({ standing }: { standing: StandingsEntity[] }) => {
         {standingsTable?.getRowModel().rows?.map((row) => {
           return (
             <TableRow
-              className="hover:bg-secondary/80 cursor-pointer"
+              className="cursor-pointer hover:bg-secondary/80"
               key={row.id}
             >
               {row.getVisibleCells().map((cell) => (
@@ -75,14 +73,40 @@ const STable = ({ standing }: { standing: StandingsEntity[] }) => {
 };
 
 const Standings = ({ data }: Props) => {
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center w-full h-full">
+        <p>No Standings found.</p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-4">
-      {Object.keys(data).map((d, i) => (
-        <div key={i}>
-          <p className="font-medium text-[1.125rem] p-6 pl-9 border-b">{d}</p>
-          <STable standing={data[d]} />
+      {data?.length > 0 ? (
+        data?.map((d) => (
+          <div key={d.league.id}>
+            <p className="font-medium text-[1.125rem] p-6 pl-9 border-b">
+              {d.league.name}
+            </p>
+            {d.league.standings?.[0] ? (
+              <STable standing={d.league.standings?.[0]} />
+            ) : (
+              <p>No standings found.</p>
+            )}
+          </div>
+        ))
+      ) : (
+        <div key={data?.[0]?.league.id}>
+          <p className="font-medium text-[1.125rem] p-6 pl-9 border-b">
+            {data?.[0]?.league.name}
+          </p>
+          {data?.[0]?.league.standings?.[0] ? (
+            <STable standing={data?.[0]?.league.standings?.[0]} />
+          ) : (
+            <p>No standings found.</p>
+          )}
         </div>
-      ))}
+      )}
     </div>
   );
 };
