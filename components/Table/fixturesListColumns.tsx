@@ -5,6 +5,7 @@ import {
   Fixture,
   Fixtures,
   HalftimeOrGoals,
+  League,
   StatusType,
   Teams,
 } from "@/lib/types";
@@ -17,7 +18,6 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
   {
     accessorKey: "fixture",
     header: "Date",
-    enableColumnFilter: true,
     size: 150,
     cell: ({ row }) => {
       const { date }: Fixture = row.getValue("fixture");
@@ -121,6 +121,15 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
       const teamsInfo: Teams = row.getValue(id);
       const teams = [teamsInfo.home.id, teamsInfo.away.id];
       return teams.some((team) => value === team);
+    },
+  },
+  {
+    accessorKey: "league",
+    header: "League",
+    enableColumnFilter: true,
+    filterFn: (row, id, value) => {
+      const leagueInfo: League = row.getValue(id);
+      return value === leagueInfo.id;
     },
   },
   {
