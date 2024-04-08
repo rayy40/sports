@@ -46,11 +46,6 @@ export const fixturesColumns: ColumnDef<Fixtures>[] = [
     accessorKey: "league",
     header: "League",
     enableColumnFilter: true,
-    cell: ({ row }) => {
-      const leagueInfo: League = row.getValue("league");
-
-      return <span>{leagueInfo.name}</span>;
-    },
     filterFn: (row, id, value) => {
       const leagueInfo: League = row.getValue(id);
       return value.includes(leagueInfo.name);
