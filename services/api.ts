@@ -5,6 +5,8 @@ import {
   Fixtures,
   Leagues,
   PlayerStats,
+  Seasons,
+  Squads,
   StandingsReponse,
 } from "@/lib/types";
 
@@ -82,6 +84,44 @@ export const getTopAssistsByLeagueIdAndSeason = async (
   return (
     await axiosInstance.get<APIResponse<PlayerStats>>(
       `/players/topassists?league=${leagueId}&season=${season}`
+    )
+  ).data.response;
+};
+
+export const getTeamSeasons = async (teamId: string | string[]) => {
+  return (
+    await axiosInstance.get<APIResponse<Seasons>>(
+      `/teams/seasons?team=${teamId}`
+    )
+  ).data.response;
+};
+
+export const getFixturesByTeamIdAndSeaosns = async (
+  teamId: string | string[],
+  season: string | undefined
+) => {
+  return (
+    await axiosInstance.get<APIResponse<Fixtures>>(
+      `/fixtures?team=${teamId}&season=${season}`
+    )
+  ).data.response;
+};
+
+export const getStandingsByTeamIdAndSeason = async (
+  teamId: string | string[],
+  season: string | undefined
+) => {
+  return (
+    await axiosInstance.get<APIResponse<StandingsReponse>>(
+      `/standings?team=${teamId}&season=${season}`
+    )
+  ).data.response;
+};
+
+export const getSquads = async (teamId: string | string[]) => {
+  return (
+    await axiosInstance.get<APIResponse<Squads>>(
+      `/players/squads?team=${teamId}`
     )
   ).data.response;
 };

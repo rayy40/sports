@@ -14,7 +14,7 @@ import FixturesList from "@/components/ui/FixturesList";
 import Tabs from "@/components/ui/Tabs";
 import { detailedTabs, stats, statusFilters } from "@/lib/constants";
 import { DetailedTabsType } from "@/lib/types";
-import { getSeasonsList, getStandings, getTeams } from "@/lib/utils";
+import { getSeasonsList, getTeams } from "@/lib/utils";
 import {
   useFixturesByLeagueIdAndSeason,
   useLeagueById,
@@ -81,16 +81,16 @@ const DetailedLeague = () => {
   //Issue with stale standings data.
   useEffect(() => {
     if (status === "Standings") {
-      standingsQuery.refetchStandings();
+      standingsQuery.refetch();
     }
   }, [status]);
 
   useEffect(() => {
     if (status === "Stats") {
       if (stat === "top scorers") {
-        topScorerQuery.refetchTopScorer();
+        topScorerQuery.refetch();
       } else if (stat === "top assists") {
-        topAssistQuery.refetchTopAssist();
+        topAssistQuery.refetch();
       }
       console.log(stat);
     }
@@ -107,11 +107,6 @@ const DetailedLeague = () => {
     [leagueQuery]
   );
 
-  const standingsByGroups = useMemo(
-    () => getStandings(standingsQuery?.data?.[0]?.league!),
-    [standingsQuery]
-  );
-
   const renderList = () => {
     if (status === "Stats") {
       switch (stat) {
@@ -121,7 +116,7 @@ const DetailedLeague = () => {
           return <PlayerStats type="assist" data={topAssistQuery?.data} />;
       }
     } else if (status === "Standings") {
-      return <Standings data={standingsByGroups} />;
+      return <Standings data={standingsQuery?.data} />;
     } else {
       return (
         <FixturesList
@@ -166,15 +161,15 @@ const DetailedLeague = () => {
 
   if (leagueQuery.isFetching) {
     return (
-      <div className="h-screen w-full flex items-center justify-center">
+      <div className="flex items-center justify-center w-full h-screen">
         <BounceLoader color="hsl(45,89%,55%)" />
       </div>
     );
   }
 
   return (
-    <div className="font-sans relative">
-      <div className="flex flex-col sticky z-20 p-6 pb-0 gap-6 shadow-sm bg-background top-0">
+    <div className="relative font-sans">
+      <div className="sticky top-0 z-20 flex flex-col gap-6 p-6 pb-0 shadow-sm bg-background">
         <div className="flex items-center gap-4">
           <Image
             width={50}
@@ -188,7 +183,7 @@ const DetailedLeague = () => {
             src={leagueQuery?.data?.league.logo!}
             alt={`${leagueQuery?.data?.league.name}-logo`}
           />
-          <h2 className="font-medium text-2xl flex">
+          <h2 className="flex text-2xl font-medium">
             {leagueQuery?.data?.league.name}
             <span className="text-[1rem] ml-3 text-secondary-foreground">
               ({season ?? initialSeason})
@@ -203,9 +198,9 @@ const DetailedLeague = () => {
             />
           </div>
         </div>
-        <div className="flex justify-between items-end gap-4">
+        <div className="flex items-end justify-between gap-4">
           <div className="flex items-end gap-4">
-            {detailedTabs.map((tab, index) => (
+            {detailedTabs.slice(0, -1).map((tab, index) => (
               <Tabs<DetailedTabsType>
                 key={index}
                 label={tab.label}
@@ -222,7 +217,7 @@ const DetailedLeague = () => {
         {fixturesQuery.isFetching ||
         standingsQuery.isFetching ||
         topScorerQuery.isFetching ? (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="flex items-center justify-center w-full h-full">
             <BounceLoader color="hsl(45,89%,55%)" />
           </div>
         ) : (
