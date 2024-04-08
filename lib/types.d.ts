@@ -20,7 +20,7 @@ type StatusType =
   | "NotPlayed"
   | "AllGames";
 
-type DetailedTabsType = "Fixtures" | "Standings" | "Stats";
+type DetailedTabsType = "Fixtures" | "Standings" | "Stats" | "Squads";
 
 export type TableFixtures = {
   date: number;
@@ -55,6 +55,8 @@ export interface APIResponse<T> {
   paging: Paging;
   response?: T[] | null;
 }
+
+export type Seasons = number;
 
 export interface Country {
   name: string;
@@ -341,4 +343,17 @@ export interface Penalty {
   scored: number;
   missed: number;
   saved?: null;
+}
+
+export interface Squads {
+  team: Team;
+  players?: PlayersEntity[] | null;
+}
+export interface PlayersEntity {
+  id: number;
+  name: string;
+  age: number;
+  number?: number | null;
+  position: string;
+  photo: string;
 }

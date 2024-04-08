@@ -42,6 +42,7 @@ export const detailedTabs: Tabs<DetailedTabsType>[] = [
   { status: "Fixtures", label: "Fixtures" },
   { status: "Standings", label: "Standings" },
   { status: "Stats", label: "Stats" },
+  { status: "Squads", label: "Squads" },
 ];
 
 export const statusFilters = [
