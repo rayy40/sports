@@ -6,7 +6,7 @@ import React, { Dispatch, SetStateAction } from "react";
 type Props<T> = {
   label: string;
   id: T;
-  setColumnFilters: Dispatch<SetStateAction<ColumnFiltersState>>;
+  setColumnFilters?: Dispatch<SetStateAction<ColumnFiltersState>>;
   status: T;
   setStatus: Dispatch<SetStateAction<T>>;
 };
@@ -19,9 +19,11 @@ const Tabs = <T,>({
   setColumnFilters,
 }: Props<T>) => {
   const handleTabClick = () => {
-    setColumnFilters(() => {
-      return [{ id: "fixture", value: id }];
-    });
+    if (setColumnFilters) {
+      setColumnFilters(() => {
+        return [{ id: "fixture", value: id }];
+      });
+    }
   };
 
   return (
