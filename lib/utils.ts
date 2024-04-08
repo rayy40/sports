@@ -11,6 +11,7 @@ import {
   Leagues,
   League,
   SeasonsEntity,
+  PlayersEntity,
 } from "./types";
 import { shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
@@ -179,4 +180,29 @@ export const getSeasonsList = (seasonsList: SeasonsEntity[]) => {
       seasons.push(season.year);
     });
   return seasons;
+};
+
+export const getTeam = (fixtures: Fixtures[], teamId: number) => {
+  const homeTeam = fixtures?.[0]?.teams?.home;
+  const awayTeam = fixtures?.[0]?.teams?.away;
+
+  if (homeTeam?.id === teamId) {
+    return homeTeam;
+  } else if (awayTeam?.id === teamId) {
+    return awayTeam;
+  }
+};
+
+export const getPlayersByPosition = (squads: PlayersEntity[]) => {
+  const playersByPosition: { [position: string]: PlayersEntity[] } = {};
+
+  squads?.filter(Boolean).forEach((player) => {
+    const postion = player.position;
+    if (!playersByPosition[postion]) {
+      playersByPosition[postion] = [];
+    }
+    playersByPosition[postion].push(player);
+  });
+
+  return playersByPosition;
 };
