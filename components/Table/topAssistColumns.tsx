@@ -26,6 +26,7 @@ export const topAssistColumns: ColumnDef<PlayerStats | null>[] = [
           <div className="flex items-center gap-3">
             {player?.photo ? (
               <Image
+                loading="lazy"
                 width={37.5}
                 height={37.5}
                 style={{

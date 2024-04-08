@@ -25,6 +25,7 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
         <Link href={`/football/teams/${teamInfo.id}`}>
           <div className="flex items-center gap-3">
             <Image
+              loading="lazy"
               width={37.5}
               height={37.5}
               style={{
@@ -140,13 +141,13 @@ export const standingsColumns: ColumnDef<StandingsEntity | null>[] = [
       };
 
       return (
-        <div className="flex gap-1 items-center justify-center">
+        <div className="flex items-center justify-center gap-1">
           {form.split("").map((char, index) => (
             <div
               style={{
                 backgroundColor: renderColor(char),
               }}
-              className="size-5 rounded-full"
+              className="rounded-full size-5"
               key={index}
             ></div>
           ))}

@@ -16,8 +16,6 @@ type Props = {
 };
 
 const Squads = ({ data }: Props) => {
-  console.log(data);
-
   if (!data?.[0]?.players) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -52,6 +50,7 @@ const Squads = ({ data }: Props) => {
                   >
                     <div className="flex items-center gap-3">
                       <Image
+                        loading="lazy"
                         width={40}
                         height={40}
                         style={{

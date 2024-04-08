@@ -9,7 +9,7 @@ import {
   StatusType,
   Teams,
 } from "@/lib/types";
-import { formatDate, formatDatePatternLong } from "@/lib/utils";
+import { formatDatePatternLong } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { LucideArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -28,9 +28,6 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
           <p className="text-[0.925rem] text-left font-medium text-primary-foreground">
             {formattedDate}
           </p>
-          {/* <span className="text-sm text-center text-muted-foreground">
-            {formattedDate.time}
-          </span> */}
         </div>
       );
     },
@@ -64,6 +61,7 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
               {teams.home.name}
             </p>
             <Image
+              loading="lazy"
               width={40}
               height={40}
               style={{ aspectRatio: "1/1", borderRadius: "50%" }}
@@ -71,7 +69,7 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
               alt={`${teams.home.name}-logo`}
             />
           </div>
-          <div className="flex items-center justify-center font-medium text-lg gap-3">
+          <div className="flex items-center justify-center gap-3 text-lg font-medium">
             {goals.home !== null && (
               <p
                 className={
@@ -98,6 +96,7 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
           </div>
           <div className="flex items-center justify-start gap-3">
             <Image
+              loading="lazy"
               width={40}
               height={40}
               style={{ aspectRatio: "1/1", borderRadius: "50%" }}
