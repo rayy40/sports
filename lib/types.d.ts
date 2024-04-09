@@ -47,13 +47,20 @@ export interface Paging {
   total: number;
 }
 
-export interface APIResponse<T> {
+export interface APIBaseResponse {
   get: string;
   parameters: Parameters;
   errors?: null[] | null;
   results: number;
   paging: Paging;
+}
+
+export interface APIResponse<T> extends APIBaseResponse {
   response?: T[] | null;
+}
+
+export interface APINonArrayResponse<T> extends APIBaseResponse {
+  response?: T | null;
 }
 
 export type Seasons = number;
@@ -237,7 +244,7 @@ export interface DetailedLeagueState {
 
 export interface PlayerStats {
   player: Player;
-  statistics?: Statistics[] | null;
+  statistics?: PlayerStatistics[] | null;
 }
 export interface Player {
   id: number;
@@ -257,7 +264,7 @@ export interface Birth {
   place: string;
   country: string;
 }
-export interface Statistics {
+export interface PlayerStatistics {
   team: Team;
   league: League;
   games: Games;
@@ -356,4 +363,120 @@ export interface PlayersEntity {
   number?: number | null;
   position: string;
   photo: string;
+}
+
+export interface TeamStatistics {
+  league: League;
+  team: Team;
+  form: string;
+  fixtures: FixturesStats;
+  goals: GoalsStats;
+  biggest: Biggest;
+  clean_sheet: HomeOrAwayOrTotalStats;
+  failed_to_score: HomeOrAwayOrTotalStats;
+  penalty: Penalty;
+  lineups: Lineups[];
+  cards: Cards;
+}
+
+export interface FixturesStats {
+  played: HomeOrAwayOrTotalStats;
+  wins: HomeOrAwayOrTotalStats;
+  draws: HomeOrAwayOrTotalStats;
+  loses: HomeOrAwayOrTotalStats;
+}
+export interface HomeOrAwayOrTotalStats {
+  home: number;
+  away: number;
+  total: number;
+}
+export interface GoalsStats {
+  for: ForOrAgainst;
+  against: ForOrAgainst;
+}
+export interface ForOrAgainst {
+  total: HomeOrAwayOrTotalStats;
+  average: Average;
+  minute: Minutes;
+}
+export interface Average {
+  home: string;
+  away: string;
+  total: string;
+}
+export interface Biggest {
+  streak: Streak;
+  wins: WinsOrLoses;
+  loses: WinsOrLoses;
+  goals: AchievementGoals;
+}
+export interface Streak {
+  wins: number;
+  draws: number;
+  loses: number;
+}
+export interface WinsOrLoses {
+  home: string;
+  away: string;
+}
+export interface AchievementGoals {
+  for: GoalsForOrAgainst;
+  against: GoalsForOrAgainst;
+}
+export interface GoalsForOrAgainst {
+  home: number;
+  away: number;
+}
+
+export interface TotalOrPercentageStats {
+  total: number | null;
+  percentage: string | null;
+}
+export interface Penalty {
+  scored: TotalOrPercentageStats;
+  missed: TotalOrPercentageStats;
+  total: number;
+}
+export interface Lineups {
+  formation: string;
+  played: number;
+}
+export interface Cards {
+  yellow: Minutes;
+  red: Minutes;
+}
+export interface Minutes {
+  "0-15": TotalOrPercentageStats;
+  "16-30": TotalOrPercentageStats;
+  "31-45": TotalOrPercentageStats;
+  "46-60": TotalOrPercentageStats;
+  "61-75": TotalOrPercentageStats;
+  "76-90": TotalOrPercentageStats;
+  "91-105": TotalOrPercentageStats;
+  "106-120": TotalOrPercentageStats;
+}
+
+export interface TeamInformation {
+  venue: Venue;
+  team: TeamInfo;
+}
+
+export interface Venue {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  capacity: number;
+  surface: string;
+  image: string;
+}
+
+export interface TeamInfo {
+  id: number;
+  name: string;
+  code: string;
+  country: string;
+  founded: number;
+  national: boolean;
+  logo: string;
 }

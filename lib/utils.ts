@@ -12,6 +12,7 @@ import {
   League,
   SeasonsEntity,
   PlayersEntity,
+  TeamStatistics,
 } from "./types";
 import { shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
@@ -182,17 +183,6 @@ export const getSeasonsList = (seasonsList: SeasonsEntity[]) => {
   return seasons;
 };
 
-export const getTeam = (fixtures: Fixtures[], teamId: number) => {
-  const homeTeam = fixtures?.[0]?.teams?.home;
-  const awayTeam = fixtures?.[0]?.teams?.away;
-
-  if (homeTeam?.id === teamId) {
-    return homeTeam;
-  } else if (awayTeam?.id === teamId) {
-    return awayTeam;
-  }
-};
-
 export const getPlayersByPosition = (squads: PlayersEntity[]) => {
   const playersByPosition: { [position: string]: PlayersEntity[] } = {};
 
@@ -205,4 +195,44 @@ export const getPlayersByPosition = (squads: PlayersEntity[]) => {
   });
 
   return playersByPosition;
+};
+
+export const totalCards = (stats: TeamStatistics, type: "yellow" | "red") => {
+  const totalCards: number = Object.values(stats.cards?.[type]).reduce(
+    (acc, card) => {
+      if (card.total !== null) {
+        return acc + card.total;
+      } else {
+        return acc;
+      }
+    },
+    0
+  );
+
+  return totalCards;
+};
+
+export const getTeamsRequiredStatistics = (stats: TeamStatistics) => {
+  const biggestWin =
+    stats.biggest.goals.for.home > stats.biggest.goals.against.away
+      ? stats.biggest.wins.home
+      : stats.biggest.wins.away;
+
+  const requiredStats = [
+    { label: "Matches", value: stats.fixtures.played.total },
+    { label: "Win", value: stats.fixtures.wins.total },
+    { label: "Lost", value: stats.fixtures.loses.total },
+    {
+      label: "Goals",
+      value: stats.goals.for.total.total + stats.goals.against.total.total,
+    },
+    { label: "Biggest Win", value: biggestWin },
+    { label: "Clean Sheet", value: stats.clean_sheet.total },
+    { label: "Streak", value: stats.biggest.streak.wins },
+    { label: "Yellow Cards", value: totalCards(stats, "yellow") },
+    { label: "Red Cards", value: totalCards(stats, "red") },
+    { label: "Formation", value: stats.lineups?.[0].formation },
+  ];
+
+  return requiredStats;
 };
