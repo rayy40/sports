@@ -54,7 +54,7 @@ export function FilterDropDown<TData, TValue>({
         <PopoverTrigger asChild>
           <Button
             variant="secondary"
-            className="w-[160px] relative justify-start capitalize"
+            className="w-[160px] shadow-sm relative justify-start capitalize"
           >
             <p className="max-w-[85%] overflow-hidden text-ellipsis">
               {selectedValue ? selectedValue : `Filter: By ${title}`}
@@ -64,7 +64,7 @@ export function FilterDropDown<TData, TValue>({
                 onClick={(e: SyntheticEvent<HTMLElement>) =>
                   handleRemoveFilter(e)
                 }
-                className="w-5 absolute right-2 z-50 ml-auto"
+                className="absolute z-50 w-5 ml-auto right-2"
               >
                 <X className="w-4 font-bold text-secondary-foreground/40 hover:text-secondary-foreground" />
               </span>
@@ -88,7 +88,7 @@ export function FilterDropDown<TData, TValue>({
       <DrawerTrigger asChild>
         <Button
           variant="secondary"
-          className="w-[160px] relative justify-start capitalize"
+          className="w-[160px] shadow-sm relative justify-start capitalize"
         >
           <p className="max-w-[85%] overflow-hidden text-ellipsis">
             {selectedValue ? selectedValue : `Filter: By ${title}`}
@@ -96,7 +96,7 @@ export function FilterDropDown<TData, TValue>({
           {selectedValue && (
             <span
               onClick={(e) => handleRemoveFilter(e)}
-              className="w-5 absolute right-2 z-50 ml-auto"
+              className="absolute z-50 w-5 ml-auto right-2"
             >
               <X className="w-4 font-bold text-secondary-foreground/40 hover:text-secondary-foreground" />
             </span>
@@ -137,7 +137,7 @@ function StatusList<TData, TValue>({
           {labels.map((label) => {
             return (
               <CommandItem
-                className="text-popover-foreground rounded-md py-2 capitalize"
+                className="py-2 capitalize rounded-md text-popover-foreground"
                 key={label.id}
                 value={label.name}
                 onSelect={() => {

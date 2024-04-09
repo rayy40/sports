@@ -22,7 +22,10 @@ export function DropDown({ title, data, value, setValue, variant }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="capitalize w-[130px]" variant={variant ?? "outline"}>
+        <Button
+          className="capitalize w-[130px] shadow-sm overflow-hidden"
+          variant={variant ?? "outline"}
+        >
           {title}
         </Button>
       </DropdownMenuTrigger>
@@ -30,7 +33,7 @@ export function DropDown({ title, data, value, setValue, variant }: Props) {
         <DropdownMenuRadioGroup value={value} onValueChange={setValue}>
           {data?.map((v, index) => (
             <DropdownMenuRadioItem
-              className="font-sans font-medium capitalize text-center"
+              className="font-sans font-medium text-center capitalize"
               key={index}
               value={v.toString()}
             >
