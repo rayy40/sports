@@ -1,5 +1,6 @@
 import axios from "axios";
 import {
+  APINonArrayResponse,
   APIResponse,
   Country,
   Fixtures,
@@ -8,6 +9,8 @@ import {
   Seasons,
   Squads,
   StandingsReponse,
+  TeamInformation,
+  TeamStatistics,
 } from "@/lib/types";
 
 const FOOTBALL_BASE_URL = "https://v3.football.api-sports.io";
@@ -88,6 +91,20 @@ export const getTopAssistsByLeagueIdAndSeason = async (
   ).data.response;
 };
 
+export const getTeamById = async (teamId: string | string[]) => {
+  return (
+    await axiosInstance.get<APIResponse<Seasons>>(
+      `/teams/seasons?team=${teamId}`
+    )
+  ).data.response;
+};
+
+export const getTeamInfo = async (teamId: string | string[]) => {
+  return (
+    await axiosInstance.get<APIResponse<TeamInformation>>(`/teams?id=${teamId}`)
+  ).data.response;
+};
+
 export const getTeamSeasons = async (teamId: string | string[]) => {
   return (
     await axiosInstance.get<APIResponse<Seasons>>(
@@ -122,6 +139,18 @@ export const getSquads = async (teamId: string | string[]) => {
   return (
     await axiosInstance.get<APIResponse<Squads>>(
       `/players/squads?team=${teamId}`
+    )
+  ).data.response;
+};
+
+export const getTeamsStatistics = async (
+  teamId: string | string[],
+  season: string | undefined,
+  leagueId: string | undefined
+) => {
+  return (
+    await axiosInstance.get<APINonArrayResponse<TeamStatistics>>(
+      `/teams/statistics?league=${leagueId}&team=${teamId}&season=${season}`
     )
   ).data.response;
 };

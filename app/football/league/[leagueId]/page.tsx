@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { BounceLoader } from "react-spinners";
 
 import PlayerStats from "@/components/PlayerStats";
@@ -50,17 +50,22 @@ const DetailedLeague = () => {
 
   const standingsQuery = useStandingsByLeagueIdAndSeason(
     leagueId,
-    season ?? initialSeason
+    season ?? initialSeason,
+    status
   );
 
   const topScorerQuery = useTopScorersByLeagueIdAndSeason(
     leagueId,
-    season ?? initialSeason
+    season ?? initialSeason,
+    status,
+    stat
   );
 
   const topAssistQuery = useTopAssistsByLeagueIdAndSeason(
     leagueId,
-    season ?? initialSeason
+    season ?? initialSeason,
+    status,
+    stat
   );
 
   const fixturesTable = useReactTable({
@@ -75,26 +80,11 @@ const DetailedLeague = () => {
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       columnFilters,
+      columnVisibility: {
+        league: false,
+      },
     },
   });
-
-  //Issue with stale standings data.
-  useEffect(() => {
-    if (status === "Standings") {
-      standingsQuery.refetch();
-    }
-  }, [status]);
-
-  useEffect(() => {
-    if (status === "Stats") {
-      if (stat === "top scorers") {
-        topScorerQuery.refetch();
-      } else if (stat === "top assists") {
-        topAssistQuery.refetch();
-      }
-      console.log(stat);
-    }
-  }, [stat, status]);
 
   const teamInfos = useMemo(
     () => getTeams(fixturesQuery.data!),
@@ -216,6 +206,7 @@ const DetailedLeague = () => {
       <div className="h-[calc(100vh-150px)]">
         {fixturesQuery.isFetching ||
         standingsQuery.isFetching ||
+        topAssistQuery.isFetching ||
         topScorerQuery.isFetching ? (
           <div className="flex items-center justify-center w-full h-full">
             <BounceLoader color="hsl(45,89%,55%)" />

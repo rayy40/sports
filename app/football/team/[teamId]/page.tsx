@@ -1,27 +1,23 @@
 "use client";
 
-import PlayerStats from "@/components/PlayerStats";
 import Squads from "@/components/Squads";
 import Standings from "@/components/Standings";
 import { FilterDropDown } from "@/components/Table/FilterDropDown";
 import { fixturesListColumns } from "@/components/Table/fixturesListColumns";
+import TeamStatistics from "@/components/TeamStatistics";
 import { DropDown } from "@/components/ui/DropDown";
 import FixturesList from "@/components/ui/FixturesList";
 import Tabs from "@/components/ui/Tabs";
 import { detailedTabs, statusFilters } from "@/lib/constants";
 import { DetailedTabsType } from "@/lib/types";
-import {
-  getLeagues,
-  getSeasonsList,
-  getStandings,
-  getTeam,
-  getTeams,
-} from "@/lib/utils";
+import { getLeagues } from "@/lib/utils";
 import {
   useFixturesByTeamIdAndSeason,
   useSquads,
   useStandingsByTeamIdAndSeason,
+  useTeamInfo,
   useTeamSeasons,
+  useTeamStatistics,
 } from "@/services/queries";
 import {
   ColumnFiltersState,
@@ -31,7 +27,7 @@ import {
 } from "@tanstack/react-table";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BounceLoader } from "react-spinners";
 
 const DetailedTeam = () => {
@@ -39,6 +35,10 @@ const DetailedTeam = () => {
   const [season, setSeason] = useState<string | null>(null);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [status, setStatus] = useState<DetailedTabsType>("Fixtures");
+  const [value, setValue] = useState<string>("");
+  const [league, setLeague] = useState<string | null>(null);
+
+  const teamQuery = useTeamInfo(teamId);
 
   const teamSeasonsQuery = useTeamSeasons(teamId);
 
@@ -48,15 +48,38 @@ const DetailedTeam = () => {
 
   const fixturesQuery = useFixturesByTeamIdAndSeason(
     teamId,
-    season ?? initialSeason
+    season ?? initialSeason,
+    status
   );
 
   const standingsQuery = useStandingsByTeamIdAndSeason(
     teamId,
-    season ?? initialSeason
+    season ?? initialSeason,
+    status
   );
 
-  const squadsQuery = useSquads(teamId);
+  const leagueInfos = useMemo(
+    () => getLeagues(fixturesQuery.data!),
+    [fixturesQuery.data]
+  );
+
+  useEffect(() => {
+    if (value.length > 0) {
+      const league = leagueInfos.find((league) => league.name === value);
+      if (league) {
+        setLeague(league.id.toString());
+      }
+    }
+  }, [value, leagueInfos]);
+
+  const teamStatisticsQuery = useTeamStatistics(
+    teamId,
+    season ?? initialSeason,
+    league ?? leagueInfos?.[0]?.id.toString(),
+    status
+  );
+
+  const squadsQuery = useSquads(teamId, status);
 
   const fixturesTable = useReactTable({
     defaultColumn: {
@@ -76,40 +99,9 @@ const DetailedTeam = () => {
     },
   });
 
-  //Issue with stale standings data.
-  useEffect(() => {
-    if (status === "Standings") {
-      standingsQuery.refetch();
-    } else if (status === "Squads") {
-      squadsQuery.refetch();
-    }
-  }, [status]);
-
-  const leagueInfos = useMemo(
-    () => getLeagues(fixturesQuery.data!),
-    [fixturesQuery.data]
-  );
-
-  const team = useMemo(
-    () => getTeam(fixturesQuery?.data!, parseInt(teamId as string)),
-    [teamId, fixturesQuery.data]
-  );
-
-  console.log(standingsQuery?.data);
-
-  //   const standingsByGroups = useMemo(
-  //     () => getStandings(standingsQuery?.data?.[0]?.league!),
-  //     [standingsQuery]
-  //   );
-
   const renderList = () => {
     if (status === "Stats") {
-      //   switch (stat) {
-      //     case "top scorers":
-      //       return <PlayerStats type="goal" data={topScorerQuery?.data} />;
-      //     case "top assists":
-      //       return <PlayerStats type="assist" data={topAssistQuery?.data} />;
-      //   }
+      return <TeamStatistics data={teamStatisticsQuery?.data} />;
     } else if (status === "Standings") {
       return <Standings data={standingsQuery?.data} />;
     } else if (status === "Squads") {
@@ -123,14 +115,6 @@ const DetailedTeam = () => {
       );
     }
   };
-
-  if (teamSeasonsQuery.isFetching || fixturesQuery.isFetching) {
-    return (
-      <div className="flex items-center justify-center w-full h-screen">
-        <BounceLoader color="hsl(45,89%,55%)" />
-      </div>
-    );
-  }
 
   const renderFilters = () => {
     switch (status) {
@@ -150,19 +134,27 @@ const DetailedTeam = () => {
           </div>
         );
       case "Stats":
-      // return (
-      //   <DropDown
-      //     title={stat}
-      //     data={stats}
-      //     setValue={setStat}
-      //     value={stat}
-      //     variant={"secondary"}
-      //   />
-      // );
+        return (
+          <DropDown
+            title={value?.length > 0 ? value : leagueInfos?.[0]?.name}
+            data={leagueInfos.map((league) => league.name)}
+            setValue={setValue}
+            value={value}
+            variant={"secondary"}
+          />
+        );
       default:
         return null;
     }
   };
+
+  if (teamSeasonsQuery.isFetching || teamQuery.isFetching) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen">
+        <BounceLoader color="hsl(45,89%,55%)" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative font-sans">
@@ -177,11 +169,11 @@ const DetailedTeam = () => {
               aspectRatio: "1/1",
             }}
             className="shadow-team"
-            src={team?.logo!}
-            alt={`${team?.name}-logo`}
+            src={teamQuery?.data?.[0]?.team?.logo!}
+            alt={`${teamQuery?.data?.[0]?.team?.name}-logo`}
           />
           <h2 className="flex text-2xl font-medium">
-            {team?.name}
+            {teamQuery?.data?.[0]?.team?.name}
             <span className="text-[1rem] ml-3 text-secondary-foreground">
               ({season ?? initialSeason})
             </span>
@@ -210,7 +202,18 @@ const DetailedTeam = () => {
           {renderFilters()}
         </div>
       </div>
-      <div className="h-[calc(100vh-150px)]">{renderList()}</div>
+      <div className="h-[calc(100vh-150px)]">
+        {fixturesQuery.isFetching ||
+        standingsQuery.isFetching ||
+        squadsQuery.isFetching ||
+        teamStatisticsQuery.isFetching ? (
+          <div className="flex items-center justify-center w-full h-screen">
+            <BounceLoader color="hsl(45,89%,55%)" />
+          </div>
+        ) : (
+          renderList()
+        )}
+      </div>
     </div>
   );
 };

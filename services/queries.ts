@@ -9,10 +9,13 @@ import {
   getSquads,
   getStandingsByLeagueIdAndSeason,
   getStandingsByTeamIdAndSeason,
+  getTeamInfo,
   getTeamSeasons,
+  getTeamsStatistics,
   getTopAssistsByLeagueIdAndSeason,
   getTopScorersByLeagueIdAndSeason,
 } from "./api";
+import { DetailedTabsType } from "@/lib/types";
 
 export function useCountries() {
   return useQuery({
@@ -53,41 +56,57 @@ export function useFixturesByLeagueIdAndSeason(
     queryKey: ["fixtures", leagueId, season],
     queryFn: () => getFixtureByLeagueIdAndSeason(leagueId, season),
     staleTime: 5 * 60 * 1000,
-    enabled: !!leagueId && !!season,
+    enabled: !!season && (!!leagueId || !!season),
   });
 }
 
 export function useStandingsByLeagueIdAndSeason(
   leagueId: string | string[],
-  season: string
+  season: string,
+  status: DetailedTabsType
 ) {
   return useQuery({
     queryKey: ["standings", leagueId, season],
     queryFn: () => getStandingsByLeagueIdAndSeason(leagueId, season),
-    staleTime: 1000,
-    enabled: false,
+    staleTime: 15 * 60 * 1000,
+    enabled: status === "Standings" && (!!leagueId || !!season),
   });
 }
 
 export function useTopScorersByLeagueIdAndSeason(
   leagueId: string | string[],
-  season: string
+  season: string,
+  status: DetailedTabsType,
+  stat: string
 ) {
   return useQuery({
     queryKey: ["topScorers", leagueId, season],
     queryFn: () => getTopScorersByLeagueIdAndSeason(leagueId, season),
-    enabled: false,
+    enabled:
+      status === "Stats" && stat === "top scorers" && (!!leagueId || !!season),
   });
 }
 
 export function useTopAssistsByLeagueIdAndSeason(
   leagueId: string | string[],
-  season: string
+  season: string,
+  status: DetailedTabsType,
+  stat: string
 ) {
   return useQuery({
     queryKey: ["topAssists", leagueId, season],
     queryFn: () => getTopAssistsByLeagueIdAndSeason(leagueId, season),
-    enabled: false,
+    enabled:
+      status === "Stats" && stat === "top assists" && (!!leagueId || !!season),
+  });
+}
+
+export function useTeamInfo(teamId: string | string[]) {
+  return useQuery({
+    queryKey: ["team", teamId],
+    queryFn: () => getTeamInfo(teamId),
+    enabled: !!teamId,
+    staleTime: Infinity,
   });
 }
 
@@ -101,31 +120,47 @@ export function useTeamSeasons(teamId: string | string[]) {
 
 export function useFixturesByTeamIdAndSeason(
   teamId: string | string[],
-  season: string | undefined
+  season: string | undefined,
+  status: DetailedTabsType
 ) {
   return useQuery({
     queryKey: ["fixtures", teamId, season],
     queryFn: () => getFixturesByTeamIdAndSeaosns(teamId, season),
     staleTime: 5 * 60 * 1000,
-    enabled: !!teamId && !!season,
+    enabled: status === "Fixtures" && (!!teamId || !!season),
   });
 }
 
 export function useStandingsByTeamIdAndSeason(
   teamId: string | string[],
-  season: string
+  season: string,
+  status: DetailedTabsType
 ) {
   return useQuery({
     queryKey: ["standings", teamId, season],
     queryFn: () => getStandingsByTeamIdAndSeason(teamId, season),
-    enabled: false,
+    staleTime: 15 * 60 * 1000,
+    enabled: status === "Standings" && (!!teamId || !!season),
   });
 }
 
-export function useSquads(teamId: string | string[]) {
+export function useSquads(teamId: string | string[], status: DetailedTabsType) {
   return useQuery({
     queryKey: ["squads", teamId],
     queryFn: () => getSquads(teamId),
-    enabled: !!teamId,
+    enabled: status === "Squads" && !!teamId,
+  });
+}
+
+export function useTeamStatistics(
+  teamId: string | string[],
+  season: string | undefined,
+  leagueId: string | undefined,
+  status: DetailedTabsType
+) {
+  return useQuery({
+    queryKey: ["statistics", teamId, season, leagueId],
+    queryFn: () => getTeamsStatistics(teamId, season, leagueId),
+    enabled: status === "Stats" && (!!leagueId || !!season || !!teamId),
   });
 }
