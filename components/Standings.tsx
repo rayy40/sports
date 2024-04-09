@@ -31,7 +31,7 @@ const STable = ({ standing }: { standing: StandingsEntity[] }) => {
       <TableHeader>
         {standingsTable?.getHeaderGroups().map((headerGroup) => (
           <TableRow
-            className="sticky top-[142.25px] shadow-sm pointer-events-none bg-background z-10"
+            className="sticky top-0 z-10 shadow-sm pointer-events-none bg-background"
             key={headerGroup.id}
           >
             {headerGroup.headers.map((header) => {
@@ -80,9 +80,10 @@ const Standings = ({ data }: Props) => {
       </div>
     );
   }
+
   return (
-    <div className="space-y-4">
-      {data?.length > 0 ? (
+    <div className="h-full space-y-4 overflow-y-auto">
+      {data?.length > 1 ? (
         data?.map((d) => (
           <div key={d.league.id}>
             <p className="font-medium text-[1.125rem] p-6 pl-9 border-b">
