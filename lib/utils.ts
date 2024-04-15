@@ -3,18 +3,22 @@ import { twMerge } from "tailwind-merge";
 import {
   APIResponse,
   Filters,
-  FilteredFixtures,
   Fixtures,
   StatusType,
-  StandingsType,
-  StandingsEntity,
   Leagues,
   League,
-  SeasonsEntity,
   PlayersEntity,
   TeamStatistics,
-} from "./types";
-import { shortStatusMap } from "./constants";
+} from "@/types/football";
+import {
+  Games,
+  NBAGames,
+  NBAStandings,
+  TeamStatistics as BasketballTeamStatistics,
+  Standings,
+  NBAStatistics,
+} from "@/types/basketball";
+import { ImpFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
 
 export function cn(...inputs: ClassValue[]) {
@@ -44,8 +48,17 @@ export const formatDate = (timestamp: number) => {
   return { date: `${day} ${month}`, time: `${hours}:${minutes}` };
 };
 
-export const filterFixturesByStatus = (data: Fixtures[]) => {
-  const filteredFixtures: FilteredFixtures = {
+export const filterDataByStatus = <
+  T extends {
+    league?: { id: number };
+    status?: { short: string };
+    fixture?: { status?: { short: string } };
+  }
+>(
+  data: T[],
+  isFixture: boolean = true
+): Record<string, T[]> => {
+  const filteredData: Record<string, T[]> = {
     AllGames: [],
     Scheduled: [],
     InPlay: [],
@@ -55,54 +68,99 @@ export const filterFixturesByStatus = (data: Fixtures[]) => {
     Abandoned: [],
     NotPlayed: [],
   };
-  Object.keys(shortStatusMap).forEach((status) => {
-    filteredFixtures[status as StatusType] = [];
-  });
-  data.forEach((fixture) => {
-    const fixtureStatus = fixture.fixture.status.short;
+
+  data.forEach((item) => {
+    const fixtureStatus =
+      "fixture" in item && item.fixture
+        ? item.fixture.status?.short
+        : item.status?.short;
+    if (!fixtureStatus) return;
+    if (
+      isFixture &&
+      item.league &&
+      !ImpFootballLeagueIds.includes(item.league.id)
+    )
+      return;
+
+    if (!["CANC", "ABD", "PST", "AWD", "WO"].includes(fixtureStatus)) {
+      filteredData["AllGames"].push(item);
+    }
 
     const statusType = Object.keys(shortStatusMap).find((type) =>
-      shortStatusMap[type as StatusType].includes(fixtureStatus)
+      shortStatusMap[type as StatusType]?.includes(fixtureStatus)
     );
-
     if (statusType) {
-      filteredFixtures[statusType as StatusType].push(fixture);
+      filteredData[statusType].push(item);
     }
   });
 
-  return filteredFixtures;
+  return filteredData;
 };
 
-export const getTeams = (fixtures: Fixtures[]) => {
+export const getTeams = <T extends Fixtures | Games | NBAGames>(
+  fixtures: T[]
+) => {
   const teamInfo: Filters[] = [];
   const uniqueIds = new Set<number>();
 
   fixtures?.forEach((fixture) => {
-    if (!uniqueIds.has(fixture.teams.home.id || fixture.teams.away.id)) {
+    let awayId, awayName;
+    const homeId = fixture.teams.home.id;
+    const homeName = fixture.teams.home.name;
+    if ("nugget" in fixture) {
+      awayId = fixture.teams.visitors.id;
+      awayName = fixture.teams.visitors.name;
+    } else {
+      awayId = fixture.teams.away.id;
+      awayName = fixture.teams.away.name;
+    }
+
+    if (!uniqueIds.has(homeId)) {
       teamInfo.push({
-        id: fixture.teams.home.id,
-        name: fixture.teams.home.name,
+        id: homeId,
+        name: homeName,
       });
+      uniqueIds.add(homeId);
+    }
+
+    if (!uniqueIds.has(awayId)) {
       teamInfo.push({
-        id: fixture.teams.away.id,
-        name: fixture.teams.away.name,
+        id: awayId,
+        name: awayName,
       });
-      uniqueIds.add(fixture.teams.home.id);
-      uniqueIds.add(fixture.teams.away.id);
+      uniqueIds.add(awayId);
     }
   });
 
   return teamInfo;
 };
 
-export const getLeagues = (fixtures: Fixtures[]) => {
+export const getLeagues = <
+  T extends { league: string | { name: string; id: number } }
+>(
+  items: T[],
+  isFixture: boolean = true
+) => {
   const leagueInfo: Filters[] = [];
-  const uniqueIds = new Set<number>();
+  const uniqueIds = new Set<string>();
 
-  fixtures?.forEach((fixture) => {
-    if (!uniqueIds.has(fixture.league.id)) {
-      leagueInfo.push({ id: fixture.league.id, name: fixture.league.name });
-      uniqueIds.add(fixture.league.id);
+  items?.forEach((item, index) => {
+    if (typeof item.league !== "string") {
+      if (
+        "id" in item.league &&
+        isFixture &&
+        !ImpFootballLeagueIds.includes(item.league.id)
+      )
+        return;
+      if (!uniqueIds.has(item.league.name)) {
+        leagueInfo.push({ id: item.league.id, name: item.league.name });
+        uniqueIds.add(item.league.name);
+      }
+    } else {
+      if (!uniqueIds.has(item.league)) {
+        leagueInfo.push({ id: index, name: item.league });
+        uniqueIds.add(item.league);
+      }
     }
   });
 
@@ -115,24 +173,6 @@ export const refactorLeagues = (leagues: Leagues[]) => {
     leaguesData.push(league.league);
   });
   return leaguesData;
-};
-
-export const getStandings = (standings: StandingsType) => {
-  const standingsByGroup: { [groupName: string]: StandingsEntity[] } = {};
-
-  standings?.standings?.filter(Boolean).forEach((standing) => {
-    if (standing !== null) {
-      standing.forEach((s) => {
-        const groupName = s.group;
-        if (!standingsByGroup[groupName]) {
-          standingsByGroup[groupName] = [];
-        }
-        standingsByGroup[groupName].push(s);
-      });
-    }
-  });
-
-  return standingsByGroup;
 };
 
 export const formatDatePattern = (date: Date) => {
@@ -172,13 +212,15 @@ export const filterSearch = <T extends { name: string }>(
   setValue(keyword);
 };
 
-export const getSeasonsList = (seasonsList: SeasonsEntity[]) => {
-  const seasons: number[] = [];
+export const getSeasonsList = <T extends { year?: number; season?: string }>(
+  seasonsList: T[]
+): string[] => {
+  const seasons: string[] = [];
   seasonsList
     .slice()
     .reverse()
     .forEach((season) => {
-      seasons.push(season.year);
+      seasons.push(season.year?.toString() || season.season || "");
     });
   return seasons;
 };
@@ -197,6 +239,26 @@ export const getPlayersByPosition = (squads: PlayersEntity[]) => {
   return playersByPosition;
 };
 
+export const getItemsByLeague = <T extends { league: { name: string } }>(
+  items?: T[] | null
+): { [league: string]: T[] } | null => {
+  const itemsByLeague: { [league: string]: T[] } = {};
+
+  if (!items) {
+    return null;
+  }
+
+  items.filter(Boolean).forEach((item) => {
+    const league = item.league.name;
+    if (!itemsByLeague[league]) {
+      itemsByLeague[league] = [];
+    }
+    itemsByLeague[league].push(item);
+  });
+
+  return itemsByLeague;
+};
+
 export const totalCards = (stats: TeamStatistics, type: "yellow" | "red") => {
   const totalCards: number = Object.values(stats.cards?.[type]).reduce(
     (acc, card) => {
@@ -212,7 +274,7 @@ export const totalCards = (stats: TeamStatistics, type: "yellow" | "red") => {
   return totalCards;
 };
 
-export const getTeamsRequiredStatistics = (stats: TeamStatistics) => {
+export const getFootballTeamsRequiredStatistics = (stats: TeamStatistics) => {
   const biggestWin =
     stats.biggest.goals.for.home > stats.biggest.goals.against.away
       ? stats.biggest.wins.home
@@ -235,4 +297,108 @@ export const getTeamsRequiredStatistics = (stats: TeamStatistics) => {
   ];
 
   return requiredStats;
+};
+
+export const getBasketballTeamsRequiredStatistics = (
+  stats: BasketballTeamStatistics
+) => {
+  const requiredStats = [
+    { label: "Matches", value: stats.games.played.all },
+    { label: "Win", value: stats.games.wins.all.total },
+    {
+      label: "Win (%)",
+      value: (parseFloat(stats.games.wins.all.percentage) * 100).toFixed(2),
+    },
+    { label: "Drawn", value: stats.games.draws.all.total },
+    {
+      label: "Drawn (%)",
+      value: (parseFloat(stats.games.draws.all.percentage) * 100).toFixed(2),
+    },
+    { label: "Lost", value: stats.games.loses.all.total },
+    {
+      label: "Lost (%)",
+      value: (parseFloat(stats.games.loses.all.percentage) * 100).toFixed(2),
+    },
+    {
+      label: "Avg Points Scored",
+      value: stats.points.for.average.all,
+    },
+    {
+      label: "Avg Points Conceded",
+      value: stats.points.for.average.all,
+    },
+    {
+      label: "Points Scored (Home)",
+      value: stats.points.for.total.home,
+    },
+    {
+      label: "Points Scored (Away)",
+      value: stats.points.for.total.away,
+    },
+    {
+      label: "Points Conceded (Home)",
+      value: stats.points.against.total.home,
+    },
+    {
+      label: "Points Conceded (Away)",
+      value: stats.points.against.total.away,
+    },
+  ];
+  return requiredStats;
+};
+
+export const getNBATeamsRequiredStatistics = (stats: NBAStatistics) => {
+  const requiredStats = [
+    { label: "Points", value: stats.points },
+    { label: "Assists", value: stats.assists },
+    { label: "Rebounds", value: stats.totReb },
+    { label: "Field Goal (%)", value: stats.fgp },
+    { label: "Three Point (%)", value: stats.tpp },
+    { label: "Free Throw (%)", value: stats.ftp },
+    {
+      label: "Steals",
+      value: stats.steals,
+    },
+    {
+      label: "TurnOvers",
+      value: stats.turnovers,
+    },
+    {
+      label: "Blocks",
+      value: stats.blocks,
+    },
+    {
+      label: "Plus/Minus",
+      value: stats.plusMinus,
+    },
+    {
+      label: "Biggest Lead",
+      value: stats.biggestLead,
+    },
+    {
+      label: "Longest Run",
+      value: stats.longestRun,
+    },
+  ];
+  return requiredStats;
+};
+
+type GroupedData<T extends Standings | NBAStandings> = {
+  [groupName: string]: T[];
+};
+
+export const groupStandingsByProperty = <T extends Standings | NBAStandings>(
+  data: T[],
+  groupByProperty: (item: T) => string
+): GroupedData<T> => {
+  const standingsByGroup: GroupedData<T> = {};
+  data?.filter(Boolean).forEach((standing) => {
+    const groupName = groupByProperty(standing) as string;
+    if (!standingsByGroup[groupName]) {
+      standingsByGroup[groupName] = [];
+    }
+    standingsByGroup[groupName].push(standing);
+  });
+
+  return standingsByGroup;
 };
