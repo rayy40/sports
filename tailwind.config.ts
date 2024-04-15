@@ -79,6 +79,7 @@ const config = {
       },
       gridTemplateColumns: {
         list: "1fr 100px 1fr",
+        fixtures: "repeat(auto-fill, minmax(300px, 1fr))",
       },
       keyframes: {
         "accordion-down": {
