@@ -8,11 +8,11 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/Shadcn/dropdown-menu";
-import { ButtonVariants } from "@/lib/types";
+import { ButtonVariants } from "@/types/football";
 
 type Props = {
   title: string;
-  data?: number[] | string[];
+  data?: string[];
   value: string;
   setValue: (value: string) => void;
   variant?: ButtonVariants;
@@ -35,7 +35,7 @@ export function DropDown({ title, data, value, setValue, variant }: Props) {
             <DropdownMenuRadioItem
               className="font-sans font-medium text-center capitalize"
               key={index}
-              value={v.toString()}
+              value={v}
             >
               {v}
             </DropdownMenuRadioItem>

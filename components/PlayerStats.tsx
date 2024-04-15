@@ -1,4 +1,4 @@
-import { PlayerStats } from "@/lib/types";
+import { PlayerStats } from "@/types/football";
 import {
   getCoreRowModel,
   useReactTable,

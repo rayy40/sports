@@ -1,16 +1,19 @@
-import { Fixtures } from "@/lib/types";
+import { Fixtures } from "@/types/football";
 import { Row, Table as TableProp, flexRender } from "@tanstack/react-table";
 import { TableBody, Table, TableRow, TableCell } from "./Shadcn/table";
-import Link from "next/link";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
+import { Games, NBAGames } from "@/types/basketball";
 
-type Props = {
-  table: TableProp<Fixtures>;
-  rows: Row<Fixtures>[];
+type Props<T extends Fixtures | Games | NBAGames> = {
+  table: TableProp<T>;
+  rows: Row<T>[];
 };
 
-const FixturesList = ({ table, rows }: Props) => {
+const FixturesList = <T extends Fixtures | Games | NBAGames>({
+  table,
+  rows,
+}: Props<T>) => {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
@@ -22,7 +25,7 @@ const FixturesList = ({ table, rows }: Props) => {
 
   if (!rows.length) {
     return (
-      <div className="w-full h-full text-[1rem] flex items-center text-primary-foreground/90 justify-center">
+      <div className="w-full h-[calc(100vh-150px)] text-[1rem] flex items-center text-primary-foreground/90 justify-center">
         No fixtures available
       </div>
     );
@@ -34,7 +37,7 @@ const FixturesList = ({ table, rows }: Props) => {
         <Table>
           <TableBody>
             {virtualizer.getVirtualItems().map((virtualRow, index) => {
-              const row = rows[virtualRow.index] as Row<Fixtures>;
+              const row = rows[virtualRow.index] as Row<T>;
               return (
                 <TableRow
                   style={{

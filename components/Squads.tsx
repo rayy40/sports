@@ -1,4 +1,4 @@
-import { Squads } from "@/lib/types";
+import { Squads } from "@/types/football";
 import { getPlayersByPosition } from "@/lib/utils";
 import React from "react";
 import {

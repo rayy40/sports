@@ -82,17 +82,6 @@ export interface ShortStatusMap {
   AllGames: string[];
 }
 
-export interface FilteredFixtures {
-  Scheduled: Fixtures[];
-  InPlay: Fixtures[];
-  Finished: Fixtures[];
-  Postponed: Fixtures[];
-  Cancelled: Fixtures[];
-  Abandoned: Fixtures[];
-  NotPlayed: Fixtures[];
-  AllGames: Fixtures[];
-}
-
 export interface Fixtures {
   fixture: Fixture;
   league: League;

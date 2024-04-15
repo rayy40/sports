@@ -3,10 +3,10 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/Shadcn/input";
-import { League } from "@/lib/types";
+import { League } from "@/types/football";
 import { useParams } from "next/navigation";
 import BoxList from "@/components/ui/BoxList";
-import { useLeaguesByCountryId } from "@/services/queries";
+import { useLeaguesByCountryId } from "@/services/football/queries";
 import { BounceLoader } from "react-spinners";
 import { filterSearch, refactorLeagues } from "@/lib/utils";
 

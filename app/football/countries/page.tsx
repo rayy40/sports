@@ -3,9 +3,9 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/Shadcn/input";
-import { Country } from "@/lib/types";
+import { Country } from "@/types/football";
 import BoxList from "@/components/ui/BoxList";
-import { useCountries } from "@/services/queries";
+import { useCountries } from "@/services/football/queries";
 import { filterSearch } from "@/lib/utils";
 import { BounceLoader } from "react-spinners";
 
