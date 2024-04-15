@@ -13,7 +13,12 @@ import { DropDown } from "@/components/ui/DropDown";
 import FixturesList from "@/components/ui/FixturesList";
 import Tabs from "@/components/ui/Tabs";
 import { detailedTabs, stats, statusFilters } from "@/lib/constants";
-import { DetailedTabsType } from "@/lib/types";
+import {
+  DetailedTabsType,
+  Fixtures,
+  StandingsEntity,
+  StandingsReponse,
+} from "@/types/football";
 import { getSeasonsList, getTeams } from "@/lib/utils";
 import {
   useFixturesByLeagueIdAndSeason,
@@ -21,7 +26,7 @@ import {
   useStandingsByLeagueIdAndSeason,
   useTopAssistsByLeagueIdAndSeason,
   useTopScorersByLeagueIdAndSeason,
-} from "@/services/queries";
+} from "@/services/football/queries";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -74,7 +79,7 @@ const DetailedLeague = () => {
       size: 0,
     },
     data: fixturesQuery?.data ?? [],
-    columns: fixturesListColumns,
+    columns: fixturesListColumns<Fixtures>(),
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -82,12 +87,13 @@ const DetailedLeague = () => {
       columnFilters,
       columnVisibility: {
         league: false,
+        status: false,
       },
     },
   });
 
   const teamInfos = useMemo(
-    () => getTeams(fixturesQuery.data!),
+    () => getTeams<Fixtures>(fixturesQuery.data!),
     [fixturesQuery.data]
   );
 
@@ -106,10 +112,17 @@ const DetailedLeague = () => {
           return <PlayerStats type="assist" data={topAssistQuery?.data} />;
       }
     } else if (status === "Standings") {
-      return <Standings data={standingsQuery?.data} />;
+      if (!standingsQuery?.data) return null;
+      if (standingsQuery?.data.length === 0)
+        return (
+          <div className="flex items-center justify-center w-full h-full">
+            No Standings found.
+          </div>
+        );
+      return <Standings<StandingsReponse> standing={standingsQuery?.data} />;
     } else {
       return (
-        <FixturesList
+        <FixturesList<Fixtures>
           table={fixturesTable}
           rows={fixturesTable?.getRowModel()?.rows}
         />
@@ -125,7 +138,7 @@ const DetailedLeague = () => {
             <FilterDropDown
               title={"status"}
               labels={statusFilters}
-              column={fixturesTable.getColumn("fixture")}
+              column={fixturesTable.getColumn("status")}
             />
             <FilterDropDown
               title={"teams"}
