@@ -1,26 +1,28 @@
 "use client";
 
 import { shortStatusMap } from "@/lib/constants";
-import {
-  Fixture,
-  Fixtures,
-  HalftimeOrGoals,
-  League,
-  StatusType,
-  Teams,
-} from "@/lib/types";
+import { Fixtures, League, StatusType, Teams } from "@/types/football";
 import { formatDatePatternLong } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { LucideArrowRight } from "lucide-react";
-import Image from "next/image";
+import { Games, NBAGames, NBATeams } from "@/types/basketball";
+import ImageWithFallback from "@/components/ImageWithFallback";
 
-export const fixturesListColumns: ColumnDef<Fixtures>[] = [
+export const fixturesListColumns = <
+  T extends Fixtures | Games | NBAGames
+>(): ColumnDef<T>[] => [
   {
-    accessorKey: "fixture",
+    id: "date",
+    accessorFn: (row) =>
+      "date" in row
+        ? typeof row.date === "string"
+          ? row.date
+          : row.date.start
+        : row.fixture.date,
     header: "Date",
     size: 150,
-    cell: ({ row }) => {
-      const { date }: Fixture = row.getValue("fixture");
+    cell: ({ getValue }: { getValue: Getter<string> }) => {
+      const date = getValue();
       const formattedDate = formatDatePatternLong(date);
 
       return (
@@ -31,22 +33,48 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
         </div>
       );
     },
+  },
+  {
+    id: "status",
+    accessorFn: (row) =>
+      "status" in row ? row.status.short : row.fixture.status.short,
+    header: "Status",
+    enableColumnFilter: true,
     filterFn: (row, id, value) => {
-      const fixture: Fixture = row.getValue(id);
+      const fixtureStatus: string = row.getValue(id);
       const status = shortStatusMap[value as StatusType];
-
-      return status.includes(fixture.status.short);
+      return status.includes(fixtureStatus);
     },
   },
   {
-    accessorKey: "teams",
+    id: "teams",
+    accessorFn: (row) => row?.teams,
     header: "Teams",
     enableColumnFilter: true,
-    cell: ({ row }) => {
-      const teams: Teams = row.getValue("teams");
-      const goals: HalftimeOrGoals = row.getValue("goals");
-      const isHomeScoreMore = goals.home > goals.away;
-      const isAwayScoreMore = goals.home < goals.away;
+    cell: ({
+      getValue,
+      row,
+    }: {
+      getValue: Getter<Teams | NBATeams>;
+      row: Row<T>;
+    }) => {
+      const teams = getValue();
+
+      let homeScore: number | null, awayScore: number | null;
+
+      if ("nugget" in row.original) {
+        homeScore = row.original.scores.home.points;
+        awayScore = row.original.scores.visitors.points;
+      } else if ("scores" in row.original) {
+        homeScore = row.original.scores.home.total;
+        awayScore = row.original.scores.away.total;
+      } else {
+        homeScore = row.original.goals.home;
+        awayScore = row.original.goals.away;
+      }
+
+      const isHomeScoreMore = homeScore > awayScore;
+      const isAwayScoreMore = homeScore < awayScore;
 
       return (
         <div className="grid grid-cols-list justify-center items-center gap-6 min-w-[250px] flex-1">
@@ -60,17 +88,13 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
             >
               {teams.home.name}
             </p>
-            <Image
-              loading="lazy"
-              width={40}
-              height={40}
-              style={{ aspectRatio: "1/1", borderRadius: "50%" }}
+            <ImageWithFallback
               src={teams.home.logo}
               alt={`${teams.home.name}-logo`}
             />
           </div>
           <div className="flex items-center justify-center gap-3 text-lg font-medium">
-            {goals.home !== null && (
+            {homeScore && (
               <p
                 className={
                   isHomeScoreMore
@@ -78,11 +102,11 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
                     : "text-secondary-foreground"
                 }
               >
-                {goals.home}
+                {homeScore}
               </p>
             )}
             <span>-</span>
-            {goals.away !== null && (
+            {awayScore && (
               <p
                 className={
                   isAwayScoreMore
@@ -90,18 +114,16 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
                     : "text-secondary-foreground"
                 }
               >
-                {goals.away}
+                {awayScore}
               </p>
             )}
           </div>
           <div className="flex items-center justify-start gap-3">
-            <Image
-              loading="lazy"
-              width={40}
-              height={40}
-              style={{ aspectRatio: "1/1", borderRadius: "50%" }}
-              src={teams.away.logo}
-              alt={`${teams.away.name}-logo`}
+            <ImageWithFallback
+              src={"visitors" in teams ? teams.visitors.logo : teams.away.logo}
+              alt={`${
+                "visitors" in teams ? teams.visitors.name : teams.away.name
+              }-logo`}
             />
             <p
               className={`${
@@ -110,7 +132,7 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
                   : "text-secondary-foreground"
               } text-[1.075rem]`}
             >
-              {teams.away.name}
+              {"visitors" in teams ? teams.visitors.name : teams.away.name}
             </p>
           </div>
         </div>
@@ -123,7 +145,8 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
     },
   },
   {
-    accessorKey: "league",
+    id: "league",
+    accessorFn: (row) => row.league,
     header: "League",
     enableColumnFilter: true,
     filterFn: (row, id, value) => {
@@ -132,7 +155,7 @@ export const fixturesListColumns: ColumnDef<Fixtures>[] = [
     },
   },
   {
-    accessorKey: "goals",
+    id: "arrow",
     header: "",
     size: 50,
     cell: () => {
