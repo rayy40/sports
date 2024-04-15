@@ -9,7 +9,7 @@ import { DropDown } from "@/components/ui/DropDown";
 import FixturesList from "@/components/ui/FixturesList";
 import Tabs from "@/components/ui/Tabs";
 import { detailedTabs, statusFilters } from "@/lib/constants";
-import { DetailedTabsType } from "@/lib/types";
+import { DetailedTabsType, Fixtures, StandingsReponse } from "@/types/football";
 import { getLeagues } from "@/lib/utils";
 import {
   useFixturesByTeamIdAndSeason,
@@ -18,7 +18,7 @@ import {
   useTeamInfo,
   useTeamSeasons,
   useTeamStatistics,
-} from "@/services/queries";
+} from "@/services/football/queries";
 import {
   ColumnFiltersState,
   getCoreRowModel,
@@ -87,7 +87,7 @@ const DetailedTeam = () => {
       size: 0,
     },
     data: fixturesQuery?.data ?? [],
-    columns: fixturesListColumns,
+    columns: fixturesListColumns<Fixtures>(),
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -103,7 +103,14 @@ const DetailedTeam = () => {
     if (status === "Stats") {
       return <TeamStatistics data={teamStatisticsQuery?.data} />;
     } else if (status === "Standings") {
-      return <Standings data={standingsQuery?.data} />;
+      if (!standingsQuery?.data) return null;
+      if (standingsQuery?.data.length === 0)
+        return (
+          <div className="flex items-center justify-center w-full h-full">
+            No Standings found.
+          </div>
+        );
+      return <Standings<StandingsReponse> standing={standingsQuery?.data} />;
     } else if (status === "Squads") {
       return <Squads data={squadsQuery?.data} />;
     } else {
@@ -181,7 +188,7 @@ const DetailedTeam = () => {
           <div className="ml-auto">
             <DropDown
               title="seasons"
-              data={teamSeasonsQuery?.data?.slice().reverse()!}
+              data={teamSeasonsQuery?.data?.slice().reverse().map(String)}
               setValue={setSeason}
               value={season ?? initialSeason}
             />
