@@ -5,8 +5,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "media.api-sports.io",
-        port: "",
-        pathname: "/football/**",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
       },
     ],
   },
