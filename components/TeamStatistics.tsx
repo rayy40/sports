@@ -1,10 +1,29 @@
-import { TeamStatistics } from "@/lib/types";
-import { getTeamsRequiredStatistics } from "@/lib/utils";
+import { TeamStatistics } from "@/types/football";
+import {
+  TeamStatistics as BasketballTeamStatistics,
+  NBAStatistics,
+} from "@/types/basketball";
+import {
+  getBasketballTeamsRequiredStatistics,
+  getFootballTeamsRequiredStatistics,
+  getNBATeamsRequiredStatistics,
+} from "@/lib/utils";
 import React from "react";
 
 type Props = {
-  data?: TeamStatistics | null;
+  data?: TeamStatistics | BasketballTeamStatistics | NBAStatistics | null;
 };
+
+type RequiredStats = (
+  | {
+      label: string;
+      value: number;
+    }
+  | {
+      label: string;
+      value: string;
+    }
+)[];
 
 const TeamStatistics = ({ data }: Props) => {
   if (!data) {
@@ -15,7 +34,14 @@ const TeamStatistics = ({ data }: Props) => {
     );
   }
 
-  const requiredStats = getTeamsRequiredStatistics(data);
+  let requiredStats: RequiredStats = [];
+  if ("cards" in data) {
+    requiredStats = getFootballTeamsRequiredStatistics(data);
+  } else if ("turnovers" in data) {
+    requiredStats = getNBATeamsRequiredStatistics(data);
+  } else if ("points" in data) {
+    requiredStats = getBasketballTeamsRequiredStatistics(data);
+  }
 
   return (
     <div className="w-full p-9">
