@@ -1,5 +1,5 @@
-import React, { Suspense } from "react";
-import { Basketball } from "@/Assets/Icons/Sports";
+import React from "react";
+import { Baseball } from "@/Assets/Icons/Sports";
 import HomeFixtures from "@/components/HomeFixtures";
 import FilterWrapper from "@/components/FilterWrapper";
 import {
@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-query";
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
-import Loading from "@/components/Loading";
 import DatePicker from "@/components/ui/DatePicker";
 
 const Page = async () => {
@@ -17,17 +16,15 @@ const Page = async () => {
   const formattedDate = format(date, "yyyy-MM-dd");
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [formattedDate, "basketball", "fixtures"],
-    queryFn: () => getFixturesByDate(formattedDate, "basketball"),
+    queryKey: [formattedDate, "australian-football", "fixtures"],
+    queryFn: () => getFixturesByDate(formattedDate, "australian-football"),
   });
 
-  // const query = queryClient.getQueryData([
-  //   "basketball",
-  //   "fixtures",
-  //   formattedDate,
-  // ]);
-
-  // console.log(query);
+  const fixtures = queryClient.getQueryData([
+    formattedDate,
+    "australian-football",
+    "fixtures",
+  ]);
 
   return (
     <div className="bg-background w-full min-h-screen font-sans">
@@ -35,15 +32,15 @@ const Page = async () => {
         <div className="px-6 border border-b shadow-sm sticky top-0 bg-background z-10">
           <div className="py-6 flex justify-between items-center">
             <h2 className="text-2xl flex items-center gap-3 text-secondary-foreground font-medium">
-              <Basketball width={30} height={30} />
+              <Baseball width={50} height={50} />
               Games
             </h2>
             <DatePicker />
           </div>
-          <FilterWrapper isHome={true} sport={"basketball"} />
+          <FilterWrapper isHome={true} sport={"australian-football"} />
         </div>
         <div className="h-[calc(100vh-150px)] overflow-y-auto px-6">
-          <HomeFixtures sport={"basketball"} />
+          <HomeFixtures sport={"australian-football"} />
         </div>
       </HydrationBoundary>
     </div>

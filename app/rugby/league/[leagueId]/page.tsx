@@ -1,4 +1,4 @@
-import { League, Seasons } from "@/types/general";
+import { GamesWithPeriods, League, Seasons } from "@/types/general";
 import {
   HydrationBoundary,
   QueryClient,
@@ -7,51 +7,30 @@ import {
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
 import RootComponent from "@/components/RootComponent";
-import { NBAGames } from "@/types/basketball";
-import { getNBASeasons } from "@/services/api";
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [leagueId, "basketball", "league"],
-    queryFn: () => getLeagueById(leagueId, "basketball"),
+    queryKey: [leagueId, "rugby", "league"],
+    queryFn: () => getLeagueById(leagueId, "rugby"),
   });
-
-  if (leagueId === 12) {
-    await queryClient.prefetchQuery({
-      queryKey: [leagueId, "nba", "league", "seasons"],
-      queryFn: getNBASeasons,
-    });
-  }
 
   const league: League<Seasons[]> | undefined = queryClient.getQueryData([
     leagueId,
-    "basketball",
+    "rugby",
     "league",
   ]);
 
-  const NBASeasons: number[] | undefined =
-    leagueId === 12
-      ? queryClient.getQueryData([leagueId, "nba", "league", "seasons"])
-      : undefined;
-
-  const season = !NBASeasons
-    ? league?.seasons[league.seasons.length - 1].season
-    : NBASeasons[NBASeasons.length - 1].toString();
+  const season = league?.seasons[league.seasons.length - 1].season;
 
   await queryClient.prefetchQuery({
-    queryKey: [leagueId, season, "basketball", "fixtures"],
-    queryFn: () =>
-      getFixturesByLeagueIdAndSeason(leagueId, season!, "basketball"),
+    queryKey: [leagueId, season, "rugby", "fixtures"],
+    queryFn: () => getFixturesByLeagueIdAndSeason(leagueId, season!, "rugby"),
   });
 
-  const fixtures: NBAGames[] | undefined = queryClient.getQueryData([
-    leagueId,
-    season,
-    "basketball",
-    "fixtures",
-  ]);
+  const fixtures: GamesWithPeriods<number | null>[] | undefined =
+    queryClient.getQueryData([leagueId, season, "rugby", "fixtures"]);
 
   if (!league) {
     return (
@@ -68,8 +47,8 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           title={league.name}
           logo={league.logo}
           id={league.id}
-          seasons={NBASeasons ?? league.seasons}
-          sport="basketball"
+          seasons={league.seasons}
+          sport="rugby"
           currSeason={season ?? "-"}
           fixtures={fixtures}
         />

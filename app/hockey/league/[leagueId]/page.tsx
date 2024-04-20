@@ -1,4 +1,5 @@
-import { League, Seasons } from "@/types/general";
+import { Suspense } from "react";
+import { GamesWithPeriodsAndEvents, League, Seasons } from "@/types/general";
 import {
   HydrationBoundary,
   QueryClient,
@@ -6,52 +7,38 @@ import {
 } from "@tanstack/react-query";
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
+import Loading from "@/components/Loading";
 import RootComponent from "@/components/RootComponent";
-import { NBAGames } from "@/types/basketball";
-import { getNBASeasons } from "@/services/api";
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [leagueId, "basketball", "league"],
-    queryFn: () => getLeagueById(leagueId, "basketball"),
+    queryKey: [leagueId, "hockey", "league"],
+    queryFn: () => getLeagueById(leagueId, "hockey"),
+    staleTime: 5 * 60 * 1000,
   });
-
-  if (leagueId === 12) {
-    await queryClient.prefetchQuery({
-      queryKey: [leagueId, "nba", "league", "seasons"],
-      queryFn: getNBASeasons,
-    });
-  }
 
   const league: League<Seasons[]> | undefined = queryClient.getQueryData([
     leagueId,
-    "basketball",
+    "hockey",
     "league",
   ]);
 
-  const NBASeasons: number[] | undefined =
-    leagueId === 12
-      ? queryClient.getQueryData([leagueId, "nba", "league", "seasons"])
-      : undefined;
-
-  const season = !NBASeasons
-    ? league?.seasons[league.seasons.length - 1].season
-    : NBASeasons[NBASeasons.length - 1].toString();
+  const season = league?.seasons[league.seasons.length - 1].season;
 
   await queryClient.prefetchQuery({
-    queryKey: [leagueId, season, "basketball", "fixtures"],
-    queryFn: () =>
-      getFixturesByLeagueIdAndSeason(leagueId, season!, "basketball"),
+    queryKey: [leagueId, season, "hockey", "fixtures"],
+    queryFn: () => getFixturesByLeagueIdAndSeason(leagueId, season!, "hockey"),
+    staleTime: 5 * 60 * 1000,
   });
 
-  const fixtures: NBAGames[] | undefined = queryClient.getQueryData([
-    leagueId,
-    season,
-    "basketball",
-    "fixtures",
-  ]);
+  const fixtures: GamesWithPeriodsAndEvents<number | null>[] | undefined =
+    queryClient.getQueryData([leagueId, season, "hockey", "fixtures"]);
+
+  if (queryClient.isFetching()) {
+    return <Loading />;
+  }
 
   if (!league) {
     return (
@@ -68,8 +55,8 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           title={league.name}
           logo={league.logo}
           id={league.id}
-          seasons={NBASeasons ?? league.seasons}
-          sport="basketball"
+          seasons={league.seasons}
+          sport="hockey"
           currSeason={season ?? "-"}
           fixtures={fixtures}
         />

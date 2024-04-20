@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { Basketball } from "@/Assets/Icons/Sports";
+import { Hockey } from "@/Assets/Icons/Sports";
 import HomeFixtures from "@/components/HomeFixtures";
 import FilterWrapper from "@/components/FilterWrapper";
 import {
@@ -17,17 +17,9 @@ const Page = async () => {
   const formattedDate = format(date, "yyyy-MM-dd");
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [formattedDate, "basketball", "fixtures"],
-    queryFn: () => getFixturesByDate(formattedDate, "basketball"),
+    queryKey: [formattedDate, "hockey", "fixtues"],
+    queryFn: () => getFixturesByDate(formattedDate, "hockey"),
   });
-
-  // const query = queryClient.getQueryData([
-  //   "basketball",
-  //   "fixtures",
-  //   formattedDate,
-  // ]);
-
-  // console.log(query);
 
   return (
     <div className="bg-background w-full min-h-screen font-sans">
@@ -35,15 +27,15 @@ const Page = async () => {
         <div className="px-6 border border-b shadow-sm sticky top-0 bg-background z-10">
           <div className="py-6 flex justify-between items-center">
             <h2 className="text-2xl flex items-center gap-3 text-secondary-foreground font-medium">
-              <Basketball width={30} height={30} />
+              <Hockey width={30} height={30} />
               Games
             </h2>
             <DatePicker />
           </div>
-          <FilterWrapper isHome={true} sport={"basketball"} />
+          <FilterWrapper isHome={true} sport={"hockey"} />
         </div>
         <div className="h-[calc(100vh-150px)] overflow-y-auto px-6">
-          <HomeFixtures sport={"basketball"} />
+          <HomeFixtures sport={"hockey"} />
         </div>
       </HydrationBoundary>
     </div>

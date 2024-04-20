@@ -6,44 +6,32 @@ import {
 } from "@tanstack/react-query";
 import { getFixturesByTeamIdAndSeason, getTeamById } from "@/services/api";
 import RootComponent from "@/components/RootComponent";
-import { Games, TeamResponse } from "@/types/general";
-import {
-  BasketballScores,
-  NBAGames,
-  NBATeamresponse,
-} from "@/types/basketball";
+import { GamesWithPeriods, TeamResponse } from "@/types/general";
 import { Seasons } from "@/lib/constants";
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
-  const isNBATeam = params.teamId.split("-")[0] === "nba";
-  console.log(isNBATeam);
-  const teamId = isNBATeam
-    ? parseInt(params.teamId.split("-")[1])
-    : parseInt(params.teamId);
-  console.log(teamId);
+  const teamId = parseInt(params.teamId);
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
-    queryKey: [teamId, "basketball", "team"],
-    queryFn: () => getTeamById(teamId, "basketball", isNBATeam),
+    queryKey: [teamId, "rugby", "team"],
+    queryFn: () => getTeamById(teamId, "rugby"),
   });
 
-  const team: TeamResponse | NBATeamresponse | undefined =
-    queryClient.getQueryData([teamId, "basketball", "team"]);
+  const team: TeamResponse | undefined = queryClient.getQueryData([
+    teamId,
+    "rugby",
+    "team",
+  ]);
 
-  console.log(team);
-
-  const season = isNBATeam ? "2023" : "2023-2024";
+  const season = "2023";
 
   await queryClient.prefetchQuery({
-    queryKey: [teamId, season, "basketball", "fixtures"],
-    queryFn: () =>
-      getFixturesByTeamIdAndSeason(teamId, season, "basketball", isNBATeam),
+    queryKey: [teamId, season, "rugby", "fixtures"],
+    queryFn: () => getFixturesByTeamIdAndSeason(teamId, season, "rugby"),
   });
 
-  const fixtures: Games<BasketballScores>[] | NBAGames[] | undefined =
-    queryClient.getQueryData([teamId, season, "basketball", "fixtures"]);
-
-  console.log(fixtures);
+  const fixtures: GamesWithPeriods<number | null>[] | undefined =
+    queryClient.getQueryData([teamId, season, "rugby", "fixtures"]);
 
   if (!team) {
     return (
@@ -61,9 +49,8 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
           logo={team.logo}
           id={team.id}
           seasons={Seasons}
-          sport="basketball"
+          sport="rugby"
           isTeam={true}
-          isNBATeam={true}
           currSeason={season ?? "-"}
           fixtures={fixtures}
         />
