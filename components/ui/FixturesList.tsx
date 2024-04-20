@@ -1,29 +1,18 @@
-import { Fixtures } from "@/types/football";
-import { Row, Table as TableProp, flexRender } from "@tanstack/react-table";
+import { Table as TableProp, flexRender } from "@tanstack/react-table";
 import { TableBody, Table, TableRow, TableCell } from "./Shadcn/table";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
-import { Games, NBAGames } from "@/types/basketball";
+import { forwardRef } from "react";
+import { AllSportsFixtures } from "@/types/general";
+import { TableVirtuoso } from "react-virtuoso";
 
-type Props<T extends Fixtures | Games | NBAGames> = {
+type Props<T extends AllSportsFixtures> = {
   table: TableProp<T>;
-  rows: Row<T>[];
 };
 
-const FixturesList = <T extends Fixtures | Games | NBAGames>({
-  table,
-  rows,
-}: Props<T>) => {
-  const parentRef = useRef<HTMLDivElement>(null);
+const FixturesList = <T extends AllSportsFixtures>({ table }: Props<T>) => {
+  const { getRowModel } = table;
+  const rows = getRowModel().rows;
 
-  const virtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 72.5,
-    overscan: 5,
-  });
-
-  if (!rows.length) {
+  if (rows.length === 0) {
     return (
       <div className="w-full h-[calc(100vh-150px)] text-[1rem] flex items-center text-primary-foreground/90 justify-center">
         No fixtures available
@@ -32,45 +21,44 @@ const FixturesList = <T extends Fixtures | Games | NBAGames>({
   }
 
   return (
-    <div ref={parentRef} className="overflow-y-auto h-[calc(100vh-150px)]">
-      <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
-        <Table>
-          <TableBody>
-            {virtualizer.getVirtualItems().map((virtualRow, index) => {
-              const row = rows[virtualRow.index] as Row<T>;
-              return (
-                <TableRow
-                  style={{
-                    height: `${virtualRow.size}px`,
-                    transform: `translateY(${
-                      virtualRow.start - index * virtualRow.size
-                    }px)`,
-                  }}
-                  className="hover:bg-secondary/80 cursor-pointer"
-                  key={row.id}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      style={{
-                        width:
-                          cell.column.getSize() !== 0
-                            ? cell.column.getSize()
-                            : undefined,
-                      }}
-                      key={cell.id}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="overflow-y-auto h-[calc(100vh-150px)]">
+      <TableVirtuoso<AllSportsFixtures>
+        style={{ height: "100%" }}
+        totalCount={rows.length}
+        components={{
+          Table: ({ style, ...props }) => {
+            return <Table {...props} />;
+          },
+          // eslint-disable-next-line react/display-name
+          TableBody: forwardRef(({ style, ...props }, ref) => {
+            return <TableBody {...props} ref={ref} />;
+          }),
+          TableRow: (props) => {
+            const index = props["data-index"];
+            const row = rows[index];
+            return (
+              <TableRow
+                {...props}
+                className="hover:bg-secondary/80 cursor-pointer"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    style={{
+                      width:
+                        cell.column.columnDef.size !== 0
+                          ? cell.column.columnDef.size
+                          : "auto",
+                    }}
+                    key={cell.id}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            );
+          },
+        }}
+      />
     </div>
   );
 };
