@@ -1,5 +1,7 @@
 "use client";
 
+import { useStatusStore, useTabsStore } from "@/lib/store";
+import { DetailedTabsType, StatusType } from "@/types/general";
 import { ColumnFiltersState } from "@tanstack/react-table";
 import React, { Dispatch, SetStateAction } from "react";
 
@@ -7,18 +9,23 @@ type Props<T> = {
   label: string;
   id: T;
   setColumnFilters?: Dispatch<SetStateAction<ColumnFiltersState>>;
-  status: T;
-  setStatus: Dispatch<SetStateAction<T>>;
+  isStatus: boolean;
 };
 
 const Tabs = <T,>({
   label,
   id,
-  status,
-  setStatus,
   setColumnFilters,
+  isStatus = true,
 }: Props<T>) => {
+  const { status, setStatus } = useStatusStore();
+  const { tab, setTab } = useTabsStore();
   const handleTabClick = () => {
+    if (isStatus) {
+      setStatus(id as StatusType);
+    } else {
+      setTab(id as DetailedTabsType);
+    }
     if (setColumnFilters) {
       setColumnFilters(() => {
         return [{ id: "fixture", value: id }];
@@ -28,12 +35,9 @@ const Tabs = <T,>({
 
   return (
     <div
-      onClick={() => {
-        setStatus(id);
-        handleTabClick();
-      }}
+      onClick={handleTabClick}
       className={`p-3 text-sm font-medium transition-all cursor-pointer ${
-        id === status
+        id === (isStatus ? status : tab)
           ? "text-primary-foreground/95 underline-tabs"
           : "text-muted-foreground"
       } hover:text-primary-foreground/95`}
