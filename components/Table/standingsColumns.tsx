@@ -1,18 +1,13 @@
 "use client";
 
-import { NBAStandings, Standings } from "@/types/basketball";
-import {
-  AllOrHomeOrAway,
-  Goals,
-  StandingsEntity,
-  Team,
-} from "@/types/football";
+import { AllSportsStandings } from "@/types/general";
+import { AllOrHomeOrAway, Goals, Team } from "@/types/football";
 import { ColumnDef, Getter } from "@tanstack/react-table";
 import Link from "next/link";
 import ImageWithFallback from "../ImageWithFallback";
 
 export const standingsColumns = <
-  T extends StandingsEntity | Standings | NBAStandings
+  T extends AllSportsStandings
 >(): ColumnDef<T>[] => [
   {
     id: "rank",
@@ -66,7 +61,9 @@ export const standingsColumns = <
   {
     id: "win",
     accessorFn: (row) =>
-      "all" in row
+      "pts" in row
+        ? row.games.win
+        : "all" in row
         ? row.all.win
         : "games" in row
         ? row.games.win.total
@@ -81,7 +78,9 @@ export const standingsColumns = <
   {
     id: "winPercentage",
     accessorFn: (row) =>
-      "games" in row
+      "pts" in row
+        ? undefined
+        : "games" in row
         ? row.games.win.percentage
         : "win" in row
         ? row.win.percentage
@@ -111,7 +110,9 @@ export const standingsColumns = <
   {
     id: "lost",
     accessorFn: (row) =>
-      "all" in row
+      "pts" in row
+        ? row.games.lost
+        : "all" in row
         ? row.all.lose
         : "games" in row
         ? row.games.lose.total
@@ -126,7 +127,9 @@ export const standingsColumns = <
   {
     id: "lostPercentage",
     accessorFn: (row) =>
-      "games" in row
+      "pts" in row
+        ? undefined
+        : "games" in row
         ? row.games.lose.percentage
         : "loss" in row
         ? row.loss.percentage

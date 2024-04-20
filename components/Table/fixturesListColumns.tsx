@@ -1,15 +1,16 @@
 "use client";
 
 import { shortStatusMap } from "@/lib/constants";
-import { Fixtures, League, StatusType, Teams } from "@/types/football";
-import { formatDatePatternLong } from "@/lib/utils";
+import { League, StatusType, Teams } from "@/types/football";
+import { formatDatePatternLong, getScores } from "@/lib/utils";
 import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { LucideArrowRight } from "lucide-react";
-import { Games, NBAGames, NBATeams } from "@/types/basketball";
+import { NBATeams } from "@/types/basketball";
+import { AllSportsFixtures } from "@/types/general";
 import ImageWithFallback from "@/components/ImageWithFallback";
 
 export const fixturesListColumns = <
-  T extends Fixtures | Games | NBAGames
+  T extends AllSportsFixtures
 >(): ColumnDef<T>[] => [
   {
     id: "date",
@@ -60,21 +61,8 @@ export const fixturesListColumns = <
     }) => {
       const teams = getValue();
 
-      let homeScore: number | null, awayScore: number | null;
-
-      if ("nugget" in row.original) {
-        homeScore = row.original.scores.home.points;
-        awayScore = row.original.scores.visitors.points;
-      } else if ("scores" in row.original) {
-        homeScore = row.original.scores.home.total;
-        awayScore = row.original.scores.away.total;
-      } else {
-        homeScore = row.original.goals.home;
-        awayScore = row.original.goals.away;
-      }
-
-      const isHomeScoreMore = homeScore > awayScore;
-      const isAwayScoreMore = homeScore < awayScore;
+      const { homeScore, awayScore, isAwayScoreMore, isHomeScoreMore } =
+        getScores(row);
 
       return (
         <div className="grid grid-cols-list justify-center items-center gap-6 min-w-[250px] flex-1">
