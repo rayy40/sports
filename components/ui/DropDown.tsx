@@ -14,11 +14,11 @@ type Props = {
   title: string;
   data?: string[];
   value: string;
-  setValue: (value: string) => void;
+  setValue?: (value: string) => void;
   variant?: ButtonVariants;
 };
 
-export function DropDown({ title, data, value, setValue, variant }: Props) {
+export function DropDown({ title, data, value, variant, setValue }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

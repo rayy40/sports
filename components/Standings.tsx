@@ -1,10 +1,7 @@
 import React from "react";
-import {
-  Standings as BasketballStandings,
-  NBAGames,
-  NBAStandings,
-} from "@/types/basketball";
-import { StandingsEntity, StandingsReponse } from "@/types/football";
+import { NBAStandings } from "@/types/basketball";
+import { AllSportsStandings, Standings as TStandings } from "@/types/general";
+import { StandingsReponse } from "@/types/football";
 import {
   flexRender,
   getCoreRowModel,
@@ -20,44 +17,42 @@ import {
   TableRow,
 } from "./ui/Shadcn/table";
 import { groupStandingsByProperty } from "@/lib/utils";
+import { AustralianFootballStandings } from "@/types/australian-football";
 
 function isStandingsResponse(data: any): data is StandingsReponse {
   return data && data.league && Array.isArray(data.league.standings);
 }
 
-type Props<T extends BasketballStandings | StandingsReponse | NBAStandings> = {
-  standing: T[];
+function isOtherSportStandingsResponse(data: any): data is TStandings[] {
+  return data && data?.[0]?.position;
+}
+
+type Props = {
+  standing: (
+    | TStandings[]
+    | NBAStandings
+    | StandingsReponse
+    | AustralianFootballStandings
+  )[];
 };
 
-type STableProps<
-  T extends BasketballStandings | StandingsEntity | NBAStandings
-> = {
-  standing: T[];
+type STableProps = {
+  standing: AllSportsStandings[];
   isAdditionalFootballColumnVisible: boolean;
   isAdditionalNonFootballColumnVisible: boolean;
   isAdditionalNBAColumnVisible?: boolean;
 };
 
-const Standings = <
-  T extends BasketballStandings | StandingsReponse | NBAStandings
->({
-  standing,
-}: Props<T>) => {
-  if (!standing) {
-    return <div>No Standings found.</div>;
-  }
-
-  const STable = <
-    T extends BasketballStandings | StandingsEntity | NBAStandings
-  >({
+const Standings = ({ standing }: Props) => {
+  const STable = ({
     standing,
     isAdditionalFootballColumnVisible,
     isAdditionalNonFootballColumnVisible,
     isAdditionalNBAColumnVisible = false,
-  }: STableProps<T>) => {
+  }: STableProps) => {
     const standingsTable = useReactTable({
       data: standing ?? [],
-      columns: standingsColumns<T>(),
+      columns: standingsColumns<AllSportsStandings>(),
       getCoreRowModel: getCoreRowModel(),
       state: {
         columnVisibility: {
@@ -124,7 +119,15 @@ const Standings = <
     );
   };
 
-  const renderStandingsByLeague = (data: T[]) => {
+  const renderStandingsByLeague = (
+    data: (
+      | TStandings[]
+      | StandingsReponse
+      | NBAStandings
+      | AustralianFootballStandings
+    )[]
+  ) => {
+    console.log(data);
     if ("conference" in data?.[0]) {
       const standingsData = groupStandingsByProperty<NBAStandings>(
         data as NBAStandings[],
@@ -140,24 +143,6 @@ const Standings = <
             isAdditionalFootballColumnVisible={false}
             isAdditionalNonFootballColumnVisible={true}
             isAdditionalNBAColumnVisible={true}
-          />
-        </div>
-      ));
-    }
-    if ("position" in data?.[0]) {
-      const standingsData = groupStandingsByProperty(
-        data as BasketballStandings[],
-        (t) => t.group.name
-      );
-      return Object.keys(standingsData).map((key, index) => (
-        <div key={index}>
-          <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
-            {key}
-          </p>
-          <STable
-            standing={standingsData[key]}
-            isAdditionalFootballColumnVisible={false}
-            isAdditionalNonFootballColumnVisible={true}
           />
         </div>
       ));
@@ -185,6 +170,23 @@ const Standings = <
             ))}
           </div>
         );
+      } else if (isOtherSportStandingsResponse(d)) {
+        const standingsData = groupStandingsByProperty<TStandings>(
+          d as TStandings[],
+          (t) => t.group.name
+        );
+        return Object.keys(standingsData).map((key, index) => (
+          <div key={index}>
+            <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
+              {key}
+            </p>
+            <STable
+              standing={standingsData[key]}
+              isAdditionalFootballColumnVisible={false}
+              isAdditionalNonFootballColumnVisible={true}
+            />
+          </div>
+        ));
       }
     });
   };

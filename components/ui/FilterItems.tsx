@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ import { Filters } from "@/types/football";
 type Props = {
   data: Filters[];
   title: string;
-  setFilter: Dispatch<SetStateAction<string | null>>;
+  setFilter: (league: string | null) => void;
 };
 
 export function FilterItems({ data, title, setFilter }: Props) {

@@ -1,4 +1,4 @@
-import { Squads } from "@/types/football";
+import { PlayersEntity, Squads } from "@/types/football";
 import { getPlayersByPosition } from "@/lib/utils";
 import React from "react";
 import {
@@ -9,21 +9,23 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/Shadcn/table";
-import Image from "next/image";
+import ImageWithFallback from "./ImageWithFallback";
+import { NBAPlayer } from "@/types/basketball";
+import Link from "next/link";
 
 type Props = {
-  data?: Squads[] | null;
+  data?: (PlayersEntity | NBAPlayer)[] | null;
 };
 
 const Squads = ({ data }: Props) => {
-  if (!data?.[0]?.players) {
+  if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center w-full h-full">
         No Squads found
       </div>
     );
   }
-  const playersByPosition = getPlayersByPosition(data?.[0]?.players);
+  const playersByPosition = getPlayersByPosition(data);
 
   return (
     <div className="h-full overflow-y-auto">
@@ -49,19 +51,17 @@ const Squads = ({ data }: Props) => {
                     className="text-left pl-9"
                   >
                     <div className="flex items-center gap-3">
-                      <Image
-                        loading="lazy"
-                        width={40}
-                        height={40}
-                        style={{
-                          borderRadius: "50%",
-                          aspectRatio: "1/1",
-                          objectFit: "contain",
-                        }}
-                        src={player.photo}
-                        alt={`${player.name}-profile`}
-                      />
-                      <p>{player?.name}</p>
+                      {player.photo.length > 0 && (
+                        <Link href={`/player/${player.id}`}>
+                          <ImageWithFallback
+                            src={player.photo}
+                            alt={`${player.name}-profile`}
+                          />
+                        </Link>
+                      )}
+                      <Link href={`/player/${player.id}`}>
+                        <p>{player?.name}</p>
+                      </Link>
                     </div>
                   </TableCell>
                   <TableCell className="text-center">

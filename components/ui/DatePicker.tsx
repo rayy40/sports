@@ -1,16 +1,14 @@
+"use client";
+
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "./Shadcn/button";
 import { Calendar } from "./Shadcn/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./Shadcn/popover";
-import { Dispatch, SetStateAction } from "react";
 import { formatDatePattern } from "@/lib/utils";
+import { useDateStore } from "@/lib/store";
 
-type Props = {
-  date: Date | undefined;
-  setDate?: Dispatch<SetStateAction<Date | undefined>>;
-};
-
-const DatePicker = ({ date, setDate }: Props) => {
+const DatePicker = () => {
+  const { date, setDate } = useDateStore();
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -23,12 +21,7 @@ const DatePicker = ({ date, setDate }: Props) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-auto p-0 font-sans">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          initialFocus
-        />
+        <Calendar mode="single" selected={date} onSelect={setDate} />
       </PopoverContent>
     </Popover>
   );

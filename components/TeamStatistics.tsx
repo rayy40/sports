@@ -1,46 +1,36 @@
-import { TeamStatistics } from "@/types/football";
 import {
-  TeamStatistics as BasketballTeamStatistics,
-  NBAStatistics,
-} from "@/types/basketball";
+  AllSportsTeamStats,
+  isAFLTeamStats,
+  isFootballTeamStats,
+  isNBATeamStats,
+} from "@/types/general";
 import {
-  getBasketballTeamsRequiredStatistics,
+  getAFLTeamsRequiredStatistics,
   getFootballTeamsRequiredStatistics,
   getNBATeamsRequiredStatistics,
+  getTeamsRequiredStatistics,
 } from "@/lib/utils";
 import React from "react";
 
 type Props = {
-  data?: TeamStatistics | BasketballTeamStatistics | NBAStatistics | null;
+  data: AllSportsTeamStats;
 };
 
-type RequiredStats = (
-  | {
-      label: string;
-      value: number;
-    }
-  | {
-      label: string;
-      value: string;
-    }
-)[];
+type RequiredStats = {
+  label: string;
+  value: number | string;
+}[];
 
 const TeamStatistics = ({ data }: Props) => {
-  if (!data) {
-    return (
-      <div className="flex items-center justify-center w-full h-full">
-        <p>No Statistics found.</p>
-      </div>
-    );
-  }
-
   let requiredStats: RequiredStats = [];
-  if ("cards" in data) {
+  if (isFootballTeamStats(data)) {
     requiredStats = getFootballTeamsRequiredStatistics(data);
-  } else if ("turnovers" in data) {
+  } else if (isNBATeamStats(data)) {
     requiredStats = getNBATeamsRequiredStatistics(data);
-  } else if ("points" in data) {
-    requiredStats = getBasketballTeamsRequiredStatistics(data);
+  } else if (isAFLTeamStats(data)) {
+    requiredStats = getAFLTeamsRequiredStatistics(data.statistics);
+  } else if ("points" in data || "goals" in data) {
+    requiredStats = getTeamsRequiredStatistics(data);
   }
 
   return (

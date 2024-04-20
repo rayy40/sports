@@ -2,17 +2,14 @@ import { format } from "date-fns";
 import Link from "next/link";
 import React from "react";
 import ImageWithFallback from "../ImageWithFallback";
+import { Sports, Status } from "@/types/general";
+import { Status as FootballStatus } from "@/types/football";
+import { NBAStatus } from "@/types/basketball";
 
-type Props<
-  T extends {
-    status: { short: string; elapsed?: number; timer?: number | null };
-  }
-> = {
-  sport: "football" | "basketball";
-  date: string;
-  id: number;
-  round: string;
-  status: T["status"];
+type Fixture = {
+  fixtureDate: string;
+  fixtureId: number;
+  fixtureRound: string | number | null;
   homeTeam: {
     logo: string;
     name: string;
@@ -21,34 +18,40 @@ type Props<
     logo: string;
     name: string;
   };
-  homeTeamScore: number;
-  awayTeamScore: number;
+  fixtureStatus: Status | NBAStatus | FootballStatus;
+  homeTeamScore?: number | null;
+  awayTeamScore?: number | null;
 };
 
-const BoxFixture = <
-  T extends {
-    status: { short: string; elapsed?: number; timer?: number | null };
-  }
->({
-  id,
-  sport,
-  status,
-  round,
-  homeTeam,
-  awayTeam,
-  homeTeamScore,
-  awayTeamScore,
-  date,
-}: Props<T>) => {
-  const isHomeLoser = homeTeamScore < awayTeamScore;
-  const isAwayLoser = homeTeamScore > awayTeamScore;
+type Props = {
+  sport: Sports;
+  fixture: Fixture;
+};
 
-  const renderStatus = (status: {
-    short: string;
-    elapsed?: number;
-    timer?: number | null;
-  }) => {
-    const { short: shortStatus, elapsed, timer } = status;
+const BoxFixture = ({ sport, fixture }: Props) => {
+  const {
+    homeTeam,
+    awayTeam,
+    homeTeamScore,
+    awayTeamScore,
+    fixtureDate: date,
+    fixtureId: id,
+    fixtureRound: round,
+    fixtureStatus: status,
+  } = fixture;
+  const isHomeLoser =
+    homeTeamScore && awayTeamScore && homeTeamScore < awayTeamScore;
+  const isAwayLoser =
+    homeTeamScore && awayTeamScore && homeTeamScore > awayTeamScore;
+
+  const renderStatus = (status: Status | NBAStatus | FootballStatus) => {
+    const { short: shortStatus } = status;
+    const timer =
+      "timer" in status
+        ? status.timer
+        : "elapsed" in status
+        ? status.elapsed
+        : status.clock;
     switch (shortStatus) {
       case "FT":
       case "AET":
@@ -59,7 +62,7 @@ const BoxFixture = <
       case "TBD":
         return "TBD";
       default:
-        return elapsed ? `${elapsed}'` : timer ? `${timer}'` : "";
+        return timer ? `${timer}'` : "";
     }
   };
   return (
@@ -83,7 +86,7 @@ const BoxFixture = <
               <h3
                 className={`${
                   isHomeLoser ? "opacity-60" : "opacity-100"
-                } font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[95%]`}
+                } font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[70%]`}
               >
                 {homeTeam.name}
               </h3>
@@ -101,7 +104,7 @@ const BoxFixture = <
               <h3
                 className={`${
                   isAwayLoser ? "opacity-60" : "opacity-100"
-                } font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[95%]`}
+                } font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[70%]`}
               >
                 {awayTeam.name}
               </h3>
@@ -111,7 +114,7 @@ const BoxFixture = <
             </p>
           </div>
           {status.short === "NS" && (
-            <div className="absolute flex justify-center items-center border-l h-full right-0 px-4 top-1/2 -translate-y-1/2">
+            <div className="absolute bg-background flex justify-center items-center border-l h-full right-0 px-4 top-1/2 -translate-y-1/2">
               <span className="text-secondary-foreground text-sm">
                 {format(date, "HH:mm")}
               </span>
