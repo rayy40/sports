@@ -48,7 +48,25 @@ export type StatusType =
   | "NotPlayed"
   | "AllGames";
 
+export interface ShortStatusMap {
+  Scheduled: string[];
+  InPlay: string[];
+  Finished: string[];
+  Postponed: string[];
+  Cancelled: string[];
+  Abandoned: string[];
+  NotPlayed: string[];
+  AllGames: string[];
+}
+
+export type Tabs<T> = {
+  label: string;
+  status: T;
+};
+
 export type DetailedTabsType = "Fixtures" | "Standings" | "Stats" | "Squads";
+
+export type FixtureTabsType = "Play By Play" | "Match Stats" | "Lineups";
 
 export interface APIBaseResponse {
   get: string;

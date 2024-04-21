@@ -1,85 +1,7 @@
-export type Sports = "football";
-
-type ButtonVariants =
-  | "link"
-  | "default"
-  | "destructive"
-  | "outline"
-  | "secondary"
-  | "ghost"
-  | null
-  | undefined;
-
-type StatusType =
-  | "Scheduled"
-  | "InPlay"
-  | "Finished"
-  | "Postponed"
-  | "Cancelled"
-  | "Abandoned"
-  | "NotPlayed"
-  | "AllGames";
-
-type DetailedTabsType = "Fixtures" | "Standings" | "Stats" | "Squads";
-
-export type TableFixtures = {
-  date: number;
-  teams: Teams;
-  score: HalftimeOrGoals;
-};
-
-export type Tabs<T> = {
-  label: string;
-  status: T;
-};
-
-export type FetchState<T> = {
-  loading: boolean;
-  data: T[] | null;
-  error: Error | null;
-};
-
-export interface Parameters {
-  [key: string]: string;
-}
-export interface Paging {
-  current: number;
-  total: number;
-}
-
-export interface APIBaseResponse {
-  get: string;
-  parameters: Parameters;
-  errors?: null[] | null;
-  results: number;
-  paging: Paging;
-}
-
-export interface APIResponse<T> extends APIBaseResponse {
-  response?: T[] | null;
-}
-
-export interface APINonArrayResponse<T> extends APIBaseResponse {
-  response?: T | null;
-}
-
-export type Seasons = number;
-
 export interface Country {
   name: string;
   code: string;
   flag: string;
-}
-
-export interface ShortStatusMap {
-  Scheduled: string[];
-  InPlay: string[];
-  Finished: string[];
-  Postponed: string[];
-  Cancelled: string[];
-  Abandoned: string[];
-  NotPlayed: string[];
-  AllGames: string[];
 }
 
 export interface Fixtures {
@@ -363,9 +285,9 @@ export interface TeamStatistics {
   biggest: Biggest;
   clean_sheet: HomeOrAwayOrTotalStats;
   failed_to_score: HomeOrAwayOrTotalStats;
-  penalty: Penalty;
+  penalty: PenaltyStats;
   lineups: Lineups[];
-  cards: Cards;
+  cards: CardsStats;
 }
 
 export interface FixturesStats {
@@ -421,16 +343,16 @@ export interface TotalOrPercentageStats {
   total: number | null;
   percentage: string | null;
 }
-export interface Penalty {
+export interface PenaltyStats {
+  total: number;
   scored: TotalOrPercentageStats;
   missed: TotalOrPercentageStats;
-  total: number;
 }
 export interface Lineups {
   formation: string;
   played: number;
 }
-export interface Cards {
+export interface CardsStats {
   yellow: Minutes;
   red: Minutes;
 }
@@ -445,7 +367,7 @@ export interface Minutes {
   "106-120": TotalOrPercentageStats;
 }
 
-export interface TeamInformation {
+export interface TeamResponse {
   venue: Venue;
   team: TeamInfo;
 }

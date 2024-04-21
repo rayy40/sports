@@ -1,9 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
-  APIResponse,
   Filters,
-  StatusType,
   Leagues,
   League as FootballLeague,
   PlayersEntity,
@@ -16,6 +14,8 @@ import {
   NBATeams,
 } from "@/types/basketball";
 import {
+  APIResponse,
+  StatusType,
   TeamStatistics,
   Standings,
   League,
@@ -388,7 +388,9 @@ export const getLeagueName = (
 };
 
 export const getFixtureData = (
-  fixture: AllSportsFixtures & { leagueId: number; leagueName: string }
+  fixture:
+    | (AllSportsFixtures & { leagueId: number; leagueName: string })
+    | AllSportsFixtures
 ) => {
   const homeTeam = {
     logo: fixture.teams.home.logo!,
@@ -450,6 +452,11 @@ export const getFixtureData = (
         : fixture.scores.away?.total;
   }
 
+  const isHomeTeamWinner =
+    homeTeamScore && awayTeamScore && homeTeamScore > awayTeamScore;
+  const isAwayTeamWinner =
+    homeTeamScore && awayTeamScore && homeTeamScore < awayTeamScore;
+
   return {
     homeTeam,
     awayTeam,
@@ -459,6 +466,8 @@ export const getFixtureData = (
     fixtureDate,
     fixtureStatus,
     fixtureRound,
+    isHomeTeamWinner,
+    isAwayTeamWinner,
   };
 };
 

@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { FilterItems } from "./ui/FilterItems";
 import Tabs from "./ui/Tabs";
 import {
+  Tabs as TTabs,
   AllSportsFixtures,
   DetailedTabsType,
   Games,
@@ -27,7 +28,7 @@ import {
   useTabsStore,
   useTeamStore,
 } from "@/lib/store";
-import { Filters, Fixtures, Tabs as TTabs } from "@/types/football";
+import { Filters, Fixtures } from "@/types/football";
 import { FilterDropDown } from "./Table/FilterDropDown";
 import { DropDown } from "./ui/DropDown";
 import { Column, Table } from "@tanstack/react-table";

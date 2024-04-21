@@ -9,7 +9,7 @@ export interface Periods {
   first: RugbyScores;
   second: RugbyScores;
   overtime: RugbyScores;
-  secondt_overtime: RugbyScores;
+  second_overtime: RugbyScores;
 }
 
 export interface RugbyGameStats extends GamesStats {

@@ -1,12 +1,12 @@
 "use client";
 
 import { shortStatusMap } from "@/lib/constants";
-import { League as FootballLeague, StatusType, Teams } from "@/types/football";
+import { League as FootballLeague, Teams } from "@/types/football";
 import { formatDatePatternLong, getScores } from "@/lib/utils";
 import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { LucideArrowRight } from "lucide-react";
 import { NBATeams } from "@/types/basketball";
-import { AllSportsFixtures, League } from "@/types/general";
+import { AllSportsFixtures, StatusType, League } from "@/types/general";
 import ImageWithFallback from "@/components/ImageWithFallback";
 
 export const fixturesListColumns = <

@@ -17,23 +17,23 @@ import {
 import { topAssistColumns } from "./Table/topAssistColumns";
 
 type Props = {
-  data?: PlayerStats[] | null;
-  type: "assist" | "goal";
+  data: PlayerStats[];
+  stat: string;
 };
 
-const PlayerStats = ({ data, type }: Props) => {
-  const selectColumns = (type: "assist" | "goal") => {
-    switch (type) {
-      case "assist":
+const PlayerStats = ({ data, stat }: Props) => {
+  const selectColumns = (stat: string) => {
+    switch (stat) {
+      case "top assists":
         return topAssistColumns;
-      case "goal":
+      default:
         return topScoreColumns;
     }
   };
 
   const playerStatsTable = useReactTable({
     data: data ?? [],
-    columns: selectColumns(type),
+    columns: selectColumns(stat),
     getCoreRowModel: getCoreRowModel(),
   });
 
