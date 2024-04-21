@@ -1,6 +1,6 @@
 import {
   AustralianFootballGames,
-  AustralianFootballLeagueInfo,
+  AustralianFootballLeagueOrTeamInfo,
   AustralianFootballStandings,
   AustralianFootballTeamStatistics,
 } from "@/types/australian-football";
@@ -16,12 +16,11 @@ import {
 import {
   Fixtures,
   Leagues,
-  League as FootballLeague,
-  Seasons as FootballSeasons,
   TeamResponse as FootballTeamResponse,
   TeamStatistics as FootballTeamStatistics,
   StandingsReponse,
   Squads,
+  PlayerStats,
 } from "@/types/football";
 import {
   APINonArrayResponse,
@@ -109,9 +108,9 @@ export const getLeagueById = async (id: number, sport: Sports) => {
       ).data.response?.[0];
     case "australian-football":
       return (
-        await axiosInstance.get<APIResponse<AustralianFootballLeagueInfo>>(
-          `/leagues?id=${id}`
-        )
+        await axiosInstance.get<
+          APIResponse<AustralianFootballLeagueOrTeamInfo>
+        >(`/leagues?id=${id}`)
       ).data.response;
     case "football":
       return (
@@ -160,9 +159,7 @@ export const getTeamById = async (
 export const getTeamSeasons = async (id: number, sport: Sports) => {
   const axiosInstance = createAxiosInstance(sport);
   return (
-    await axiosInstance.get<APIResponse<FootballSeasons>>(
-      `/teams/seasons?team=${id}`
-    )
+    await axiosInstance.get<APIResponse<number>>(`/teams/seasons?team=${id}`)
   ).data.response;
 };
 
@@ -286,7 +283,7 @@ export const getFixturesByTeamIdAndSeason = async (
       if (isNBATeam) {
         return (
           await axiosNBAInstance.get<APIResponse<NBAGames>>(
-            `/games?team=${teamId}$season=${season}`
+            `/games?team=${teamId}&season=${season}`
           )
         ).data.response;
       }
@@ -393,9 +390,70 @@ export const getStandingsByLeagueIdAndSeason = async (
   }
 };
 
+export const getStandingsByTeamIdAndSeason = async (
+  teamId: number | string,
+  leagueId: number | undefined,
+  season: string | null,
+  isNBATeam: boolean,
+  sport: Sports
+) => {
+  const axiosInstance = createAxiosInstance(sport);
+  if (!season || !leagueId) {
+    return undefined;
+  }
+
+  switch (sport) {
+    case "baseball":
+      return (
+        await axiosInstance.get<APIResponse<Standings<GamesStats>[]>>(
+          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    case "hockey":
+      return (
+        await axiosInstance.get<APIResponse<Standings<HockeyGameStats>[]>>(
+          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    case "rugby":
+      return (
+        await axiosInstance.get<APIResponse<Standings<RugbyGameStats>[]>>(
+          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    case "australian-football":
+      return (
+        await axiosInstance.get<APIResponse<AustralianFootballStandings>>(
+          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    case "basketball":
+      if (isNBATeam) {
+        return (
+          await axiosNBAInstance.get<APIResponse<NBAStandings>>(
+            `/standings?league=standard&team=${teamId}&season=${season}`
+          )
+        ).data.response;
+      }
+      return (
+        await axiosInstance.get<APIResponse<Standings<GamesStats>[]>>(
+          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    case "football":
+      return (
+        await axiosInstance.get<APIResponse<StandingsReponse>>(
+          `/standings?team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    default:
+      return undefined;
+  }
+};
+
 export const getTeamStatisticsBySeason = async (
   teamId: number | string,
-  leagueId: string | number | null | undefined,
+  leagueId: number | undefined,
   season: string | null,
   sport: Sports,
   isNBATeam: boolean = false
@@ -417,7 +475,7 @@ export const getTeamStatisticsBySeason = async (
     case "baseball":
       return (
         await axiosInstance.get<APINonArrayResponse<TeamStatistics>>(
-          `/teams/statistics?team=${teamId}&league=${leagueId}$season=${season}`
+          `/teams/statistics?team=${teamId}&league=${leagueId}&season=${season}`
         )
       ).data.response;
     case "australian-football":
@@ -425,7 +483,7 @@ export const getTeamStatisticsBySeason = async (
         await axiosInstance.get<
           APINonArrayResponse<AustralianFootballTeamStatistics>
         >(
-          `/teams/statistics?team=${teamId}&league=${leagueId}$season=${season}`
+          `/teams/statistics?team=${teamId}&league=${leagueId}&season=${season}`
         )
       ).data.response;
     case "football":
@@ -467,6 +525,102 @@ export const getPlayersForTeam = async (
           `/players/squads?team=${teamId}`
         )
       ).data.response;
+    default:
+      return undefined;
+  }
+};
+
+export const getPlayerStandings = async (
+  stat: string,
+  id: number,
+  season: string | null,
+  sport: Sports
+) => {
+  if (!season) return undefined;
+
+  const axiosInstance = createAxiosInstance(sport);
+
+  switch (stat) {
+    case "top scorers":
+      return (
+        await axiosInstance.get<APIResponse<PlayerStats>>(
+          `/players/topscorers?league=${id}&season=${season}`
+        )
+      ).data.response;
+    case "top assists":
+      return (
+        await axiosInstance.get<APIResponse<PlayerStats>>(
+          `/players/topassists?league=${id}&season=${season}`
+        )
+      ).data.response;
+    case "yellow cards":
+      return (
+        await axiosInstance.get<APIResponse<PlayerStats>>(
+          `/players/yellowcards?league=${id}&season=${season}`
+        )
+      ).data.response;
+    case "red cards":
+      return (
+        await axiosInstance.get<APIResponse<PlayerStats>>(
+          `/players/redcards?league=${id}&season=${season}`
+        )
+      ).data.response;
+    default:
+      return undefined;
+  }
+};
+
+export const getFixtureById = async (
+  fixtureId: number,
+  sport: Sports,
+  isNBATeam: boolean = false
+) => {
+  const axiosInstance = createAxiosInstance(sport);
+
+  switch (sport) {
+    case "basketball":
+      if (isNBATeam) {
+        return (
+          await axiosNBAInstance.get<APIResponse<NBAGames>>(
+            `/games?id=${fixtureId}`
+          )
+        ).data.response;
+      }
+      return (
+        await axiosInstance.get<APIResponse<Games<BasketballScores>>>(
+          `/games?id=${fixtureId}`
+        )
+      ).data.response?.[0];
+    case "baseball":
+      return (
+        await axiosInstance.get<APIResponse<Games<BaseballScores>>>(
+          `/games?id=${fixtureId}`
+        )
+      ).data.response?.[0];
+    case "rugby":
+      return (
+        await axiosInstance.get<APIResponse<GamesWithPeriods<number | null>>>(
+          `/games?id=${fixtureId}`
+        )
+      ).data.response?.[0];
+    case "hockey":
+      return (
+        await axiosInstance.get<
+          APIResponse<GamesWithPeriodsAndEvents<number | null>>
+        >(`/games?id=${fixtureId}`)
+      ).data.response?.[0];
+    case "australian-football":
+      return (
+        await axiosInstance.get<APIResponse<AustralianFootballGames>>(
+          `/games?league=1&id=${fixtureId}`
+        )
+      ).data.response?.[0];
+    case "football":
+      return (
+        await axiosInstance.get<APIResponse<Fixtures>>(
+          `/fixtures?id=${fixtureId}`
+        )
+      ).data.response?.[0];
     default:
       return undefined;
   }

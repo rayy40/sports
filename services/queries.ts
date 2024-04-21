@@ -10,6 +10,9 @@ import {
   getTeamSeasons,
   getFixturesByTeamIdAndSeason,
   getPlayersForTeam,
+  getStandingsByTeamIdAndSeason,
+  getPlayerStandings,
+  getFixtureById,
 } from "./api";
 
 export function useLeagueById(id: number, sport: Sports) {
@@ -76,32 +79,64 @@ export function useFixturesByTeamIdAndSeason(
   });
 }
 
+export function useFixtursById(
+  fixtureId: number,
+  sport: Sports,
+  isNBATeam: boolean
+) {
+  return useQuery({
+    queryKey: [fixtureId, sport, "fixtures"],
+    queryFn: () => getFixtureById(fixtureId, sport, isNBATeam),
+    staleTime: 15 * 60 * 1000,
+    enabled: !!fixtureId,
+  });
+}
+
 export function useStandingsByLeagueIdAndSeason(
-  leagueId: number,
+  id: number,
   season: string | null,
   sport: Sports,
+  isTeam: boolean,
   tab: DetailedTabsType
 ) {
   return useQuery({
-    queryKey: [leagueId, season, sport, "standings"],
-    queryFn: () => getStandingsByLeagueIdAndSeason(leagueId, season, sport),
-    enabled: tab === "Standings" && !!season,
+    queryKey: [id, season, sport, "standings"],
+    queryFn: () => getStandingsByLeagueIdAndSeason(id, season, sport),
+    enabled: tab === "Standings" && !isTeam && !!season,
+  });
+}
+
+export function useStandingsByTeamIdAndSeason(
+  teamId: number,
+  leagueId: number | undefined,
+  season: string | null,
+  sport: Sports,
+  isTeam: boolean,
+  isNBATeam: boolean,
+  tab: DetailedTabsType
+) {
+  return useQuery({
+    queryKey: [teamId, leagueId, season, sport, "standings"],
+    queryFn: () =>
+      getStandingsByTeamIdAndSeason(teamId, leagueId, season, isNBATeam, sport),
+    enabled: tab === "Standings" && isTeam && !!season,
   });
 }
 
 export function useStatisticsByTeamIdAndSeason(
   teamId: number,
-  leagueId: string | number | null | undefined,
+  leagueId: number | undefined,
   season: string | null,
   sport: Sports,
   tab: DetailedTabsType,
+  isTeam: boolean,
   isNBATeam: boolean = false
 ) {
   return useQuery({
-    queryKey: [leagueId, teamId, season, sport, "statistics"],
+    queryKey: [teamId, leagueId, season, sport, "statistics"],
     queryFn: () =>
       getTeamStatisticsBySeason(teamId, leagueId, season, sport, isNBATeam),
-    enabled: tab === "Stats" && (!!season || !!leagueId),
+    enabled: tab === "Stats" && isTeam && (!!season || !!leagueId),
   });
 }
 
@@ -115,5 +150,20 @@ export function usePlayersForTeam(
     queryKey: [teamId, season, "players"],
     queryFn: () => getPlayersForTeam(teamId, season, sport),
     enabled: tab === "Squads" && !!season,
+  });
+}
+
+export function usePlayersStandings(
+  id: number,
+  season: string | null,
+  sport: Sports,
+  tab: DetailedTabsType,
+  stat: string,
+  isTeam: boolean
+) {
+  return useQuery({
+    queryKey: [id, season, sport, stat, "standings"],
+    queryFn: () => getPlayerStandings(stat, id, season, sport),
+    enabled: tab === "Stats" && !isTeam && (!!season || !!stat),
   });
 }
