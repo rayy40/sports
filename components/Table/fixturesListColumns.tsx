@@ -1,12 +1,12 @@
 "use client";
 
 import { shortStatusMap } from "@/lib/constants";
-import { League, StatusType, Teams } from "@/types/football";
+import { League as FootballLeague, StatusType, Teams } from "@/types/football";
 import { formatDatePatternLong, getScores } from "@/lib/utils";
 import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { LucideArrowRight } from "lucide-react";
 import { NBATeams } from "@/types/basketball";
-import { AllSportsFixtures } from "@/types/general";
+import { AllSportsFixtures, League } from "@/types/general";
 import ImageWithFallback from "@/components/ImageWithFallback";
 
 export const fixturesListColumns = <
@@ -127,8 +127,10 @@ export const fixturesListColumns = <
       );
     },
     filterFn: (row, id, value) => {
-      const teamsInfo: Teams = row.getValue(id);
-      const teams = [teamsInfo.home.id, teamsInfo.away.id];
+      const teamsInfo: Teams | NBATeams = row.getValue(id);
+      const awayTeam =
+        "away" in teamsInfo ? teamsInfo.away.name : teamsInfo.visitors.name;
+      const teams = [teamsInfo.home.id, awayTeam];
       return teams.some((team) => value === team);
     },
   },
@@ -138,7 +140,7 @@ export const fixturesListColumns = <
     header: "League",
     enableColumnFilter: true,
     filterFn: (row, id, value) => {
-      const leagueInfo: League = row.getValue(id);
+      const leagueInfo: League | FootballLeague = row.getValue(id);
       return value === leagueInfo.id;
     },
   },
