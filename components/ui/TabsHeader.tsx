@@ -1,6 +1,6 @@
 import React from "react";
-import ImageWithFallback from "./ImageWithFallback";
-import { DropDown } from "./ui/DropDown";
+import ImageWithFallback from "../ImageWithFallback";
+import { DropDown } from "./DropDown";
 
 type Props = {
   title: string;
