@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { Basketball } from "@/Assets/Icons/Sports";
 import HomeFixtures from "@/components/HomeFixtures";
 import FilterWrapper from "@/components/FilterWrapper";
@@ -9,8 +9,9 @@ import {
 } from "@tanstack/react-query";
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
-import Loading from "@/components/Loading";
 import DatePicker from "@/components/ui/DatePicker";
+import { Games } from "@/types/general";
+import { BasketballScores } from "@/types/basketball";
 
 const Page = async () => {
   const date = new Date();
@@ -21,13 +22,14 @@ const Page = async () => {
     queryFn: () => getFixturesByDate(formattedDate, "basketball"),
   });
 
-  // const query = queryClient.getQueryData([
-  //   "basketball",
-  //   "fixtures",
-  //   formattedDate,
-  // ]);
+  const fixtures: Games<BasketballScores>[] | undefined =
+    queryClient.getQueryData([formattedDate, "basketball", "fixtures"]);
 
-  // console.log(query);
+  if (!fixtures) {
+    <div className="h-screen w-full flex items-center justify-center">
+      <p>No fixtures found.</p>
+    </div>;
+  }
 
   return (
     <div className="bg-background w-full min-h-screen font-sans">
@@ -35,12 +37,16 @@ const Page = async () => {
         <div className="px-6 border border-b shadow-sm sticky top-0 bg-background z-10">
           <div className="py-6 flex justify-between items-center">
             <h2 className="text-2xl flex items-center gap-3 text-secondary-foreground font-medium">
-              <Basketball width={30} height={30} />
+              <Basketball width={50} height={50} />
               Games
             </h2>
             <DatePicker />
           </div>
-          <FilterWrapper isHome={true} sport={"basketball"} />
+          <FilterWrapper
+            fixtures={fixtures}
+            isHome={true}
+            sport={"basketball"}
+          />
         </div>
         <div className="h-[calc(100vh-150px)] overflow-y-auto px-6">
           <HomeFixtures sport={"basketball"} />

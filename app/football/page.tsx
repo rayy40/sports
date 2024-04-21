@@ -27,13 +27,19 @@ const Page = async () => {
     "fixtures",
   ]);
 
+  if (!fixtures) {
+    <div className="h-screen w-full flex items-center justify-center">
+      <p>No fixtures found.</p>
+    </div>;
+  }
+
   return (
     <div className="bg-background w-full min-h-screen font-sans">
       <HydrationBoundary state={dehydrate(queryClient)}>
         <div className="px-6 border border-b shadow-sm sticky top-0 bg-background z-10">
           <div className="py-6 flex justify-between items-center">
             <h2 className="text-2xl flex items-center gap-3 text-secondary-foreground font-medium">
-              <Football width={30} height={30} />
+              <Football width={50} height={50} />
               Games
             </h2>
             <DatePicker />

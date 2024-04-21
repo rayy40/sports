@@ -10,6 +10,7 @@ import {
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
 import DatePicker from "@/components/ui/DatePicker";
+import { AustralianFootballGames } from "@/types/australian-football";
 
 const Page = async () => {
   const date = new Date();
@@ -20,11 +21,18 @@ const Page = async () => {
     queryFn: () => getFixturesByDate(formattedDate, "australian-football"),
   });
 
-  const fixtures = queryClient.getQueryData([
-    formattedDate,
-    "australian-football",
-    "fixtures",
-  ]);
+  const fixtures: AustralianFootballGames[] | undefined =
+    queryClient.getQueryData([
+      formattedDate,
+      "australian-football",
+      "fixtures",
+    ]);
+
+  if (!fixtures) {
+    <div className="h-screen w-full flex items-center justify-center">
+      <p>No fixtures found.</p>
+    </div>;
+  }
 
   return (
     <div className="bg-background w-full min-h-screen font-sans">
@@ -37,7 +45,11 @@ const Page = async () => {
             </h2>
             <DatePicker />
           </div>
-          <FilterWrapper isHome={true} sport={"australian-football"} />
+          <FilterWrapper
+            fixtures={fixtures}
+            isHome={true}
+            sport={"australian-football"}
+          />
         </div>
         <div className="h-[calc(100vh-150px)] overflow-y-auto px-6">
           <HomeFixtures sport={"australian-football"} />

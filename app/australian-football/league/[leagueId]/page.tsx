@@ -1,4 +1,3 @@
-import { League, Seasons } from "@/types/general";
 import {
   HydrationBoundary,
   QueryClient,
@@ -9,9 +8,8 @@ import { getFixturesByLeagueIdAndSeason } from "@/services/api";
 import RootComponent from "@/components/RootComponent";
 import {
   AustralianFootballGames,
-  AustralianFootballLeagueInfo,
+  AustralianFootballLeagueOrTeamInfo,
 } from "@/types/australian-football";
-import { getNBASeasons } from "@/services/api";
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
@@ -21,7 +19,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
     queryFn: () => getLeagueById(leagueId, "australian-football"),
   });
 
-  const league: AustralianFootballLeagueInfo[] | undefined =
+  const league: AustralianFootballLeagueOrTeamInfo[] | undefined =
     queryClient.getQueryData([leagueId, "australian-football", "league"]);
 
   if (!league) {
@@ -57,7 +55,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
     <div className="relative font-sans">
       <HydrationBoundary state={dehydrate(queryClient)}>
         <RootComponent
-          title={"AFL"}
+          title={league[league.length - 1].name}
           logo={league[league.length - 1].logo}
           id={1}
           seasons={seasonsList}

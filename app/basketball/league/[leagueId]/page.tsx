@@ -37,8 +37,8 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
       : undefined;
 
   const season = !NBASeasons
-    ? league?.seasons[league.seasons.length - 1].season
-    : NBASeasons[NBASeasons.length - 1].toString();
+    ? league?.seasons[league?.seasons?.length - 1]?.season
+    : NBASeasons?.[NBASeasons?.length - 1]?.toString();
 
   await queryClient.prefetchQuery({
     queryKey: [leagueId, season, "basketball", "fixtures"],

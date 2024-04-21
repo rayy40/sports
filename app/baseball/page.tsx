@@ -10,6 +10,8 @@ import {
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
 import DatePicker from "@/components/ui/DatePicker";
+import { Games } from "@/types/general";
+import { BaseballScores } from "@/types/baseball";
 
 const Page = async () => {
   const date = new Date();
@@ -19,6 +21,15 @@ const Page = async () => {
     queryKey: [formattedDate, "baseball", "fixtures"],
     queryFn: () => getFixturesByDate(formattedDate, "baseball"),
   });
+
+  const fixtures: Games<BaseballScores>[] | undefined =
+    queryClient.getQueryData([formattedDate, "baseball", "fixtures"]);
+
+  if (!fixtures) {
+    <div className="h-screen w-full flex items-center justify-center">
+      <p>No fixtures found.</p>
+    </div>;
+  }
 
   return (
     <div className="bg-background w-full min-h-screen font-sans">
@@ -31,7 +42,7 @@ const Page = async () => {
             </h2>
             <DatePicker />
           </div>
-          <FilterWrapper isHome={true} sport={"baseball"} />
+          <FilterWrapper fixtures={fixtures} isHome={true} sport={"baseball"} />
         </div>
         <div className="h-[calc(100vh-150px)] overflow-y-auto px-6">
           <HomeFixtures sport={"baseball"} />

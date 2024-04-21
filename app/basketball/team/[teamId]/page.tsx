@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import {
   HydrationBoundary,
   QueryClient,
@@ -12,15 +11,15 @@ import {
   NBAGames,
   NBATeamresponse,
 } from "@/types/basketball";
-import { Seasons } from "@/lib/constants";
+import { Seasons, BasketballSeasons } from "@/lib/constants";
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const isNBATeam = params.teamId.split("-")[0] === "nba";
-  console.log(isNBATeam);
+
   const teamId = isNBATeam
     ? parseInt(params.teamId.split("-")[1])
     : parseInt(params.teamId);
-  console.log(teamId);
+
   const queryClient = new QueryClient();
   await queryClient.prefetchQuery({
     queryKey: [teamId, "basketball", "team"],
@@ -29,8 +28,6 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
 
   const team: TeamResponse | NBATeamresponse | undefined =
     queryClient.getQueryData([teamId, "basketball", "team"]);
-
-  console.log(team);
 
   const season = isNBATeam ? "2023" : "2023-2024";
 
@@ -42,8 +39,6 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
 
   const fixtures: Games<BasketballScores>[] | NBAGames[] | undefined =
     queryClient.getQueryData([teamId, season, "basketball", "fixtures"]);
-
-  console.log(fixtures);
 
   if (!team) {
     return (
@@ -60,10 +55,10 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
           title={team.name}
           logo={team.logo}
           id={team.id}
-          seasons={Seasons}
+          seasons={isNBATeam ? Seasons : BasketballSeasons}
           sport="basketball"
           isTeam={true}
-          isNBATeam={true}
+          isNBATeam={isNBATeam}
           currSeason={season ?? "-"}
           fixtures={fixtures}
         />
