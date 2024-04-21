@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { Fixtures, Leagues } from "@/types/football";
 import {
   HydrationBoundary,
@@ -22,7 +21,8 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
     "league",
   ]);
 
-  const season = league?.seasons?.[league?.seasons?.length - 1].year.toString();
+  const season =
+    league?.seasons?.[league?.seasons?.length - 1]?.year.toString();
 
   await queryClient.prefetchQuery({
     queryKey: [leagueId, season, "football", "fixtures"],

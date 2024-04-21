@@ -26,17 +26,17 @@ const Page = async () => {
     queryClient.getQueryData([formattedDate, "basketball", "fixtures"]);
 
   if (!fixtures) {
-    <div className="h-screen w-full flex items-center justify-center">
+    <div className="flex items-center justify-center w-full h-screen">
       <p>No fixtures found.</p>
     </div>;
   }
 
   return (
-    <div className="bg-background w-full min-h-screen font-sans">
+    <div className="w-full min-h-screen font-sans bg-background">
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <div className="px-6 border border-b shadow-sm sticky top-0 bg-background z-10">
-          <div className="py-6 flex justify-between items-center">
-            <h2 className="text-2xl flex items-center gap-3 text-secondary-foreground font-medium">
+        <div className="sticky top-0 z-10 px-6 border border-b shadow-sm bg-background">
+          <div className="flex items-center justify-between py-6">
+            <h2 className="flex items-center gap-3 text-2xl font-medium text-secondary-foreground">
               <Basketball width={50} height={50} />
               Games
             </h2>
@@ -48,7 +48,7 @@ const Page = async () => {
             sport={"basketball"}
           />
         </div>
-        <div className="h-[calc(100vh-150px)] overflow-y-auto px-6">
+        <div className="h-[calc(100vh-150px)] overflow-y-auto">
           <HomeFixtures sport={"basketball"} />
         </div>
       </HydrationBoundary>
