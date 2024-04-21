@@ -1,19 +1,19 @@
 "use client";
 
-import { AllSportsStandings } from "@/types/general";
-import { AllOrHomeOrAway, Goals, Team } from "@/types/football";
+import { AllSportsStandings, Sports } from "@/types/general";
+import { Goals, Team } from "@/types/football";
 import { ColumnDef, Getter } from "@tanstack/react-table";
 import Link from "next/link";
 import ImageWithFallback from "../ImageWithFallback";
 
-export const standingsColumns = <
-  T extends AllSportsStandings
->(): ColumnDef<T>[] => [
+export const standingsColumns = <T extends AllSportsStandings>(
+  sport: Sports
+): ColumnDef<T>[] => [
   {
     id: "rank",
     accessorFn: (row) =>
       "conference" in row
-        ? row.conference.rank
+        ? row.division.rank
         : "position" in row
         ? row.position
         : row.rank,
@@ -32,7 +32,7 @@ export const standingsColumns = <
       const team = getValue();
 
       return (
-        <Link href={`/football/teams/${team.id}`}>
+        <Link href={`/${sport}/team/${team.id}`}>
           <div className="flex items-center gap-3">
             <ImageWithFallback src={team.logo} alt={`${team.name}-logo`} />
             <p className="text-[1rem]">{team.name}</p>
@@ -99,12 +99,17 @@ export const standingsColumns = <
   },
   {
     id: "drawn",
-    accessorFn: (row) => ("all" in row ? row?.all : undefined),
+    accessorFn: (row) =>
+      "last_5" in row
+        ? row.games.drawn
+        : "all" in row
+        ? row?.all?.draw
+        : undefined,
     header: "Drawn",
-    cell: ({ getValue }: { getValue: Getter<AllOrHomeOrAway | undefined> }) => {
-      const matches = getValue();
+    cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
+      const drawn = getValue();
 
-      return <p className="text-center text-[0.975rem]">{matches?.draw}</p>;
+      return <p className="text-center text-[0.975rem]">{drawn}</p>;
     },
   },
   {
@@ -239,7 +244,8 @@ export const standingsColumns = <
   },
   {
     id: "form",
-    accessorFn: (row) => ("form" in row ? row.form : undefined),
+    accessorFn: (row) =>
+      "last_5" in row ? row.last_5 : "form" in row ? row.form : undefined,
     header: "Form",
     cell: ({ getValue }: { getValue: Getter<string> }) => {
       const form = getValue();
@@ -249,25 +255,26 @@ export const standingsColumns = <
             return "hsl(163,49%,52.5%)";
           case "L":
             return "hsl(0,87%,72.5%)";
-          case "D":
-            return "hsl(0,0%,72.5%)";
           default:
-            return "hsl(0,0%,92.5%)";
+            return "hsl(0,0%,72.5%)";
         }
       };
 
       return (
         <div className="flex items-center justify-center gap-1">
           {form
-            ? form.split("").map((char, index) => (
-                <div
-                  style={{
-                    backgroundColor: renderColor(char),
-                  }}
-                  className="rounded-full size-5"
-                  key={index}
-                ></div>
-              ))
+            ? form
+                .slice(0, 5)
+                .split("")
+                .map((char, index) => (
+                  <div
+                    style={{
+                      backgroundColor: renderColor(char),
+                    }}
+                    className="rounded-full size-5"
+                    key={index}
+                  ></div>
+                ))
             : "-"}
         </div>
       );
