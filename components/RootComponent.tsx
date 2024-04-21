@@ -20,7 +20,7 @@ import FilterWrapper from "./FilterWrapper";
 import TabsContent from "./TabsContent";
 import { SeasonsEntity } from "@/types/football";
 import Loading from "./Loading";
-import TabsHeader from "./TabsHeader";
+import TabsHeader from "./ui/TabsHeader";
 
 export function isSeasons(
   item: (Seasons | SeasonsEntity)[] | (number | string)[]
