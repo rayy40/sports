@@ -4,24 +4,30 @@ import { Table } from "@tanstack/react-table";
 import Loading from "./Loading";
 import {
   usePlayersForTeam,
+  usePlayersStandings,
   useStandingsByLeagueIdAndSeason,
+  useStandingsByTeamIdAndSeason,
   useStatisticsByTeamIdAndSeason,
 } from "@/services/queries";
-import { useSeasonsStore, useTabsStore } from "@/lib/store";
+import { useSeasonsStore, useStatStore, useTabsStore } from "@/lib/store";
 import Standings from "./Standings";
 import TeamStatistics from "./TeamStatistics";
+import Squads from "./Squads";
+import PlayerStats from "./PlayerStats";
 
 type Props = {
   id: number;
+  isTeam: boolean;
   isNBATeam: boolean;
   currSeason: string;
   sport: Sports;
-  league: string | number | null | undefined;
+  league: number | undefined;
   table: Table<AllSportsFixtures>;
 };
 
 const TabsContent = ({
   id,
+  isTeam,
   isNBATeam,
   currSeason,
   sport,
@@ -29,10 +35,30 @@ const TabsContent = ({
   table,
 }: Props) => {
   const { tab } = useTabsStore();
+  const { stat } = useStatStore();
   const { season } = useSeasonsStore();
 
-  const { data: standingsData, isFetching: isFetchingStandings } =
-    useStandingsByLeagueIdAndSeason(id, season ?? currSeason, sport, tab);
+  console.log(stat);
+
+  const { data: standingsLeagueData, isFetching: isFetchingLeagueStandings } =
+    useStandingsByLeagueIdAndSeason(
+      id,
+      season ?? currSeason,
+      sport,
+      isTeam,
+      tab
+    );
+
+  const { data: standingsTeamData, isFetching: isFetchingTeamStandings } =
+    useStandingsByTeamIdAndSeason(
+      id,
+      league,
+      season ?? currSeason,
+      sport,
+      isTeam,
+      isNBATeam,
+      tab
+    );
 
   const { data: squadsData, isFetching: isFetchingSquads } = usePlayersForTeam(
     id,
@@ -48,10 +74,20 @@ const TabsContent = ({
       season ?? currSeason,
       sport,
       tab,
+      isTeam,
       isNBATeam
     );
 
-  if (isFetchingStandings || isFetchingStatistics || isFetchingSquads) {
+  const { data: playersStandingsData, isFetching: isFetchingPlayersStandings } =
+    usePlayersStandings(id, season ?? currSeason, sport, tab, stat, isTeam);
+
+  if (
+    isFetchingLeagueStandings ||
+    isFetchingTeamStandings ||
+    isFetchingStatistics ||
+    isFetchingPlayersStandings ||
+    isFetchingSquads
+  ) {
     return <Loading />;
   }
 
@@ -63,10 +99,20 @@ const TabsContent = ({
         </div>
       );
     }
-    return <p>Squads</p>;
+    return <Squads data={squadsData} />;
   }
 
   if (tab === "Stats") {
+    if (!isTeam) {
+      if (!playersStandingsData || playersStandingsData.length === 0) {
+        return (
+          <div className="flex items-center justify-center w-full h-full">
+            No Standings for players found.
+          </div>
+        );
+      }
+      return <PlayerStats stat={stat} data={playersStandingsData} />;
+    }
     if (!statisticsData) {
       return (
         <div className="flex items-center justify-center w-full h-full">
@@ -78,14 +124,25 @@ const TabsContent = ({
   }
 
   if (tab === "Standings") {
-    if (!standingsData || standingsData.length === 0) {
-      return (
-        <div className="flex items-center justify-center w-full h-full">
-          No Standings found.
-        </div>
-      );
+    if (isTeam) {
+      if (!standingsTeamData || standingsTeamData.length === 0) {
+        return (
+          <div className="flex items-center justify-center w-full h-full">
+            No Standings found.
+          </div>
+        );
+      }
+      return <Standings sport={sport} standing={standingsTeamData} />;
+    } else {
+      if (!standingsLeagueData || standingsLeagueData.length === 0) {
+        return (
+          <div className="flex items-center justify-center w-full h-full">
+            No Standings found.
+          </div>
+        );
+      }
+      return <Standings sport={sport} standing={standingsLeagueData} />;
     }
-    return <Standings standing={standingsData} />;
   }
 
   return <FixturesList table={table} />;
