@@ -1,16 +1,11 @@
 "use client";
 
-import { useSeasonsStore } from "@/lib/store";
+import { useLeagueForTeamStatsStore, useSeasonsStore } from "@/lib/store";
 import {
   useFixturesByLeagueIdAndSeason,
   useFixturesByTeamIdAndSeason,
 } from "@/services/queries";
-import {
-  Seasons,
-  Sports,
-  isNBAFixture,
-  AllSportsFixtures,
-} from "@/types/general";
+import { Seasons, Sports, AllSportsFixtures } from "@/types/general";
 import {
   ColumnFiltersState,
   Table,
@@ -20,7 +15,7 @@ import {
 } from "@tanstack/react-table";
 import React, { useState } from "react";
 import { fixturesListColumns } from "./Table/fixturesListColumns";
-import { getSeasonsList } from "@/lib/utils";
+import { getLeagueIdForTeam, getSeasonsList } from "@/lib/utils";
 import FilterWrapper from "./FilterWrapper";
 import TabsContent from "./TabsContent";
 import { SeasonsEntity } from "@/types/football";
@@ -28,7 +23,7 @@ import Loading from "./Loading";
 import TabsHeader from "./TabsHeader";
 
 export function isSeasons(
-  item: (Seasons | SeasonsEntity)[] | number[]
+  item: (Seasons | SeasonsEntity)[] | (number | string)[]
 ): item is (Seasons | SeasonsEntity)[] {
   return Array.isArray(item) && item.length > 0 && typeof item[0] !== "number";
 }
@@ -37,7 +32,7 @@ type Props = {
   id: number;
   title: string;
   logo?: string | null;
-  seasons: number[] | (Seasons | SeasonsEntity)[];
+  seasons: (number | string)[] | (Seasons | SeasonsEntity)[];
   currSeason: string;
   sport: Sports;
   isTeam?: boolean;
@@ -57,6 +52,7 @@ const RootComponent = ({
   fixtures,
 }: Props) => {
   const { season, setSeason } = useSeasonsStore();
+  const { league: leagueForTeam } = useLeagueForTeamStatsStore();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const seasonList = isSeasons(seasons)
@@ -71,12 +67,7 @@ const RootComponent = ({
 
   const data = (isTeam ? teamFixtures : leagueFixtures) ?? fixtures ?? [];
 
-  const league =
-    data.length > 0
-      ? !isNBAFixture(data[0])
-        ? data?.[0].league.id
-        : data?.[0].league
-      : undefined;
+  const league = getLeagueIdForTeam(data, leagueForTeam, isTeam);
 
   const fixturesTable = useReactTable({
     defaultColumn: {
@@ -122,7 +113,7 @@ const RootComponent = ({
     isFetchingTeamFixtures: boolean,
     id: number,
     isNBATeam: boolean,
-    league: string | number | undefined,
+    league: number | undefined,
     currSeason: string,
     table: Table<AllSportsFixtures>,
     sport: Sports
@@ -133,6 +124,7 @@ const RootComponent = ({
       return (
         <TabsContent
           id={id}
+          isTeam={isTeam}
           isNBATeam={isNBATeam}
           league={league}
           currSeason={currSeason}
