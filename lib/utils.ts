@@ -343,6 +343,29 @@ export const getLeagueId = (
   }
 };
 
+export const getLeagueIdForTeam = (
+  fixtures: AllSportsFixtures[],
+  league: string | null,
+  isTeam: boolean
+) => {
+  if (isTeam && league) {
+    const fixture = fixtures.find((fixture) => {
+      if (!isNBAFixture(fixture) && !isAFLFixture(fixture)) {
+        return fixture.league.name.toLowerCase() === league.toLowerCase();
+      }
+      return undefined;
+    });
+    if (!fixture || typeof fixture.league === "string") return undefined;
+    if (typeof fixture.league.id !== "number") return undefined;
+
+    return fixture.league.id;
+  } else {
+    if (fixtures.length === 0) return undefined;
+    if (typeof fixtures[0].league === "string") return 1;
+    return fixtures[0].league.id;
+  }
+};
+
 export const getLeagueName = (
   league:
     | string
@@ -481,79 +504,81 @@ export const getFootballTeamsRequiredStatistics = (
   stats: FootballTeamStatistics
 ) => {
   const biggestWin =
-    stats.biggest.goals.for.home > stats.biggest.goals.against.away
-      ? stats.biggest.wins.home
-      : stats.biggest.wins.away;
+    (stats?.biggest?.goals?.for?.home ?? 0) >
+    (stats?.biggest?.goals?.against?.away ?? 0)
+      ? stats?.biggest?.wins?.home
+      : stats?.biggest?.wins?.away;
 
   const requiredStats = [
-    { label: "Matches", value: stats.fixtures.played.total },
-    { label: "Win", value: stats.fixtures.wins.total },
-    { label: "Lost", value: stats.fixtures.loses.total },
+    { label: "Matches", value: stats?.fixtures?.played?.total ?? "-" },
+    { label: "Win", value: stats?.fixtures?.wins?.total ?? "-" },
+    { label: "Lost", value: stats?.fixtures?.loses?.total ?? "-" },
     {
       label: "Goals",
-      value: stats.goals.for.total.total + stats.goals.against.total.total,
+      value:
+        stats?.goals?.for?.total?.total + stats?.goals?.against?.total?.total,
     },
-    { label: "Biggest Win", value: biggestWin },
-    { label: "Clean Sheet", value: stats.clean_sheet.total },
-    { label: "Streak", value: stats.biggest.streak.wins },
-    { label: "Yellow Cards", value: totalCards(stats, "yellow") },
-    { label: "Red Cards", value: totalCards(stats, "red") },
-    { label: "Formation", value: stats.lineups?.[0].formation },
+    { label: "Biggest Win", value: biggestWin ?? "-" },
+    { label: "Clean Sheet", value: stats?.clean_sheet?.total ?? "-" },
+    { label: "Streak", value: stats?.biggest?.streak.wins ?? "-" },
+    { label: "Yellow Cards", value: totalCards(stats, "yellow") ?? "-" },
+    { label: "Red Cards", value: totalCards(stats, "red") ?? "-" },
+    { label: "Formation", value: stats?.lineups?.[0]?.formation ?? "-" },
   ];
 
   return requiredStats;
 };
 
 export const getTeamsRequiredStatistics = (stats: TeamStatistics) => {
-  const PointsOrGoals = stats.points || stats.goals;
-  const isPointsOrGoals = stats.points ? "Points" : "Goals";
+  const PointsOrGoals = stats?.points || stats?.goals;
+  const isPointsOrGoals = stats?.points ? "Points" : "Goals";
 
   const requiredStats = [
-    { label: "Matches", value: stats.games.played.all ?? "-" },
-    { label: "Win", value: stats.games.wins.all.total ?? "-" },
+    { label: "Matches", value: stats?.games?.played?.all ?? "-" },
+    { label: "Win", value: stats?.games?.wins?.all?.total ?? "-" },
     {
       label: "Win (%)",
-      value: stats.games.wins.all.percentage
-        ? (parseFloat(stats.games.wins.all.percentage) * 100).toFixed(2)
+      value: stats?.games?.wins?.all?.percentage
+        ? (parseFloat(stats?.games?.wins?.all?.percentage) * 100).toFixed(2)
         : "-",
     },
-    { label: "Drawn", value: stats.games.draws.all.total ?? "-" },
+    { label: "Drawn", value: stats?.games?.draws?.all?.total ?? "-" },
     {
       label: "Drawn (%)",
-      value: stats.games.draws.all.percentage
-        ? (parseFloat(stats.games.draws.all.percentage) * 100).toFixed(2)
+      value: stats?.games?.draws?.all?.percentage
+        ? (parseFloat(stats?.games?.draws?.all?.percentage) * 100).toFixed(2)
         : "-",
     },
-    { label: "Lost", value: stats.games.loses.all.total ?? "-" },
+    { label: "Lost", value: stats?.games?.loses?.all?.total ?? "-" },
     {
       label: "Lost (%)",
-      value: stats.games.loses.all.percentage
-        ? (parseFloat(stats.games.loses.all.percentage) * 100).toFixed(2)
+      value: stats?.games?.loses?.all?.percentage
+        ? (parseFloat(stats?.games?.loses?.all?.percentage) * 100).toFixed(2)
         : "-",
     },
     {
       label: `Avg ${isPointsOrGoals} Scored`,
-      value: PointsOrGoals?.for.average.all ?? "-",
+      value: PointsOrGoals?.for?.average?.all ?? "-",
     },
     {
       label: `Avg ${isPointsOrGoals} Conceded`,
-      value: PointsOrGoals?.for.average.all ?? "-",
+      value: PointsOrGoals?.for?.average?.all ?? "-",
     },
     {
       label: `${isPointsOrGoals} Scored (Home)`,
-      value: PointsOrGoals?.for.total.home ?? "-",
+      value: PointsOrGoals?.for?.total?.home ?? "-",
     },
     {
       label: `${isPointsOrGoals} Scored (Away)`,
-      value: PointsOrGoals?.for.total.away ?? "-",
+      value: PointsOrGoals?.for?.total?.away ?? "-",
     },
     {
       label: `${isPointsOrGoals} Conceded (Home)`,
-      value: PointsOrGoals?.against.total.home ?? "-",
+      value: PointsOrGoals?.against?.total?.home ?? "-",
     },
     {
       label: `${isPointsOrGoals} Conceded (Away)`,
-      value: PointsOrGoals?.against.total.away ?? "-",
+      value: PointsOrGoals?.against?.total?.away ?? "-",
     },
   ];
   return requiredStats;
@@ -561,35 +586,35 @@ export const getTeamsRequiredStatistics = (stats: TeamStatistics) => {
 
 export const getNBATeamsRequiredStatistics = (stats: NBAStatistics) => {
   const requiredStats = [
-    { label: "Points", value: stats.points },
-    { label: "Assists", value: stats.assists },
-    { label: "Rebounds", value: stats.totReb },
-    { label: "Field Goal (%)", value: stats.fgp },
-    { label: "Three Point (%)", value: stats.tpp },
-    { label: "Free Throw (%)", value: stats.ftp },
+    { label: "Points", value: stats?.points ?? "-" },
+    { label: "Assists", value: stats?.assists ?? "-" },
+    { label: "Rebounds", value: stats?.totReb ?? "-" },
+    { label: "Field Goal (%)", value: stats?.fgp ?? "-" },
+    { label: "Three Point (%)", value: stats?.tpp ?? "-" },
+    { label: "Free Throw (%)", value: stats?.ftp ?? "-" },
     {
       label: "Steals",
-      value: stats.steals,
+      value: stats?.steals ?? "-",
     },
     {
       label: "TurnOvers",
-      value: stats.turnovers,
+      value: stats?.turnovers ?? "-",
     },
     {
       label: "Blocks",
-      value: stats.blocks,
+      value: stats?.blocks ?? "-",
     },
     {
       label: "Plus/Minus",
-      value: stats.plusMinus,
+      value: stats?.plusMinus ?? "-",
     },
     {
       label: "Biggest Lead",
-      value: stats.biggestLead,
+      value: stats?.biggestLead ?? "-",
     },
     {
       label: "Longest Run",
-      value: stats.longestRun,
+      value: stats?.longestRun ?? "-",
     },
   ];
   return requiredStats;
@@ -599,18 +624,18 @@ export const getAFLTeamsRequiredStatistics = (
   stats: AustralianFootballStatistics
 ) => {
   const requiredStats = [
-    { label: "Played", value: stats.games.played },
-    { label: "Goals", value: stats.scoring.goals.total ?? "-" },
-    { label: "Assists", value: stats.scoring.assists.total ?? "-" },
-    { label: "Behinds", value: stats.scoring.behinds.total ?? "-" },
-    { label: "Disposals", value: stats.disposals.disposals.total ?? "-" },
-    { label: "Kicks", value: stats.disposals.kicks.total ?? "-" },
-    { label: "Free Kicks", value: stats.disposals.free_kicks.total ?? "-" },
-    { label: "Handballs", value: stats.disposals.handballs.total ?? "-" },
-    { label: "Hitouts", value: stats.stoppages.hitouts.total ?? "-" },
-    { label: "Clearances", value: stats.stoppages.clearances.total ?? "-" },
-    { label: "Marks", value: stats.marks.total ?? "-" },
-    { label: "Tackles", value: stats.defence.tackles.total ?? "-" },
+    { label: "Played", value: stats?.games?.played },
+    { label: "Goals", value: stats?.scoring?.goals?.total ?? "-" },
+    { label: "Assists", value: stats?.scoring?.assists?.total ?? "-" },
+    { label: "Behinds", value: stats?.scoring?.behinds?.total ?? "-" },
+    { label: "Disposals", value: stats?.disposals?.disposals?.total ?? "-" },
+    { label: "Kicks", value: stats?.disposals?.kicks?.total ?? "-" },
+    { label: "Free Kicks", value: stats?.disposals?.free_kicks?.total ?? "-" },
+    { label: "Handballs", value: stats?.disposals?.handballs?.total ?? "-" },
+    { label: "Hitouts", value: stats?.stoppages?.hitouts?.total ?? "-" },
+    { label: "Clearances", value: stats?.stoppages?.clearances?.total ?? "-" },
+    { label: "Marks", value: stats?.marks?.total ?? "-" },
+    { label: "Tackles", value: stats?.defence?.tackles?.total ?? "-" },
   ];
   return requiredStats;
 };
