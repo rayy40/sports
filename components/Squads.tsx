@@ -12,9 +12,10 @@ import {
 import ImageWithFallback from "./ImageWithFallback";
 import { NBAPlayer } from "@/types/basketball";
 import Link from "next/link";
+import { Player } from "@/types/general";
 
 type Props = {
-  data?: (PlayersEntity | NBAPlayer)[] | null;
+  data: (Squads | NBAPlayer | Player)[];
 };
 
 const Squads = ({ data }: Props) => {
@@ -25,7 +26,9 @@ const Squads = ({ data }: Props) => {
       </div>
     );
   }
-  const playersByPosition = getPlayersByPosition(data);
+  const playersByPosition = getPlayersByPosition(
+    data as (PlayersEntity | NBAPlayer)[]
+  );
 
   return (
     <div className="h-full overflow-y-auto">
