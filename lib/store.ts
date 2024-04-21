@@ -1,4 +1,4 @@
-import { DetailedTabsType, StatusType } from "@/types/general";
+import { DetailedTabsType, FixtureTabsType, StatusType } from "@/types/general";
 import { create } from "zustand";
 
 const dt = new Date();
@@ -11,6 +11,10 @@ export interface StatusStore {
 export interface TabsStore {
   tab: DetailedTabsType;
   setTab: (arg: DetailedTabsType) => void;
+}
+export interface FixtureTabsStore {
+  tab: FixtureTabsType;
+  setTab: (arg: FixtureTabsType) => void;
 }
 
 export interface StatStore {
@@ -46,6 +50,11 @@ export const useStatusStore = create<StatusStore>((set) => ({
 export const useTabsStore = create<TabsStore>((set) => ({
   tab: "Fixtures",
   setTab: (arg: DetailedTabsType) => set({ tab: arg }),
+}));
+
+export const useFixtureTabsStore = create<FixtureTabsStore>((set) => ({
+  tab: "Match Stats",
+  setTab: (arg: FixtureTabsType) => set({ tab: arg }),
 }));
 
 export const useStatStore = create<StatStore>((set) => ({
