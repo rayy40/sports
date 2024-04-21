@@ -28,7 +28,7 @@ export interface AustralianFootballGames {
   };
 }
 
-export interface AustralianFootballLeagueInfo {
+export interface AustralianFootballLeagueOrTeamInfo {
   id: number;
   name: string;
   logo: string | null;
