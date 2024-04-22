@@ -11,9 +11,9 @@ import {
 } from "@/services/queries";
 import { useSeasonsStore, useStatStore, useTabsStore } from "@/lib/store";
 import Standings from "./Standings";
-import TeamStatistics from "./TeamStatistics";
-import Squads from "./Squads";
-import PlayerStats from "./PlayerStats";
+import TeamStatistics from "./ui/TeamStatistics";
+import Squads from "./ui/Squads";
+import PlayerStats from "./ui/PlayerStats";
 
 type Props = {
   id: number;
