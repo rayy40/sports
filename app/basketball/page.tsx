@@ -1,6 +1,6 @@
 import React from "react";
 import { Basketball } from "@/Assets/Icons/Sports";
-import HomeFixtures from "@/components/HomeFixtures";
+import HomeWrapper from "@/components/HomeWrapper";
 import FilterWrapper from "@/components/FilterWrapper";
 import {
   HydrationBoundary,
@@ -49,7 +49,7 @@ const Page = async () => {
           />
         </div>
         <div className="h-[calc(100vh-150px)] overflow-y-auto">
-          <HomeFixtures sport={"basketball"} />
+          <HomeWrapper sport={"basketball"} />
         </div>
       </HydrationBoundary>
     </div>

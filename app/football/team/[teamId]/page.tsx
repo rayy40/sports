@@ -10,7 +10,7 @@ import {
   getTeamById,
   getTeamSeasons,
 } from "@/services/api";
-import RootComponent from "@/components/RootComponent";
+import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const teamId = parseInt(params.teamId);
@@ -58,7 +58,7 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
   return (
     <div className="relative font-sans">
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <RootComponent
+        <LeagueOrTeamWrapper
           title={team.team.name}
           logo={team.team.logo}
           id={team.team.id}

@@ -5,7 +5,7 @@ import {
   dehydrate,
 } from "@tanstack/react-query";
 import { getFixturesByLeagueIdAndSeason, getLeagueById } from "@/services/api";
-import RootComponent from "@/components/RootComponent";
+import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
@@ -48,7 +48,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
   return (
     <div className="relative font-sans">
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <RootComponent
+        <LeagueOrTeamWrapper
           title={league.league.name}
           logo={league.league.logo}
           id={league.league.id}
