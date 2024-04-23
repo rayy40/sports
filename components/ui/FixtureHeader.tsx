@@ -1,5 +1,5 @@
 import { getFixtureData } from "@/lib/utils";
-import { AllSportsFixtures, Sports } from "@/types/general";
+import { AllSportsFixtures, FixtureTabsType, Sports } from "@/types/general";
 import { format } from "date-fns";
 import React from "react";
 import ImageWithFallback from "../ImageWithFallback";
@@ -7,10 +7,10 @@ import Tabs from "./Tabs";
 
 type Props = {
   fixture: AllSportsFixtures;
-  tabs: string[];
+  tabs: FixtureTabsType[];
 };
 
-const FilterHeader = ({ fixture, tabs }: Props) => {
+const FixtureHeader = ({ fixture, tabs }: Props) => {
   const {
     homeTeam,
     awayTeam,
@@ -73,11 +73,17 @@ const FilterHeader = ({ fixture, tabs }: Props) => {
       </div>
       <div className="absolute bottom-0 flex items-center gap-4 -translate-x-1/2 left-1/2">
         {tabs.map((tab, index) => (
-          <Tabs key={index} label={tab} id={tab} isStatus={false} />
+          <Tabs
+            key={index}
+            label={tab}
+            id={tab}
+            isStatus={false}
+            isStat={true}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-export default FilterHeader;
+export default FixtureHeader;
