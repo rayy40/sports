@@ -1,6 +1,7 @@
 import { Periods as RugbyPeriods } from "./rugby";
 import { Periods as HockeyPeriods } from "./hockey";
 import {
+  DetailedFixture,
   Fixtures,
   TeamStatistics as FootballTeamStatistics,
   StandingsEntity,
@@ -66,7 +67,11 @@ export type Tabs<T> = {
 
 export type DetailedTabsType = "Fixtures" | "Standings" | "Stats" | "Squads";
 
-export type FixtureTabsType = "Play By Play" | "Match Stats" | "Lineups";
+export type FixtureTabsType =
+  | "Play By Play"
+  | "Match Stats"
+  | "Lineups"
+  | "Head to Head";
 
 export interface APIBaseResponse {
   get: string;
@@ -269,6 +274,12 @@ export type AllSportsStandings =
 
 export function isFootballFixture(item: AllSportsFixtures): item is Fixtures {
   return "goals" in item;
+}
+
+export function isFootballDetailedFixture(
+  item: AllSportsFixtures | DetailedFixture
+): item is DetailedFixture {
+  return "cards" in item;
 }
 
 export function isNBAFixture(item: AllSportsFixtures): item is NBAGames {
