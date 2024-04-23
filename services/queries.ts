@@ -1,4 +1,4 @@
-import { DetailedTabsType, Sports } from "@/types/general";
+import { DetailedTabsType, FixtureTabsType, Sports } from "@/types/general";
 import { useQuery } from "@tanstack/react-query";
 import {
   getFixturesByDate,
@@ -13,6 +13,8 @@ import {
   getStandingsByTeamIdAndSeason,
   getPlayerStandings,
   getFixtureById,
+  getHeadtoHeadFixtures,
+  getFixtureEvents,
 } from "./api";
 
 export function useLeagueById(id: number, sport: Sports) {
@@ -165,5 +167,30 @@ export function usePlayersStandings(
     queryKey: [id, season, sport, stat, "standings"],
     queryFn: () => getPlayerStandings(stat, id, season, sport),
     enabled: tab === "Stats" && !isTeam && (!!season || !!stat),
+  });
+}
+
+export function useHeadtoHeadFixtures(
+  teamId1: number,
+  teamId2: number,
+  sport: Sports,
+  tab: FixtureTabsType
+) {
+  return useQuery({
+    queryKey: [teamId1, teamId2, sport, "fixtures", "headtohead"],
+    queryFn: () => getHeadtoHeadFixtures(teamId1, teamId2, sport),
+    enabled: tab === "Head to Head" && (!!teamId1 || !!teamId2),
+  });
+}
+
+export function useFixtureEvents(
+  fixtureId: number,
+  sport: Sports,
+  tab: FixtureTabsType
+) {
+  return useQuery({
+    queryKey: [fixtureId, sport, "fixtures", "events"],
+    queryFn: () => getFixtureEvents(fixtureId, sport),
+    enabled: sport !== "football" && tab === "Play By Play" && !!fixtureId,
   });
 }
