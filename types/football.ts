@@ -391,3 +391,68 @@ export interface TeamInfo {
   national: boolean;
   logo: string;
 }
+
+export interface FixtureStatisticsResponse {
+  team: Team;
+  statistics?: FixtureStatistics[] | null;
+}
+export interface FixtureStatistics {
+  type: string;
+  value?: number | string;
+}
+
+export interface Lineups {
+  team: Team & { colors: Colors };
+  coach: Coach;
+  formation: string;
+  startXI?: LineupEntity[] | null;
+  substitutes?: LineupEntity[] | null;
+}
+export interface Colors {
+  player: PlayerOrGoalkeeper;
+  goalkeeper: PlayerOrGoalkeeper;
+}
+export interface PlayerOrGoalkeeper {
+  primary: string;
+  number: string;
+  border: string;
+}
+export interface Coach {
+  id: number;
+  name: string;
+  photo: string;
+}
+export interface LineupEntity {
+  player: LineupPlayer;
+}
+export interface LineupPlayer {
+  id: number;
+  name: string;
+  number: number;
+  pos: string;
+  grid?: string;
+}
+
+export interface Timeline {
+  time: Time;
+  team: Team;
+  player: PlayerOrAssist;
+  assist: PlayerOrAssist;
+  type: string;
+  detail: string;
+  comments?: string | null;
+}
+export interface Time {
+  elapsed: number;
+  extra?: null;
+}
+export interface PlayerOrAssist {
+  id: number | null;
+  name: string | null;
+}
+
+export interface DetailedFixture extends Fixtures {
+  statistics: FixtureStatisticsResponse[];
+  lineups: Lineups[];
+  events: Timeline[];
+}
