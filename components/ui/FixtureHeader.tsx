@@ -17,6 +17,7 @@ const FixtureHeader = ({ fixture, tabs }: Props) => {
     homeTeamScore,
     awayTeamScore,
     fixtureDate,
+    fixtureVenue,
     fixtureStatus,
     isHomeTeamWinner,
     isAwayTeamWinner,
@@ -27,7 +28,7 @@ const FixtureHeader = ({ fixture, tabs }: Props) => {
       <div className="flex flex-col gap-4 max-w-[1000px] mx-auto">
         <div className="flex items-start justify-between">
           <p className="text-sm">{format(fixtureDate, "EEEE, do MMMM")}</p>
-          <p className="text-sm">{fixtureStatus.long}</p>
+          <p className="text-sm">{fixtureVenue ?? fixtureStatus.long}</p>
         </div>
         <div className="grid pt-2 pb-12 grid-cols-[1fr_150px_1fr] items-center gap-6">
           <div className="flex items-center justify-start gap-4">
