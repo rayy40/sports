@@ -38,7 +38,7 @@ import {
   TeamResponse,
   TeamStatistics,
 } from "@/types/general";
-import { HockeyGameStats } from "@/types/hockey";
+import { HockeyEvents, HockeyGameStats } from "@/types/hockey";
 import { RugbyGameStats } from "@/types/rugby";
 import axios from "axios";
 
@@ -621,6 +621,64 @@ export const getFixtureById = async (
           `/fixtures?id=${fixtureId}`
         )
       ).data.response?.[0];
+    default:
+      return undefined;
+  }
+};
+
+export const getHeadtoHeadFixtures = async (
+  teamId1: number,
+  teamId2: number,
+  sport: Sports
+) => {
+  const axiosInstance = createAxiosInstance(sport);
+
+  switch (sport) {
+    case "football":
+      return (
+        await axiosInstance.get<APIResponse<Fixtures>>(
+          `/fixtures/headtohead?h2h=${teamId1}-${teamId2}`
+        )
+      ).data.response;
+    case "rugby":
+      return (
+        await axiosInstance.get<APIResponse<GamesWithPeriods<number | null>>>(
+          `/games/h2h?h2h=${teamId1}-${teamId2}`
+        )
+      ).data.response;
+    case "hockey":
+      return (
+        await axiosInstance.get<
+          APIResponse<GamesWithPeriodsAndEvents<number | null>>
+        >(`/games/h2h?h2h=${teamId1}-${teamId2}`)
+      ).data.response;
+    case "baseball":
+      return (
+        await axiosInstance.get<APIResponse<Games<BaseballScores>>>(
+          `/games/h2h?h2h=${teamId1}-${teamId2}`
+        )
+      ).data.response;
+    case "basketball":
+      return (
+        await axiosInstance.get<APIResponse<Games<BasketballScores>>>(
+          `/games?h2h=${teamId1}-${teamId2}`
+        )
+      ).data.response;
+    default:
+      return undefined;
+  }
+};
+
+export const getFixtureEvents = async (fixtureId: number, sport: Sports) => {
+  const axiosInstance = createAxiosInstance(sport);
+
+  switch (sport) {
+    case "hockey":
+      return (
+        await axiosInstance.get<APIResponse<HockeyEvents>>(
+          `/games/events?game=${fixtureId}`
+        )
+      ).data.response;
     default:
       return undefined;
   }
