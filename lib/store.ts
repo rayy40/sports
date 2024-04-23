@@ -53,7 +53,7 @@ export const useTabsStore = create<TabsStore>((set) => ({
 }));
 
 export const useFixtureTabsStore = create<FixtureTabsStore>((set) => ({
-  tab: "Match Stats",
+  tab: "Head to Head",
   setTab: (arg: FixtureTabsType) => set({ tab: arg }),
 }));
 
