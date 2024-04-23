@@ -6,6 +6,8 @@ import {
   League as FootballLeague,
   PlayersEntity,
   TeamStatistics as FootballTeamStatistics,
+  FixtureStatisticsResponse,
+  Timeline,
 } from "@/types/football";
 import {
   NBAPlayer,
@@ -24,6 +26,7 @@ import {
   isFootballFixture,
   isNBAFixture,
   isAFLFixture,
+  Sports,
 } from "@/types/general";
 import { ImpFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
@@ -677,4 +680,66 @@ export const getWeek = (week: string | null) => {
       ? week
       : "";
   return wk;
+};
+
+export const mergeStatistics = (
+  responses: FixtureStatisticsResponse[],
+  homeTeam: string
+): {
+  [key: string]: { [team: string]: number | string };
+} => {
+  const merged: { [key: string]: { [team: string]: number | string } } = {};
+
+  for (const response of responses) {
+    const teamName =
+      response.team.name.toLowerCase() === homeTeam.toLowerCase()
+        ? "home"
+        : "away";
+    if (response.statistics) {
+      for (const stat of response.statistics) {
+        if (stat.type) {
+          if (!merged[stat.type]) {
+            merged[stat.type] = {};
+          }
+          merged[stat.type][teamName] = stat.value || "";
+        }
+      }
+    }
+  }
+
+  return merged;
+};
+
+const getSubstitution = (subst: string) => {
+  if (subst.includes("1")) return "1st substitution";
+  else if (subst.includes("2")) return "2nd substitution";
+  else if (subst.includes("3")) return "3rd substitution";
+  else return "substitution";
+};
+
+export const getPlayByPlayComments = (event: Timeline, sport: Sports) => {
+  if (sport !== "football") return undefined;
+
+  switch (event?.type.toLowerCase()) {
+    case "goal":
+      if (event.detail.toLowerCase() === "normal goal")
+        return `Goal! ${event?.team?.name} scores, it is ${event.player?.name} who puts the ball in the net.`;
+      else if (event.detail.toLowerCase() === "own goal")
+        return `It's now 2-3, thanks to an own goal from ${event.player?.name}.`;
+      else if (event.detail.toLowerCase() === "penalty")
+        return `${event.player?.name} scores with a penalty.`;
+      else if (event.detail.toLowerCase() === "missed penalty")
+        return `${event.player?.name} misses the penalty.`;
+      return `${event.player?.name} scores a goal`;
+    case "var":
+      return `VAR: ${event?.detail}.`;
+    case "subst":
+      return `${event?.team?.name} is making their ${getSubstitution(
+        event?.detail
+      )}, with ${event?.player?.name} replacing ${event?.assist?.name}.`;
+    case "card":
+      return `${event?.player?.name} for ${event?.team?.name}, receives a ${event?.detail}.`;
+    default:
+      return `${event.type}: ${event.detail}`;
+  }
 };
