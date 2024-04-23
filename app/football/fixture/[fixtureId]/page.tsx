@@ -24,7 +24,12 @@ const Page = async ({ params }: { params: { fixtureId: string } }) => {
     "fixture",
   ]);
 
-  const tabs: FixtureTabsType[] = ["Match Stats", "Lineups", "Play By Play"];
+  const tabs: FixtureTabsType[] = [
+    "Match Stats",
+    "Lineups",
+    "Play By Play",
+    "Head to Head",
+  ];
 
   if (!fixture) {
     return (
