@@ -192,14 +192,23 @@ const renderStandingsByLeague = (
       />
     );
   } else if (isNFLStandingsResponse(data)) {
-    return (
-      <STable
-        sport={sport}
-        standing={data}
-        isAdditionalNonFootballColumnVisible={true}
-        isAdditionalNFLColumnVisible={true}
-      />
+    const standingsData = groupStandingsByProperty<NFLStandings>(
+      data,
+      (t) => t.division
     );
+    return Object.keys(standingsData).map((key, index) => (
+      <div key={index}>
+        <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
+          {key}
+        </p>
+        <STable
+          sport={sport}
+          standing={standingsData[key]}
+          isAdditionalNonFootballColumnVisible={true}
+          isAdditionalNFLColumnVisible={true}
+        />
+      </div>
+    ));
   }
   return data.map((d, index) => {
     if (isStandingsResponse(d)) {

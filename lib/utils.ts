@@ -15,7 +15,11 @@ import {
   NBAStatistics,
   NBATeams,
 } from "@/types/basketball";
-import { League as NFLLeague, NFLPlayer } from "@/types/american-football";
+import {
+  League as NFLLeague,
+  NFLPlayer,
+  NFLStandings,
+} from "@/types/american-football";
 import {
   APIResponse,
   StatusType,
@@ -643,11 +647,13 @@ export const getAFLTeamsRequiredStatistics = (
   return requiredStats;
 };
 
-type GroupedData<T extends Standings | NBAStandings> = {
+type GroupedData<T extends Standings | NBAStandings | NFLStandings> = {
   [groupName: string]: T[];
 };
 
-export const groupStandingsByProperty = <T extends Standings | NBAStandings>(
+export const groupStandingsByProperty = <
+  T extends Standings | NBAStandings | NFLStandings
+>(
   data: T[],
   groupByProperty: (item: T) => string
 ): GroupedData<T> => {
