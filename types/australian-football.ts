@@ -54,35 +54,53 @@ export interface AustralianFootballStandings {
   last_5: string | null;
 }
 
-export interface AustralianFootballTeamStatistics {
+export interface AustralianFootballFixtureStatisticsResponse<
+  T extends TotalOrAverageStats | number
+> {
+  game: {
+    id: number;
+  };
+  teams: AustralianFootballFixtureStatistics<T>[];
+}
+
+export interface AustralianFootballFixtureStatistics<
+  T extends TotalOrAverageStats | number
+> {
   team: {
     id: number;
   };
-  statistics: AustralianFootballStatistics;
+  statistics: AustralianFootballStatistics<T>;
 }
 
-export interface AustralianFootballStatistics {
-  games: {
-    played: number;
+export interface AustralianFootballTeamStatisticsResponse<
+  T extends TotalOrAverageStats | number
+> {
+  team: {
+    id: number;
   };
+  statistics: AustralianFootballStatistics<T> & { games: { played: number } };
+}
+export interface AustralianFootballStatistics<
+  T extends TotalOrAverageStats | number
+> {
   disposals: {
-    disposals: TotalOrAverageStats;
-    kicks: TotalOrAverageStats;
-    handballs: TotalOrAverageStats;
-    free_kicks: TotalOrAverageStats;
+    disposals: T;
+    kicks: T;
+    handballs: T;
+    free_kicks: T;
   };
   stoppages: {
-    hitouts: TotalOrAverageStats;
-    clearances: TotalOrAverageStats;
+    hitouts: T;
+    clearances: T;
   };
-  marks: TotalOrAverageStats;
+  marks: T;
   scoring: {
-    goals: TotalOrAverageStats;
-    assists: TotalOrAverageStats;
-    behinds: TotalOrAverageStats;
+    goals: T;
+    assists: T;
+    behinds: T;
   };
   defence: {
-    tackles: TotalOrAverageStats;
+    tackles: T;
   };
 }
 

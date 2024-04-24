@@ -16,7 +16,8 @@ import { BaseballScores } from "./baseball";
 import {
   AustralianFootballGames,
   AustralianFootballStandings,
-  AustralianFootballTeamStatistics,
+  AustralianFootballTeamStatisticsResponse,
+  TotalOrAverageStats,
 } from "./australian-football";
 import { NFLGames, NFLStandings } from "./american-football";
 
@@ -260,7 +261,7 @@ export type AllSportsFixtures =
 export type AllSportsTeamStats =
   | TeamStatistics
   | NBAStatistics
-  | AustralianFootballTeamStatistics
+  | AustralianFootballTeamStatisticsResponse<TotalOrAverageStats>
   | FootballTeamStatistics;
 
 export type AllSportsStandings =
@@ -314,6 +315,6 @@ export function isNBATeamStats(
 
 export function isAFLTeamStats(
   item: AllSportsTeamStats
-): item is AustralianFootballTeamStatistics {
+): item is AustralianFootballTeamStatisticsResponse<TotalOrAverageStats> {
   return "statistics" in item && "disposals" in item.statistics;
 }
