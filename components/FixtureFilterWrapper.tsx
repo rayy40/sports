@@ -75,7 +75,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
         </div>
       );
     }
-    return <MatchStat stats={fixture.statistics} sport={sport} />;
+    return <MatchStat stats={fixture.statistics} />;
   } else if (tab === "Match Stats") {
     if (!statsFixturesData || statsFixturesData.length === 0) {
       return (
@@ -84,7 +84,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
         </div>
       );
     }
-    return <MatchStat stats={statsFixturesData} sport={sport} />;
+    return <MatchStat stats={statsFixturesData} />;
   }
 
   if (tab === "Play By Play" && isFootballDetailedFixture(fixture)) {
