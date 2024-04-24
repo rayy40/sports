@@ -12,7 +12,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
   {
     id: "rank",
     accessorFn: (row) =>
-      "conference" in row
+      "ncaa_conference" in row
+        ? row.position
+        : "conference" in row
         ? row.division.rank
         : "position" in row
         ? row.position
@@ -67,7 +69,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
         ? row.all.win
         : "games" in row
         ? row.games.win.total
-        : row.win.total,
+        : "win" in row
+        ? row.win.total
+        : row.won,
     header: "Won",
     cell: ({ getValue }: { getValue: Getter<number> }) => {
       const won = getValue();
@@ -104,6 +108,8 @@ export const standingsColumns = <T extends AllSportsStandings>(
         ? row.games.drawn
         : "all" in row
         ? row?.all?.draw
+        : "ties" in row
+        ? row.ties
         : undefined,
     header: "Drawn",
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
@@ -121,7 +127,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
         ? row.all.lose
         : "games" in row
         ? row.games.lose.total
-        : row.loss.total,
+        : "loss" in row
+        ? row.loss.total
+        : row.lost,
     header: "Lost",
     cell: ({ getValue }: { getValue: Getter<number> }) => {
       const lost = getValue();
@@ -223,6 +231,39 @@ export const standingsColumns = <T extends AllSportsStandings>(
       return (
         <p className="text-center text-[0.975rem]">{lossLastTen ?? "-"}</p>
       );
+    },
+  },
+  {
+    id: "homeRecords",
+    accessorFn: (row) =>
+      "ncaa_conference" in row ? row?.records.home : undefined,
+    header: "Records (Home)",
+    cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
+      const records = getValue();
+
+      return <p className="text-center text-[0.975rem]">{records ?? "-"}</p>;
+    },
+  },
+  {
+    id: "roadRecords",
+    accessorFn: (row) =>
+      "ncaa_conference" in row ? row?.records.road : undefined,
+    header: "Records (Road)",
+    cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
+      const records = getValue();
+
+      return <p className="text-center text-[0.975rem]">{records ?? "-"}</p>;
+    },
+  },
+  {
+    id: "pointsDiff",
+    accessorFn: (row) =>
+      "ncaa_conference" in row ? row?.points.difference : undefined,
+    header: "Points Diff",
+    cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
+      const pointsDiff = getValue();
+
+      return <p className="text-center text-[0.975rem]">{pointsDiff ?? "-"}</p>;
     },
   },
   {

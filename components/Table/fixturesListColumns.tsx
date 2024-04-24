@@ -2,7 +2,7 @@
 
 import { shortStatusMap } from "@/lib/constants";
 import { League as FootballLeague, Teams } from "@/types/football";
-import { formatDatePatternLong, getScores } from "@/lib/utils";
+import { formatDatePatternLong, getFixtureData } from "@/lib/utils";
 import { ColumnDef, Getter, Row } from "@tanstack/react-table";
 import { LucideArrowRight } from "lucide-react";
 import { NBATeams } from "@/types/basketball";
@@ -14,12 +14,7 @@ export const fixturesListColumns = <
 >(): ColumnDef<T>[] => [
   {
     id: "date",
-    accessorFn: (row) =>
-      "date" in row
-        ? typeof row.date === "string"
-          ? row.date
-          : row.date.start
-        : row.fixture.date,
+    accessorFn: (row) => getFixtureData(row).fixtureDate,
     header: "Date",
     size: 150,
     cell: ({ getValue }: { getValue: Getter<string> }) => {
@@ -37,8 +32,7 @@ export const fixturesListColumns = <
   },
   {
     id: "status",
-    accessorFn: (row) =>
-      "status" in row ? row.status.short : row.fixture.status.short,
+    accessorFn: (row) => getFixtureData(row).fixtureStatus.short,
     header: "Status",
     enableColumnFilter: true,
     filterFn: (row, id, value) => {
@@ -61,15 +55,19 @@ export const fixturesListColumns = <
     }) => {
       const teams = getValue();
 
-      const { homeScore, awayScore, isAwayScoreMore, isHomeScoreMore } =
-        getScores(row);
+      const {
+        homeTeamScore,
+        awayTeamScore,
+        isHomeTeamWinner,
+        isAwayTeamWinner,
+      } = getFixtureData(row.original);
 
       return (
         <div className="grid grid-cols-list justify-center items-center gap-6 min-w-[250px] flex-1">
           <div className="flex items-center justify-end gap-3">
             <p
               className={`${
-                isHomeScoreMore
+                isHomeTeamWinner
                   ? "text-primary-foreground"
                   : "text-secondary-foreground"
               } text-[1.075rem]`}
@@ -82,27 +80,27 @@ export const fixturesListColumns = <
             />
           </div>
           <div className="flex items-center justify-center gap-3 text-lg font-medium">
-            {homeScore && (
+            {homeTeamScore && (
               <p
                 className={
-                  isHomeScoreMore
+                  isHomeTeamWinner
                     ? "text-primary-foreground"
                     : "text-secondary-foreground"
                 }
               >
-                {homeScore}
+                {homeTeamScore}
               </p>
             )}
             <span>-</span>
-            {awayScore && (
+            {awayTeamScore && (
               <p
                 className={
-                  isAwayScoreMore
+                  isAwayTeamWinner
                     ? "text-primary-foreground"
                     : "text-secondary-foreground"
                 }
               >
-                {awayScore}
+                {awayTeamScore}
               </p>
             )}
           </div>
@@ -115,7 +113,7 @@ export const fixturesListColumns = <
             />
             <p
               className={`${
-                isAwayScoreMore
+                isAwayTeamWinner
                   ? "text-primary-foreground"
                   : "text-secondary-foreground"
               } text-[1.075rem]`}

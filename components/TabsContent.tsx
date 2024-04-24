@@ -38,8 +38,6 @@ const TabsContent = ({
   const { stat } = useStatStore();
   const { season } = useSeasonsStore();
 
-  console.log(stat);
-
   const { data: standingsLeagueData, isFetching: isFetchingLeagueStandings } =
     useStandingsByLeagueIdAndSeason(
       id,
@@ -99,7 +97,7 @@ const TabsContent = ({
         </div>
       );
     }
-    return <Squads data={squadsData} />;
+    return <Squads data={squadsData} sport={sport} />;
   }
 
   if (tab === "Stats") {

@@ -65,7 +65,8 @@ const FilterWrapper = ({
   const isSquadsAvailable =
     sport === "basketball" ||
     sport === "football" ||
-    sport === "australian-football";
+    sport === "american-football";
+  sport === "australian-football";
 
   const leagueInfos = useMemo(
     () => (fixtures ? getLeagues(fixtures as Data[], isFootball) : []),
@@ -175,7 +176,15 @@ const FilterWrapper = ({
   };
 
   const renderTeamPageFilters = () => {
-    const tabs = isSquadsAvailable ? detailedTabs : detailedTabs.slice(0, -1);
+    let tabs: TTabs<DetailedTabsType>[];
+    if (sport === "american-football") {
+      tabs = detailedTabs.filter((tab) => tab.status.toLowerCase() !== "stats");
+    } else if (isSquadsAvailable) {
+      tabs = detailedTabs;
+    } else {
+      tabs = detailedTabs.slice(0, -1);
+    }
+
     return (
       <>
         <div className="flex items-end gap-4">{renderTabs(tabs, false)}</div>

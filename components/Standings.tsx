@@ -22,6 +22,7 @@ import {
 } from "./ui/Shadcn/table";
 import { groupStandingsByProperty } from "@/lib/utils";
 import { AustralianFootballStandings } from "@/types/australian-football";
+import { NFLStandings } from "@/types/american-football";
 
 function isStandingsResponse(data: any): data is StandingsReponse {
   return data && data.league && Array.isArray(data.league.standings);
@@ -37,12 +38,21 @@ function isAFLStandingsResponse(
   return data && "last_5" in data?.[0];
 }
 
+function isNFLStandingsResponse(data: any): data is NFLStandings[] {
+  return data && "ncaa_conference" in data?.[0];
+}
+
+function isNBAStandingsResponse(data: any): data is NBAStandings[] {
+  return data && "tieBreakerPoints" in data?.[0];
+}
+
 type Props = {
   standing: (
     | TStandings[]
     | NBAStandings
     | StandingsReponse
     | AustralianFootballStandings
+    | NFLStandings
   )[];
   sport: Sports;
 };
@@ -50,17 +60,19 @@ type Props = {
 type STableProps = {
   standing: AllSportsStandings[];
   sport: Sports;
-  isAdditionalFootballColumnVisible: boolean;
-  isAdditionalNonFootballColumnVisible: boolean;
+  isAdditionalFootballColumnVisible?: boolean;
+  isAdditionalNonFootballColumnVisible?: boolean;
+  isAdditionalNFLColumnVisible?: boolean;
   isAdditionalAFLColumnVisible?: boolean;
   isAdditionalNBAColumnVisible?: boolean;
 };
 const STable = ({
   standing,
   sport,
-  isAdditionalFootballColumnVisible,
-  isAdditionalNonFootballColumnVisible,
+  isAdditionalFootballColumnVisible = false,
+  isAdditionalNonFootballColumnVisible = false,
   isAdditionalAFLColumnVisible = false,
+  isAdditionalNFLColumnVisible = false,
   isAdditionalNBAColumnVisible = false,
 }: STableProps) => {
   const standingsTable = useReactTable({
@@ -75,16 +87,23 @@ const STable = ({
         drawn:
           isAdditionalFootballColumnVisible || isAdditionalAFLColumnVisible,
         winPercentage:
-          isAdditionalNonFootballColumnVisible && !isAdditionalAFLColumnVisible,
+          isAdditionalNonFootballColumnVisible &&
+          !isAdditionalAFLColumnVisible &&
+          !isAdditionalNFLColumnVisible,
         lostPercentage:
-          isAdditionalNonFootballColumnVisible && !isAdditionalAFLColumnVisible,
-        streak: isAdditionalNBAColumnVisible,
+          isAdditionalNonFootballColumnVisible &&
+          !isAdditionalAFLColumnVisible &&
+          !isAdditionalNFLColumnVisible,
+        streak: isAdditionalNBAColumnVisible || isAdditionalNFLColumnVisible,
         gamesBehind: isAdditionalNBAColumnVisible,
         lastTenWin: isAdditionalNBAColumnVisible,
         lastTenLoss: isAdditionalNBAColumnVisible,
-        played: !isAdditionalNBAColumnVisible,
+        played: !isAdditionalNBAColumnVisible && !isAdditionalNFLColumnVisible,
         points: !isAdditionalNBAColumnVisible,
-        form: !isAdditionalNBAColumnVisible,
+        pointsDiff: isAdditionalNFLColumnVisible,
+        homeRecords: isAdditionalNFLColumnVisible,
+        roadRecords: isAdditionalNFLColumnVisible,
+        form: !isAdditionalNBAColumnVisible && !isAdditionalNFLColumnVisible,
       },
     },
   });
@@ -141,12 +160,13 @@ const renderStandingsByLeague = (
     | StandingsReponse
     | NBAStandings
     | AustralianFootballStandings
+    | NFLStandings
   )[],
   sport: Sports
 ) => {
-  if ("conference" in data?.[0]) {
+  if (isNBAStandingsResponse(data)) {
     const standingsData = groupStandingsByProperty<NBAStandings>(
-      data as NBAStandings[],
+      data,
       (t) => t.division.name
     );
     return Object.keys(standingsData).map((key, index) => (
@@ -157,7 +177,6 @@ const renderStandingsByLeague = (
         <STable
           sport={sport}
           standing={standingsData[key]}
-          isAdditionalFootballColumnVisible={false}
           isAdditionalNonFootballColumnVisible={true}
           isAdditionalNBAColumnVisible={true}
         />
@@ -168,9 +187,17 @@ const renderStandingsByLeague = (
       <STable
         sport={sport}
         standing={data}
-        isAdditionalFootballColumnVisible={false}
         isAdditionalNonFootballColumnVisible={true}
         isAdditionalAFLColumnVisible={true}
+      />
+    );
+  } else if (isNFLStandingsResponse(data)) {
+    return (
+      <STable
+        sport={sport}
+        standing={data}
+        isAdditionalNonFootballColumnVisible={true}
+        isAdditionalNFLColumnVisible={true}
       />
     );
   }
@@ -192,7 +219,6 @@ const renderStandingsByLeague = (
                 sport={sport}
                 standing={standing!}
                 isAdditionalFootballColumnVisible={true}
-                isAdditionalNonFootballColumnVisible={false}
               />
             </div>
           ))}
@@ -211,7 +237,6 @@ const renderStandingsByLeague = (
           <STable
             sport={sport}
             standing={standingsData[key]}
-            isAdditionalFootballColumnVisible={false}
             isAdditionalNonFootballColumnVisible={true}
           />
         </div>

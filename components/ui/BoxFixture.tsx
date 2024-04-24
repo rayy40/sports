@@ -6,6 +6,8 @@ import { Sports, Status } from "@/types/general";
 import { Status as FootballStatus } from "@/types/football";
 import { NBAStatus } from "@/types/basketball";
 
+type StatusCollections = Status | NBAStatus | FootballStatus;
+
 type Fixture = {
   fixtureDate: string;
   fixtureId: number;
@@ -18,7 +20,7 @@ type Fixture = {
     logo: string;
     name: string;
   };
-  fixtureStatus: Status | NBAStatus | FootballStatus;
+  fixtureStatus: StatusCollections;
   homeTeamScore?: number | null;
   awayTeamScore?: number | null;
 };
@@ -44,7 +46,7 @@ const BoxFixture = ({ sport, fixture }: Props) => {
   const isAwayLoser =
     homeTeamScore && awayTeamScore && homeTeamScore > awayTeamScore;
 
-  const renderStatus = (status: Status | NBAStatus | FootballStatus) => {
+  const renderStatus = (status: StatusCollections) => {
     const { short: shortStatus } = status;
     const timer =
       "timer" in status

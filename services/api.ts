@@ -1,3 +1,4 @@
+import { NFLGames, NFLPlayer, NFLStandings } from "@/types/american-football";
 import {
   AustralianFootballGames,
   AustralianFootballLeagueOrTeamInfo,
@@ -44,6 +45,7 @@ import axios from "axios";
 
 const getBaseURL = (sport: Sports) => {
   switch (sport) {
+    case "american-football":
     case "basketball":
     case "baseball":
     case "rugby":
@@ -60,6 +62,7 @@ const getBaseURL = (sport: Sports) => {
 
 const getHost = (sport: Sports) => {
   switch (sport) {
+    case "australian-football":
     case "basketball":
     case "baseball":
     case "rugby":
@@ -139,6 +142,7 @@ export const getTeamById = async (
     case "baseball":
     case "rugby":
     case "hockey":
+    case "american-football":
       return (
         await axiosInstance.get<APIResponse<TeamResponse>>(`/teams?id=${id}`)
       ).data.response?.[0];
@@ -190,6 +194,10 @@ export const getFixturesByDate = async (date: string, sport: Sports) => {
         await axiosInstance.get<APIResponse<AustralianFootballGames>>(
           `/games?date=${date}`
         )
+      ).data.response;
+    case "american-football":
+      return (
+        await axiosInstance.get<APIResponse<NFLGames>>(`/games?date=${date}`)
       ).data.response;
     case "hockey":
       return (
@@ -316,6 +324,12 @@ export const getFixturesByTeamIdAndSeason = async (
           `/games?league=1&team=${teamId}&season=${season}`
         )
       ).data.response;
+    case "american-football":
+      return (
+        await axiosInstance.get<APIResponse<NFLGames>>(
+          `/games?team=${teamId}&season=${season}`
+        )
+      ).data.response;
     case "football":
       return (
         await axiosInstance.get<APIResponse<Fixtures>>(
@@ -423,6 +437,12 @@ export const getStandingsByTeamIdAndSeason = async (
       ).data.response;
     case "australian-football":
       return (
+        await axiosInstance.get<APIResponse<NFLStandings>>(
+          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    case "american-football":
+      return (
         await axiosInstance.get<APIResponse<AustralianFootballStandings>>(
           `/standings?league=${leagueId}&team=${teamId}&season=${season}`
         )
@@ -510,6 +530,12 @@ export const getPlayersForTeam = async (
     case "australian-football":
       return (
         await axiosInstance.get<APIResponse<Player>>(
+          `/players?team=${teamId}&season=${season}`
+        )
+      ).data.response;
+    case "american-football":
+      return (
+        await axiosInstance.get<APIResponse<NFLPlayer>>(
           `/players?team=${teamId}&season=${season}`
         )
       ).data.response;

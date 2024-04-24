@@ -12,13 +12,15 @@ import {
 import ImageWithFallback from "../ImageWithFallback";
 import { NBAPlayer } from "@/types/basketball";
 import Link from "next/link";
-import { Player } from "@/types/general";
+import { Player, Sports } from "@/types/general";
+import { NFLPlayer } from "@/types/american-football";
 
 type Props = {
-  data: (Squads | NBAPlayer | Player)[];
+  data: (Squads | NBAPlayer | Player | NFLPlayer)[];
+  sport: Sports;
 };
 
-const Squads = ({ data }: Props) => {
+const Squads = ({ data, sport }: Props) => {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center w-full h-full">
@@ -27,7 +29,7 @@ const Squads = ({ data }: Props) => {
     );
   }
   const playersByPosition = getPlayersByPosition(
-    data as (PlayersEntity | NBAPlayer)[]
+    data as (PlayersEntity | NBAPlayer | NFLPlayer)[]
   );
 
   return (
@@ -43,6 +45,12 @@ const Squads = ({ data }: Props) => {
                 </TableHead>
                 <TableHead className="text-center">No</TableHead>
                 <TableHead className="text-center">Age</TableHead>
+                {sport !== "football" && (
+                  <>
+                    <TableHead className="text-center">Height</TableHead>
+                    <TableHead className="text-center">Weight</TableHead>
+                  </>
+                )}
                 <TableHead className="text-center">Position</TableHead>
               </TableRow>
             </TableHeader>
@@ -62,7 +70,7 @@ const Squads = ({ data }: Props) => {
                           />
                         </Link>
                       )}
-                      <Link href={`/player/${player.id}`}>
+                      <Link href={`/${sport}/player/${player.id}`}>
                         <p>{player?.name}</p>
                       </Link>
                     </div>
@@ -71,6 +79,16 @@ const Squads = ({ data }: Props) => {
                     {player?.number ?? "-"}
                   </TableCell>
                   <TableCell className="text-center">{player?.age}</TableCell>
+                  {sport !== "football" && (
+                    <>
+                      <TableCell className="text-center">
+                        {player?.height}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {player?.weight}
+                      </TableCell>
+                    </>
+                  )}
                   <TableCell className="text-center">
                     {player?.position}
                   </TableCell>
