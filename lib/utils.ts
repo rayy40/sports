@@ -15,6 +15,7 @@ import {
   NBAStatistics,
   NBATeams,
 } from "@/types/basketball";
+import { League as NFLLeague, NFLPlayer } from "@/types/american-football";
 import {
   APIResponse,
   StatusType,
@@ -26,13 +27,14 @@ import {
   isFootballFixture,
   isNBAFixture,
   isAFLFixture,
-  Sports,
+  isNFLFixture,
 } from "@/types/general";
 import { ImpFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { Row } from "@tanstack/react-table";
 import { AustralianFootballStatistics } from "@/types/australian-football";
 import { differenceInYears } from "date-fns";
+import { HockeyEvents } from "@/types/hockey";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -100,11 +102,17 @@ export const filterDataByStatus = (
   };
 
   data.forEach((item) => {
-    const fixtureStatus =
-      "fixture" in item
-        ? item.fixture?.status?.short
-        : item.status?.short.toString();
-    if (!fixtureStatus) return;
+    let fixtureStatus: string;
+
+    if (isFootballFixture(item)) {
+      fixtureStatus = item.fixture.status.short;
+    } else if (isNFLFixture(item)) {
+      fixtureStatus = item.game.status.short;
+    } else {
+      fixtureStatus = item.status.short.toString();
+    }
+
+    if (fixtureStatus.length === 0) return;
 
     if (
       isFootball &&
@@ -262,33 +270,38 @@ export const getSeasonsList = <
   return seasons;
 };
 
-export const getPlayersByPosition = (squads: (PlayersEntity | NBAPlayer)[]) => {
+export const getPlayersByPosition = (
+  squads: (PlayersEntity | NBAPlayer | NFLPlayer)[]
+) => {
   const playersByPosition: {
-    [position: string]: PlayersEntity[];
+    [position: string]: any[];
   } = {};
 
   squads?.filter(Boolean).forEach((player) => {
-    const postion =
-      "college" in player ? player.leagues.standard.pos : player.position;
-    if (!playersByPosition[postion]) {
-      playersByPosition[postion] = [];
+    const position =
+      "nba" in player ? player.leagues.standard.pos : player.position;
+    if (!playersByPosition[position]) {
+      playersByPosition[position] = [];
     }
     const id = player.id;
+    const height = "height" in player ? player.height : undefined;
+    const weight = "weight" in player ? player.weight : undefined;
     const name =
-      "college" in player
-        ? `${player.firstName} ${player.lastName}`
-        : player.name;
-    const photo = "college" in player ? "" : player.photo;
+      "nba" in player ? `${player.firstName} ${player.lastName}` : player.name;
+    const photo =
+      "nba" in player ? "" : "photo" in player ? player.photo : player.image;
     const number =
-      "college" in player ? player.leagues.standard.jersey : player.number;
+      "nba" in player
+        ? player.leagues.standard.jersey
+        : typeof player.number === "string"
+        ? parseInt(player.number)
+        : player.number;
     const age =
-      "college" in player
+      "nba" in player
         ? differenceInYears(player.birth.date, "YYYY-MM-DD")
         : player.age;
-    const position =
-      "college" in player ? player.leagues.standard.pos : player.position;
-    player = { id, name, photo, number, age, position };
-    playersByPosition[postion].push(player);
+    player = { id, name, photo, number, age, position, height, weight };
+    playersByPosition[position].push(player);
   });
 
   return playersByPosition;
@@ -338,6 +351,7 @@ export const getLeagueId = (
         season: number;
       }
     | FootballLeague
+    | NFLLeague
 ) => {
   if (typeof league === "string") {
     return 12;
@@ -378,6 +392,7 @@ export const getLeagueName = (
         season: number;
       }
     | FootballLeague
+    | NFLLeague
 ) => {
   if (typeof league === "string") {
     return "standard";
@@ -396,6 +411,7 @@ export const getFixtureData = (
     | AllSportsFixtures
 ) => {
   const homeTeam = {
+    id: fixture.teams.home.id,
     logo: fixture.teams.home.logo!,
     name: fixture.teams.home.name,
   };
@@ -403,11 +419,13 @@ export const getFixtureData = (
   let awayTeam;
   if ("visitors" in fixture.teams) {
     awayTeam = {
+      id: fixture.teams.visitors.id,
       logo: fixture.teams.visitors.logo,
       name: fixture.teams.visitors.name,
     };
   } else {
     awayTeam = {
+      id: fixture.teams.away.id,
       logo: fixture.teams.away.logo!,
       name: fixture.teams.away.name,
     };
@@ -415,6 +433,7 @@ export const getFixtureData = (
 
   let fixtureId,
     fixtureDate,
+    fixtureVenue,
     fixtureStatus,
     fixtureRound,
     homeTeamScore,
@@ -422,6 +441,7 @@ export const getFixtureData = (
   if (isFootballFixture(fixture)) {
     fixtureId = fixture.fixture.id;
     fixtureDate = fixture.fixture.date;
+    fixtureVenue = fixture.fixture.venue.name;
     fixtureStatus = fixture.fixture.status;
     fixtureRound = fixture.league.round;
     homeTeamScore = fixture.goals.home;
@@ -429,6 +449,7 @@ export const getFixtureData = (
   } else if (isNBAFixture(fixture)) {
     fixtureId = fixture.id;
     fixtureDate = fixture.date.start;
+    fixtureVenue = fixture.arena.name;
     fixtureStatus = fixture.status;
     fixtureRound = fixture.stage;
     homeTeamScore = fixture.scores.home.points;
@@ -440,6 +461,13 @@ export const getFixtureData = (
     fixtureRound = fixture.round;
     homeTeamScore = fixture.scores.home.score;
     awayTeamScore = fixture.scores.away.score;
+  } else if (isNFLFixture(fixture)) {
+    fixtureId = fixture.game.id;
+    fixtureDate = fixture.game.date.date;
+    fixtureStatus = fixture.game.status;
+    fixtureRound = fixture.game.stage;
+    homeTeamScore = fixture.scores.home.total;
+    awayTeamScore = fixture.scores.away.total;
   } else {
     fixtureId = fixture.id;
     fixtureDate = fixture.date;
@@ -465,6 +493,7 @@ export const getFixtureData = (
     awayTeam,
     homeTeamScore,
     awayTeamScore,
+    fixtureVenue,
     fixtureId,
     fixtureDate,
     fixtureStatus,
@@ -472,44 +501,6 @@ export const getFixtureData = (
     isHomeTeamWinner,
     isAwayTeamWinner,
   };
-};
-
-export const getScores = <T extends AllSportsFixtures>(row: Row<T>) => {
-  let homeScore, awayScore;
-
-  if ("nugget" in row.original) {
-    homeScore = row.original.scores.home.points;
-    awayScore = row.original.scores.visitors.points;
-  } else if ("scores" in row.original) {
-    if (
-      typeof row.original.scores.home !== "number" &&
-      typeof row.original.scores.away !== "number"
-    ) {
-      homeScore =
-        row.original.scores.home !== null
-          ? "score" in row.original.scores.home
-            ? row.original.scores.home.score
-            : row.original.scores.home.total
-          : null;
-      awayScore =
-        row.original.scores.away !== null
-          ? "score" in row.original.scores.away
-            ? row.original.scores.away.score
-            : row.original.scores.away.total
-          : null;
-    } else {
-      homeScore = row.original.scores.home as number | null;
-      awayScore = row.original.scores.away as number | null;
-    }
-  } else {
-    homeScore = row.original.goals.home;
-    awayScore = row.original.goals.away;
-  }
-
-  const isHomeScoreMore = homeScore && awayScore && homeScore > awayScore;
-  const isAwayScoreMore = homeScore && awayScore && homeScore < awayScore;
-
-  return { homeScore, awayScore, isHomeScoreMore, isAwayScoreMore };
 };
 
 export const getFootballTeamsRequiredStatistics = (
@@ -717,9 +708,7 @@ const getSubstitution = (subst: string) => {
   else return "substitution";
 };
 
-export const getPlayByPlayComments = (event: Timeline, sport: Sports) => {
-  if (sport !== "football") return undefined;
-
+export const getFootballPlayByPlayComments = (event: Timeline) => {
   switch (event?.type.toLowerCase()) {
     case "goal":
       if (event.detail.toLowerCase() === "normal goal")
@@ -742,4 +731,49 @@ export const getPlayByPlayComments = (event: Timeline, sport: Sports) => {
     default:
       return `${event.type}: ${event.detail}`;
   }
+};
+
+const formatGoalEvent = (event: HockeyEvents) => {
+  if (event?.assists && event?.assists.length > 0) {
+    if (event?.assists.length === 1) {
+      return `Goal scored by ${event?.players?.[0]}, assisted by ${event?.assists[0]}.`;
+    } else if (event?.assists.length === 2) {
+      return `Goal scored by ${event?.players?.[0]}, assisted by ${event?.assists[0]} and ${event?.assists[1]}.`;
+    } else {
+      const firstTwoAssists = event?.assists.slice(0, 2).join(", ");
+      const remainingAssistsCount = event?.assists.length - 2;
+      const remainingAssistsText =
+        remainingAssistsCount > 1
+          ? `and ${remainingAssistsCount} others`
+          : "and 1 other";
+      return `Goal scored by ${event?.players?.[0]}, assisted by ${firstTwoAssists} ${remainingAssistsText}`;
+    }
+  } else {
+    return `Goal scored by ${event?.players?.[0]}`;
+  }
+};
+
+export const getHockeyPlayByPlayComments = (event: HockeyEvents) => {
+  switch (event?.type.toLowerCase()) {
+    case "goal":
+      return formatGoalEvent(event);
+    case "penalty":
+      return `Penalty to ${event.team.name} for ${event.comment}. (Drawn by ${event.players?.[0]})`;
+    default:
+      return `${event.type}: ${event.players?.[0]}`;
+  }
+};
+
+export const groupEventsByPeriods = (events: HockeyEvents[]) => {
+  const periods: { [key: string]: HockeyEvents[] } = {};
+
+  events.forEach((event) => {
+    const period = event.period;
+    if (!periods[period]) {
+      periods[period] = [];
+    }
+    periods[period].push(event);
+  });
+
+  return periods;
 };
