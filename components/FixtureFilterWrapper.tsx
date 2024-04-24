@@ -11,7 +11,11 @@ import {
 } from "@/types/general";
 import MatchStat from "./ui/MatchStat";
 import PlayByPlay from "./ui/PlayByPlay";
-import { useFixtureEvents, useHeadtoHeadFixtures } from "@/services/queries";
+import {
+  useFixtureEvents,
+  useFixtureStatistics,
+  useHeadtoHeadFixtures,
+} from "@/services/queries";
 import Loading from "./Loading";
 import HeadtoHead from "./ui/HeadtoHead";
 import { getFixtureData } from "@/lib/utils";
@@ -29,6 +33,9 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
     [fixture]
   );
 
+  const { data: statsFixturesData, isFetching: isFetchingStatsFixtures } =
+    useFixtureStatistics(fixtureId, sport, tab);
+
   const {
     data: headtoHeadFixturesData,
     isFetching: isFetchingHeadtoHeadFixtures,
@@ -37,12 +44,17 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
   const { data: fixturesEventsData, isFetching: isFetchingFixturesEvents } =
     useFixtureEvents(fixtureId, sport, tab);
 
-  if (isFetchingHeadtoHeadFixtures || isFetchingFixturesEvents)
+  if (
+    isFetchingHeadtoHeadFixtures ||
+    isFetchingFixturesEvents ||
+    isFetchingStatsFixtures
+  ) {
     return (
       <div className="w-full h-[calc(100vh-245px)]">
         <Loading />
       </div>
     );
+  }
 
   if (tab === "Lineups" && isFootballDetailedFixture(fixture)) {
     if (!fixture.lineups || fixture.lineups.length !== 2) {
@@ -64,6 +76,15 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
       );
     }
     return <MatchStat stats={fixture.statistics} sport={sport} />;
+  } else if (tab === "Match Stats") {
+    if (!statsFixturesData || statsFixturesData.length === 0) {
+      return (
+        <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
+          <p>No statistics found for this fixture.</p>
+        </div>
+      );
+    }
+    return <MatchStat stats={statsFixturesData} sport={sport} />;
   }
 
   if (tab === "Play By Play" && isFootballDetailedFixture(fixture)) {
