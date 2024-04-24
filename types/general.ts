@@ -18,6 +18,7 @@ import {
   AustralianFootballStandings,
   AustralianFootballTeamStatistics,
 } from "./australian-football";
+import { NFLGames, NFLStandings } from "./american-football";
 
 export type SportScores = BasketballScores | BaseballScores;
 
@@ -27,7 +28,8 @@ export type Sports =
   | "football"
   | "rugby"
   | "hockey"
-  | "australian-football";
+  | "australian-football"
+  | "american-football";
 
 export type ButtonVariants =
   | "link"
@@ -149,14 +151,8 @@ export interface TeamResponse extends Team {
 }
 
 export interface Teams {
-  home: HomeOrAway;
-  away: HomeOrAway;
-}
-
-export interface HomeOrAway {
-  id: number;
-  name: string;
-  logo: string | null;
+  home: Team;
+  away: Team;
 }
 
 export interface Scores<T> {
@@ -258,7 +254,8 @@ export type AllSportsFixtures =
   | NBAGames
   | GamesWithPeriodsAndEvents<number | null>
   | GamesWithPeriods<number | null>
-  | AustralianFootballGames;
+  | AustralianFootballGames
+  | NFLGames;
 
 export type AllSportsTeamStats =
   | TeamStatistics
@@ -270,6 +267,7 @@ export type AllSportsStandings =
   | NBAStandings
   | StandingsEntity
   | AustralianFootballStandings
+  | NFLStandings
   | Standings;
 
 export function isFootballFixture(item: AllSportsFixtures): item is Fixtures {
@@ -289,7 +287,11 @@ export function isNBAFixture(item: AllSportsFixtures): item is NBAGames {
 export function isAFLFixture(
   item: AllSportsFixtures
 ): item is AustralianFootballGames {
-  return "game" in item && "id" in item.game;
+  return "game" in item && "id" in item.game && !("country" in item.league);
+}
+
+export function isNFLFixture(item: AllSportsFixtures): item is NFLGames {
+  return "game" in item && "country" in item.league;
 }
 
 export function isHockeyOrRugbyFixture(
