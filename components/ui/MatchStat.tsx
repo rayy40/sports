@@ -7,11 +7,20 @@ import {
 } from "@/components/ui/Shadcn/table";
 import { Sports } from "@/types/general";
 import { FixtureStatisticsResponse } from "@/types/football";
-import { mergeStatistics, mergeStatisticsForNFL } from "@/lib/utils";
+import {
+  mergeStatistics,
+  mergeStatisticsForAFL,
+  mergeStatisticsForNFL,
+} from "@/lib/utils";
 import { NFLTeamsStatisticsResponse } from "@/types/american-football";
+import { AustralianFootballFixtureStatistics } from "@/types/australian-football";
 
 export function isNFLTeamStats(
-  item: (FixtureStatisticsResponse | NFLTeamsStatisticsResponse)[]
+  item: (
+    | FixtureStatisticsResponse
+    | NFLTeamsStatisticsResponse
+    | AustralianFootballFixtureStatistics<number>
+  )[]
 ): item is NFLTeamsStatisticsResponse[] {
   return (
     item[0].statistics !== null &&
@@ -20,8 +29,26 @@ export function isNFLTeamStats(
   );
 }
 
+export function isAFLTeamStats(
+  item: (
+    | FixtureStatisticsResponse
+    | NFLTeamsStatisticsResponse
+    | AustralianFootballFixtureStatistics<number>
+  )[]
+): item is AustralianFootballFixtureStatistics<number>[] {
+  return (
+    item[0].statistics !== null &&
+    item[0].statistics !== undefined &&
+    "stoppages" in item?.[0].statistics
+  );
+}
+
 export function isFootballTeamStats(
-  item: (FixtureStatisticsResponse | NFLTeamsStatisticsResponse)[]
+  item: (
+    | FixtureStatisticsResponse
+    | NFLTeamsStatisticsResponse
+    | AustralianFootballFixtureStatistics<number>
+  )[]
 ): item is FixtureStatisticsResponse[] {
   return (
     item[0].statistics !== null &&
@@ -31,11 +58,17 @@ export function isFootballTeamStats(
 }
 
 type Props = {
-  stats: (FixtureStatisticsResponse | NFLTeamsStatisticsResponse)[] | undefined;
-  sport: Sports;
+  stats:
+    | (
+        | FixtureStatisticsResponse
+        | NFLTeamsStatisticsResponse
+        | AustralianFootballFixtureStatistics<number>
+      )[]
+    | undefined;
 };
 
-const MatchStat = ({ stats, sport }: Props) => {
+const MatchStat = ({ stats }: Props) => {
+  console.log(stats);
   if (!stats) {
     return <p>No Statistics found for this fixture.</p>;
   }
@@ -44,6 +77,8 @@ const MatchStat = ({ stats, sport }: Props) => {
     ? mergeStatistics([stats[0], stats[1]], stats[0].team.name)
     : isNFLTeamStats(stats)
     ? mergeStatisticsForNFL(stats)
+    : isAFLTeamStats(stats)
+    ? mergeStatisticsForAFL(stats)
     : undefined;
 
   return (
