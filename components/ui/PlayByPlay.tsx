@@ -5,15 +5,17 @@ import ImageWithFallback from "../ImageWithFallback";
 import {
   getFootballPlayByPlayComments,
   getHockeyPlayByPlayComments,
+  getNFLPlayByPlayComments,
   groupEventsByPeriods,
 } from "@/lib/utils";
 import SubstIcon from "@/Assets/Icons/Subst";
 import CardIcon from "@/Assets/Icons/YellowOrRedCard";
 import { Football } from "@/Assets/Icons/Sports";
 import { HockeyEvents } from "@/types/hockey";
+import { NFLEvents } from "@/types/american-football";
 
 type Props = {
-  events: (Timeline | HockeyEvents)[];
+  events: (Timeline | HockeyEvents | NFLEvents)[];
   sport: Sports;
 };
 
@@ -38,7 +40,7 @@ const Event = ({
   event,
   sport,
 }: {
-  event: HockeyEvents | Timeline;
+  event: HockeyEvents | Timeline | NFLEvents;
   sport: Sports;
 }) => {
   return (
@@ -63,6 +65,8 @@ const Event = ({
           getFootballPlayByPlayComments(event as Timeline)}
         {sport === "hockey" &&
           getHockeyPlayByPlayComments(event as HockeyEvents)}
+        {sport === "american-football" &&
+          getNFLPlayByPlayComments(event as NFLEvents)}
       </p>
       {sport === "football" && (
         <p className="ml-auto">{renderIcon(event as Timeline)}</p>
@@ -73,7 +77,9 @@ const Event = ({
 
 const PlayByPlay = ({ events, sport }: Props) => {
   const eventsByPeriods = useMemo(
-    () => sport === "hockey" && groupEventsByPeriods(events as HockeyEvents[]),
+    () =>
+      sport !== "football" &&
+      groupEventsByPeriods(events as (HockeyEvents | NFLEvents)[]),
     [events, sport]
   );
 

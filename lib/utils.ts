@@ -16,9 +16,11 @@ import {
   NBATeams,
 } from "@/types/basketball";
 import {
+  NFLEvents,
   League as NFLLeague,
   NFLPlayer,
   NFLStandings,
+  NFLTeamsStatisticsResponse,
 } from "@/types/american-football";
 import {
   APIResponse,
@@ -35,7 +37,6 @@ import {
 } from "@/types/general";
 import { ImpFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { Row } from "@tanstack/react-table";
 import { AustralianFootballStatistics } from "@/types/australian-football";
 import { differenceInYears } from "date-fns";
 import { HockeyEvents } from "@/types/hockey";
@@ -707,6 +708,109 @@ export const mergeStatistics = (
   return merged;
 };
 
+export const mergeStatisticsForNFL = (
+  responses: NFLTeamsStatisticsResponse[]
+): {
+  [key: string]: { [team: string]: number | string };
+} => {
+  const merge: { [key: string]: { [team: string]: number | string } } = {};
+  const homeTeam = responses[0].team.name.toLowerCase();
+
+  const addPropertyToMerge = (
+    propertyName: string,
+    value: number | string,
+    team: string
+  ) => {
+    merge[propertyName] = merge[propertyName] || {};
+    merge[propertyName][team] = value;
+  };
+
+  responses.forEach((response) => {
+    const team =
+      response.team.name.toLowerCase() === homeTeam ? "home" : "away";
+    addPropertyToMerge(
+      "Time of Posession",
+      response.statistics.posession.total,
+      team
+    );
+    addPropertyToMerge(
+      "Total Drives",
+      response.statistics.yards.total_drives,
+      team
+    );
+    addPropertyToMerge("Total Plays", response.statistics.plays.total, team);
+    addPropertyToMerge("Total Yards", response.statistics.yards.total, team);
+    addPropertyToMerge(
+      "Yards Per Play",
+      response.statistics.yards.yards_per_play,
+      team
+    );
+    addPropertyToMerge(
+      "Red Zone Attempts",
+      response.statistics.red_zone.made_att,
+      team
+    );
+    addPropertyToMerge(
+      "Total Passing",
+      response.statistics.passing.total,
+      team
+    );
+    addPropertyToMerge(
+      "Passing Attempts",
+      response.statistics.passing.comp_att,
+      team
+    );
+    addPropertyToMerge(
+      "Passing TDs",
+      response.statistics.first_downs.passing,
+      team
+    );
+    addPropertyToMerge(
+      "Yards Per Attempt",
+      response.statistics.passing.yards_per_pass,
+      team
+    );
+    addPropertyToMerge(
+      "Total Touchdowns",
+      response.statistics.first_downs.total,
+      team
+    );
+    addPropertyToMerge(
+      "Total Rushing",
+      response.statistics.rushings.total,
+      team
+    );
+    addPropertyToMerge(
+      "Rushing Attempts",
+      response.statistics.rushings.attempts,
+      team
+    );
+    addPropertyToMerge(
+      "Yards Per Rush",
+      response.statistics.rushings.yards_per_rush,
+      team
+    );
+    addPropertyToMerge(
+      "Total Turnovers",
+      response.statistics.turnovers.total,
+      team
+    );
+    addPropertyToMerge(
+      "Fumbles Lost",
+      response.statistics.turnovers.lost_fumbles,
+      team
+    );
+    addPropertyToMerge(
+      "Interceptions",
+      response.statistics.turnovers.interceptions,
+      team
+    );
+    addPropertyToMerge("Sacks", response.statistics.sacks.total, team);
+  });
+
+  return merge;
+};
+
 const getSubstitution = (subst: string) => {
   if (subst.includes("1")) return "1st substitution";
   else if (subst.includes("2")) return "2nd substitution";
@@ -770,11 +874,22 @@ export const getHockeyPlayByPlayComments = (event: HockeyEvents) => {
   }
 };
 
-export const groupEventsByPeriods = (events: HockeyEvents[]) => {
-  const periods: { [key: string]: HockeyEvents[] } = {};
+export const getNFLPlayByPlayComments = (event: NFLEvents) => {
+  switch (event?.type) {
+    case "FG":
+      return event.comment;
+    case "TD":
+      return `${event.comment}, TOUCHDOWN.`;
+    default:
+      return event.comment;
+  }
+};
+
+export const groupEventsByPeriods = (events: (HockeyEvents | NFLEvents)[]) => {
+  const periods: { [key: string]: (HockeyEvents | NFLEvents)[] } = {};
 
   events.forEach((event) => {
-    const period = event.period;
+    const period = "period" in event ? event.period : event.quarter;
     if (!periods[period]) {
       periods[period] = [];
     }
