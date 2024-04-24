@@ -15,6 +15,7 @@ import {
   getFixtureById,
   getHeadtoHeadFixtures,
   getFixtureEvents,
+  getFixtureStatistics,
 } from "./api";
 
 export function useLeagueById(id: number, sport: Sports) {
@@ -192,5 +193,18 @@ export function useFixtureEvents(
     queryKey: [fixtureId, sport, "fixtures", "events"],
     queryFn: () => getFixtureEvents(fixtureId, sport),
     enabled: sport !== "football" && tab === "Play By Play" && !!fixtureId,
+  });
+}
+
+export function useFixtureStatistics(
+  fixtureId: number,
+  sport: Sports,
+  tab: FixtureTabsType
+) {
+  return useQuery({
+    queryKey: [fixtureId, sport, "fixtures", "statistics"],
+    queryFn: () => getFixtureStatistics(fixtureId, sport),
+    enabled:
+      sport === "american-football" && tab === "Match Stats" && !!fixtureId,
   });
 }

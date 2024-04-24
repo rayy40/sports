@@ -1,4 +1,10 @@
-import { NFLGames, NFLPlayer, NFLStandings } from "@/types/american-football";
+import {
+  NFLEvents,
+  NFLGames,
+  NFLPlayer,
+  NFLStandings,
+  NFLTeamsStatisticsResponse,
+} from "@/types/american-football";
 import {
   AustralianFootballGames,
   AustralianFootballLeagueOrTeamInfo,
@@ -654,6 +660,10 @@ export const getFixtureById = async (
           `/games?league=1&id=${fixtureId}`
         )
       ).data.response?.[0];
+    case "american-football":
+      return (
+        await axiosInstance.get<APIResponse<NFLGames>>(`/games?id=${fixtureId}`)
+      ).data.response?.[0];
     case "football":
       return (
         await axiosInstance.get<APIResponse<Fixtures>>(
@@ -716,6 +726,30 @@ export const getFixtureEvents = async (fixtureId: number, sport: Sports) => {
       return (
         await axiosInstance.get<APIResponse<HockeyEvents>>(
           `/games/events?game=${fixtureId}`
+        )
+      ).data.response;
+    case "american-football":
+      return (
+        await axiosInstance.get<APIResponse<NFLEvents>>(
+          `/games/events?id=${fixtureId}`
+        )
+      ).data.response;
+    default:
+      return undefined;
+  }
+};
+
+export const getFixtureStatistics = async (
+  fixtureId: number,
+  sport: Sports
+) => {
+  const axiosInstance = createAxiosInstance(sport);
+
+  switch (sport) {
+    case "american-football":
+      return (
+        await axiosInstance.get<APIResponse<NFLTeamsStatisticsResponse>>(
+          `/games/statistics/teams?id=${fixtureId}`
         )
       ).data.response;
     default:
