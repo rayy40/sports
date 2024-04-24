@@ -1,7 +1,8 @@
 import FixtureFilterWrapper from "@/components/FixtureFilterWrapper";
 import FixtureHeader from "@/components/ui/FixtureHeader";
 import { getFixtureById } from "@/services/api";
-import { FixtureTabsType, GamesWithPeriodsAndEvents } from "@/types/general";
+import { NFLGames } from "@/types/american-football";
+import { FixtureTabsType } from "@/types/general";
 import {
   HydrationBoundary,
   QueryClient,
@@ -17,14 +18,13 @@ const Page = async ({ params }: { params: { fixtureId: string } }) => {
     queryFn: () => getFixtureById(fixtureId, "american-football"),
   });
 
-  const fixture: GamesWithPeriodsAndEvents<number | null> | undefined =
-    queryClient.getQueryData([fixtureId, "american-football", "fixture"]);
+  const fixture: NFLGames | undefined = queryClient.getQueryData([
+    fixtureId,
+    "american-football",
+    "fixture",
+  ]);
 
-  const tabs: FixtureTabsType[] = [
-    "Head to Head",
-    "Match Stats",
-    "Play By Play",
-  ];
+  const tabs: FixtureTabsType[] = ["Match Stats", "Play By Play"];
 
   if (!fixture) {
     return (
