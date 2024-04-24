@@ -54,7 +54,7 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
           title={team?.name}
           logo={team?.logo}
           isTeam={true}
-          id={1}
+          id={team.id}
           seasons={Seasons}
           sport="australian-football"
           currSeason={season}
