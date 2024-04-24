@@ -92,3 +92,84 @@ export interface NFLPlayer {
   experience: number;
   image: string;
 }
+
+export interface NFLEvents {
+  quarter: string;
+  minute: string;
+  team: Team;
+  player: {
+    id: string;
+    name: string;
+    image: string | null;
+  };
+  type: string;
+  comment: string;
+  score: {
+    home: number;
+    away: number;
+  };
+}
+
+export interface NFLTeamsStatisticsResponse {
+  team: Team;
+  statistics: NFLTeamStatistics;
+}
+
+export interface NFLTeamStatistics {
+  first_downs: FirstDowns;
+  plays: Total;
+  yards: Yards;
+  passing: Passing;
+  rushings: Rushings;
+  turnovers: turnovers;
+  penalties: Total;
+  red_zone: RedZone;
+  posession: Total;
+  interception: Total;
+  fumbles_recovered: Total;
+  sacks: Total;
+  safeties: Total;
+  int_touchdowns: Total;
+  points_against: Total;
+}
+
+export interface FirstDowns {
+  total: number;
+  passing: number;
+  rushing: number;
+  from_penalties: number;
+  thrid_down_efficiency: string;
+  fourth_down_efficiency: string;
+}
+
+export interface Yards {
+  total: number;
+  yards_per_play: string;
+  total_drives: string;
+}
+
+export interface Passing {
+  total: number;
+  comp_att: string;
+  yards_per_pass: string;
+  interceptions_thrown: number;
+  sacks_yards_lost: string;
+}
+export interface Rushings {
+  total: number;
+  attempts: string;
+  yards_per_rush: string;
+}
+export interface turnovers {
+  total: number;
+  lost_fumbles: number;
+  interceptions: number;
+}
+
+export interface RedZone {
+  made_att: string;
+}
+
+export interface Total {
+  total: string | number;
+}
