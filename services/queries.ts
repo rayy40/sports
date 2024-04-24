@@ -204,7 +204,6 @@ export function useFixtureStatistics(
   return useQuery({
     queryKey: [fixtureId, sport, "fixtures", "statistics"],
     queryFn: () => getFixtureStatistics(fixtureId, sport),
-    enabled:
-      sport === "american-football" && tab === "Match Stats" && !!fixtureId,
+    enabled: sport !== "football" && tab === "Match Stats" && !!fixtureId,
   });
 }

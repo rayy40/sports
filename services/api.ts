@@ -6,10 +6,12 @@ import {
   NFLTeamsStatisticsResponse,
 } from "@/types/american-football";
 import {
+  AustralianFootballFixtureStatisticsResponse,
   AustralianFootballGames,
   AustralianFootballLeagueOrTeamInfo,
   AustralianFootballStandings,
-  AustralianFootballTeamStatistics,
+  AustralianFootballTeamStatisticsResponse,
+  TotalOrAverageStats,
 } from "@/types/australian-football";
 import { BaseballScores } from "@/types/baseball";
 import {
@@ -520,7 +522,9 @@ export const getTeamStatisticsBySeason = async (
     case "australian-football":
       return (
         await axiosInstance.get<
-          APINonArrayResponse<AustralianFootballTeamStatistics>
+          APINonArrayResponse<
+            AustralianFootballTeamStatisticsResponse<TotalOrAverageStats>
+          >
         >(
           `/teams/statistics?team=${teamId}&league=${leagueId}&season=${season}`
         )
@@ -657,7 +661,7 @@ export const getFixtureById = async (
     case "australian-football":
       return (
         await axiosInstance.get<APIResponse<AustralianFootballGames>>(
-          `/games?league=1&id=${fixtureId}`
+          `/games?id=${fixtureId}`
         )
       ).data.response?.[0];
     case "american-football":
@@ -752,6 +756,12 @@ export const getFixtureStatistics = async (
           `/games/statistics/teams?id=${fixtureId}`
         )
       ).data.response;
+    case "australian-football":
+      return (
+        await axiosInstance.get<
+          APIResponse<AustralianFootballFixtureStatisticsResponse<number>>
+        >(`/games/statistics/teams?id=${fixtureId}`)
+      ).data.response?.[0].teams;
     default:
       return undefined;
   }

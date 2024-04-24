@@ -37,7 +37,12 @@ import {
 } from "@/types/general";
 import { ImpFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { AustralianFootballStatistics } from "@/types/australian-football";
+import {
+  AustralianFootballFixtureStatistics,
+  AustralianFootballStatistics,
+  AustralianFootballTeamStatisticsResponse,
+  TotalOrAverageStats,
+} from "@/types/australian-football";
 import { differenceInYears } from "date-fns";
 import { HockeyEvents } from "@/types/hockey";
 
@@ -629,7 +634,9 @@ export const getNBATeamsRequiredStatistics = (stats: NBAStatistics) => {
 };
 
 export const getAFLTeamsRequiredStatistics = (
-  stats: AustralianFootballStatistics
+  stats: AustralianFootballStatistics<TotalOrAverageStats> & {
+    games: { played: number };
+  }
 ) => {
   const requiredStats = [
     { label: "Played", value: stats?.games?.played },
@@ -706,6 +713,55 @@ export const mergeStatistics = (
   }
 
   return merged;
+};
+
+export const mergeStatisticsForAFL = (
+  responses: AustralianFootballFixtureStatistics<number>[]
+) => {
+  const merge: { [key: string]: { [team: string]: number | string } } = {};
+  const homeTeam = responses[0].team.id;
+
+  const addPropertyToMerge = (
+    propertyName: string,
+    value: number | string,
+    team: string
+  ) => {
+    merge[propertyName] = merge[propertyName] || {};
+    merge[propertyName][team] = value;
+  };
+
+  responses.forEach((response) => {
+    const team = response.team.id === homeTeam ? "home" : "away";
+    addPropertyToMerge(
+      "Disposals",
+      response.statistics.disposals.disposals,
+      team
+    );
+    addPropertyToMerge("Kicks", response.statistics.disposals.kicks, team);
+    addPropertyToMerge(
+      "Hand balls",
+      response.statistics.disposals.handballs,
+      team
+    );
+    addPropertyToMerge(
+      "Free kicks",
+      response.statistics.disposals.free_kicks,
+      team
+    );
+    addPropertyToMerge("Hitouts", response.statistics.stoppages.hitouts, team);
+    addPropertyToMerge(
+      "Clearances",
+      response.statistics.stoppages.clearances,
+      team
+    );
+    addPropertyToMerge("Marks", response.statistics.marks, team);
+    addPropertyToMerge("Goals", response.statistics.scoring.goals, team);
+    addPropertyToMerge("Assists", response.statistics.scoring.assists, team);
+    addPropertyToMerge("Behinds", response.statistics.scoring.behinds, team);
+    addPropertyToMerge("Tackles", response.statistics.defence.tackles, team);
+  });
+
+  return merge;
 };
 
 export const mergeStatisticsForNFL = (
