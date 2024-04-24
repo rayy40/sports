@@ -3,7 +3,7 @@ import {
   ShortStatusMap,
   StatusType,
   Tabs,
-} from "@/types/football";
+} from "@/types/general";
 
 export const shortStatusMap: ShortStatusMap = {
   Scheduled: ["TBD", "NS"],
