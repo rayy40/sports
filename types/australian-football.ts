@@ -1,3 +1,4 @@
+import { NFLEvents } from "./american-football";
 import { Status, Team, Teams } from "./general";
 
 export interface AustralianFootballScores {
@@ -88,4 +89,9 @@ export interface AustralianFootballStatistics {
 export interface TotalOrAverageStats {
   total: number | null;
   average: string | null;
+}
+
+export interface AustralianFootballEvents {
+  game: { id: number };
+  events: NFLEvents;
 }
