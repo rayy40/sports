@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
-import RootComponent from "@/components/RootComponent";
+import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
 import {
   AustralianFootballGames,
   AustralianFootballLeagueOrTeamInfo,
@@ -54,7 +54,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
   return (
     <div className="relative font-sans">
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <RootComponent
+        <LeagueOrTeamWrapper
           title={league[league.length - 1].name}
           logo={league[league.length - 1].logo}
           id={1}
