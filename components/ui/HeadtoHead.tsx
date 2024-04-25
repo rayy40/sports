@@ -15,13 +15,12 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
   return (
     <div className="max-w-[1000px] mx-auto">
       {fixtures
-        .filter((fixture) =>
-          "fixture" in fixture
-            ? shortStatusMap["Finished"].includes(fixture.fixture.status.short)
-            : shortStatusMap["Finished"].includes(
-                fixture.status.short.toString()
-              )
-        )
+        .filter((fixture) => {
+          const { fixtureStatus } = getFixtureData(fixture);
+          return shortStatusMap["Finished"].includes(
+            fixtureStatus.short.toString()
+          );
+        })
         .slice(0)
         .reverse()
         .map((fixture) => {
@@ -41,17 +40,16 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
                 {format(fixtureDate, "EEEE d MMMM yyyy")}
               </div>
               <Link href={`/${sport}/fixture/${fixtureId}`}>
-                <div className="grid grid-cols-list gap-4 py-6">
-                  <div className="flex items-center gap-4">
+                <div className="grid px-4 grid-cols-[1fr_50px_1fr] lg:grid-cols-list gap-2 lg:gap-4 py-4 lg:py-6">
+                  <div className="flex items-center gap-2 lg:gap-4">
                     <ImageWithFallback
-                      width={30}
-                      height={30}
+                      className="w-[25px] lg:w-[30px]"
                       src={homeTeam.logo}
                       alt={`${homeTeam.name}-logo`}
                     />
                     <p>{homeTeam.name}</p>
                   </div>
-                  <div className="flex ml-6 items-center gap-4">
+                  <div className="flex lg:ml-6 ml-4 items-center gap-2 lg:gap-4">
                     <p
                       className={`${
                         isHomeTeamWinner
@@ -72,11 +70,10 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
                       {awayTeamScore}
                     </p>
                   </div>
-                  <div className="flex items-center justify-end gap-4">
+                  <div className="flex items-center justify-end gap-2 lg:gap-4">
                     <p>{awayTeam.name}</p>
                     <ImageWithFallback
-                      width={30}
-                      height={30}
+                      className="w-[25px] lg:w-[30px]"
                       src={awayTeam.logo}
                       alt={`${awayTeam.name}-logo`}
                     />

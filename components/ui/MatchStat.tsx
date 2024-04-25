@@ -5,7 +5,6 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/Shadcn/table";
-import { Sports } from "@/types/general";
 import { FixtureStatisticsResponse } from "@/types/football";
 import {
   mergeStatistics,
@@ -68,7 +67,6 @@ type Props = {
 };
 
 const MatchStat = ({ stats }: Props) => {
-  console.log(stats);
   if (!stats) {
     return <p>No Statistics found for this fixture.</p>;
   }

@@ -23,21 +23,26 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number> }) => {
       const rank: number = getValue();
 
-      return <p className="pl-6 text-[0.975rem]">{rank}</p>;
+      return <p className="pl-3 lg:pl-6 text-sm lg:text-[0.975rem]">{rank}</p>;
     },
   },
   {
     id: "team",
     accessorFn: (row) => row.team,
     header: "Team",
+    minSize: 150,
     cell: ({ getValue }: { getValue: Getter<Team> }) => {
       const team = getValue();
 
       return (
         <Link href={`/${sport}/team/${team.id}`}>
-          <div className="flex items-center gap-3">
-            <ImageWithFallback src={team.logo} alt={`${team.name}-logo`} />
-            <p className="text-[1rem]">{team.name}</p>
+          <div className="flex items-center gap-1 lg:gap-3">
+            <ImageWithFallback
+              className="w-[25px] lg:w-[40px]"
+              src={team.logo}
+              alt={`${team.name}-logo`}
+            />
+            <p className="text-sm lg:text-[1rem]">{team.name}</p>
           </div>
         </Link>
       );
@@ -56,7 +61,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
       const appearances = getValue();
 
       return (
-        <p className="text-center text-[0.975rem]">{appearances ?? "-"}</p>
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {appearances ?? "-"}
+        </p>
       );
     },
   },
@@ -76,7 +83,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number> }) => {
       const won = getValue();
 
-      return <p className="text-center text-[0.975rem]">{won ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">{won ?? "-"}</p>
+      );
     },
   },
   {
@@ -95,7 +104,7 @@ export const standingsColumns = <T extends AllSportsStandings>(
       const winPercentage = parseFloat(won) * 100;
 
       return (
-        <p className="text-center text-[0.975rem]">
+        <p className="text-center text-sm lg:text-[0.975rem]">
           {winPercentage.toFixed(2) ?? "-"}
         </p>
       );
@@ -115,7 +124,7 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
       const drawn = getValue();
 
-      return <p className="text-center text-[0.975rem]">{drawn}</p>;
+      return <p className="text-center text-sm lg:text-[0.975rem]">{drawn}</p>;
     },
   },
   {
@@ -134,7 +143,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number> }) => {
       const lost = getValue();
 
-      return <p className="text-center text-[0.975rem]">{lost ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">{lost ?? "-"}</p>
+      );
     },
   },
   {
@@ -153,7 +164,7 @@ export const standingsColumns = <T extends AllSportsStandings>(
       const losePercentage = parseFloat(lose) * 100;
 
       return (
-        <p className="text-center text-[0.975rem]">
+        <p className="text-center text-sm lg:text-[0.975rem]">
           {losePercentage.toFixed(2) ?? "-"}
         </p>
       );
@@ -166,7 +177,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<Goals | undefined> }) => {
       const goals = getValue();
 
-      return <p className="text-center text-[0.975rem]">{goals?.for}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">{goals?.for}</p>
+      );
     },
   },
   {
@@ -176,7 +189,11 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<Goals | undefined> }) => {
       const goals = getValue();
 
-      return <p className="text-center text-[0.975rem]">{goals?.against}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {goals?.against}
+        </p>
+      );
     },
   },
   {
@@ -186,7 +203,11 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
       const goalDiff = getValue();
 
-      return <p className="text-center text-[0.975rem]">{goalDiff ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {goalDiff ?? "-"}
+        </p>
+      );
     },
   },
   {
@@ -196,7 +217,11 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
       const streak = getValue();
 
-      return <p className="text-center text-[0.975rem]">{streak ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {streak ?? "-"}
+        </p>
+      );
     },
   },
   {
@@ -207,7 +232,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
       const gamesBehind = getValue();
 
       return (
-        <p className="text-center text-[0.975rem]">{gamesBehind ?? "-"}</p>
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {gamesBehind ?? "-"}
+        </p>
       );
     },
   },
@@ -218,7 +245,11 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
       const winLastTen = getValue();
 
-      return <p className="text-center text-[0.975rem]">{winLastTen ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {winLastTen ?? "-"}
+        </p>
+      );
     },
   },
   {
@@ -229,7 +260,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
       const lossLastTen = getValue();
 
       return (
-        <p className="text-center text-[0.975rem]">{lossLastTen ?? "-"}</p>
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {lossLastTen ?? "-"}
+        </p>
       );
     },
   },
@@ -241,7 +274,11 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
       const records = getValue();
 
-      return <p className="text-center text-[0.975rem]">{records ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {records ?? "-"}
+        </p>
+      );
     },
   },
   {
@@ -252,7 +289,11 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
       const records = getValue();
 
-      return <p className="text-center text-[0.975rem]">{records ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {records ?? "-"}
+        </p>
+      );
     },
   },
   {
@@ -263,7 +304,11 @@ export const standingsColumns = <T extends AllSportsStandings>(
     cell: ({ getValue }: { getValue: Getter<number | undefined> }) => {
       const pointsDiff = getValue();
 
-      return <p className="text-center text-[0.975rem]">{pointsDiff ?? "-"}</p>;
+      return (
+        <p className="text-center text-sm lg:text-[0.975rem]">
+          {pointsDiff ?? "-"}
+        </p>
+      );
     },
   },
   {
@@ -279,7 +324,9 @@ export const standingsColumns = <T extends AllSportsStandings>(
       const points = getValue();
 
       return (
-        <p className="text-center text-[0.975rem] font-medium">{points}</p>
+        <p className="text-center text-sm lg:text-[0.975rem] font-medium">
+          {points}
+        </p>
       );
     },
   },

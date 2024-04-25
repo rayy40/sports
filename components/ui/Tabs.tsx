@@ -41,7 +41,7 @@ const Tabs = <T,>({
   return (
     <div
       onClick={handleTabClick}
-      className={`p-3 text-sm font-medium transition-all cursor-pointer ${
+      className={`p-3 text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${
         id === (isStatus ? status : isStat ? fixtureTab : tab)
           ? "text-primary-foreground/95 underline-tabs"
           : "text-muted-foreground"

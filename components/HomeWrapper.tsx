@@ -97,9 +97,9 @@ const HomeFixtures = ({ sport, isFootball = false }: Props) => {
     <Virtuoso
       data={filteredFixtures}
       itemContent={(_, fixtures) => (
-        <div className="space-y-2 py-10 border-b px-6">
+        <div className="px-3 space-y-4 lg:space-y-2 py-10 border-b lg:px-6">
           <Link
-            className="text-lg font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
+            className="text-[1rem] lg:text-lg font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
             href={`/${sport}/league/${fixtures[0].leagueId}`}
           >
             {fixtures[0].leagueName}

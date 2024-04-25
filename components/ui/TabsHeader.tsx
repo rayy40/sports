@@ -20,16 +20,15 @@ const TabsHeader = ({
   value,
 }: Props) => {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2 lg:gap-4">
       <ImageWithFallback
-        width={50}
-        height={50}
+        className="w-[40px] lg:w-[50px]"
         src={logo}
         alt={`${title}-logo`}
       />
-      <h2 className="flex text-2xl font-medium">
+      <h2 className="flex items-center text-lg lg:text-2xl font-medium">
         {title}
-        <span className="text-[1rem] ml-3 text-secondary-foreground">
+        <span className="text-sm lg:text-[1rem] ml-3 text-secondary-foreground">
           ({value ?? currValue})
         </span>
       </h2>

@@ -14,14 +14,14 @@ const FixturesList = <T extends AllSportsFixtures>({ table }: Props<T>) => {
 
   if (rows.length === 0) {
     return (
-      <div className="w-full h-[calc(100vh-150px)] text-[1rem] flex items-center text-primary-foreground/90 justify-center">
+      <div className="w-full h-calc[(100vh-100px)] lg:h-[calc(100vh-150px)] text-sm lg:text-[1rem] flex items-center text-primary-foreground/90 justify-center">
         No fixtures available
       </div>
     );
   }
 
   return (
-    <div className="overflow-y-auto h-[calc(100vh-150px)]">
+    <div className="overflow-y-auto h-[calc(100vh-100px)] lg:h-[calc(100vh-150px)]">
       <TableVirtuoso<AllSportsFixtures>
         style={{ height: "100%" }}
         totalCount={rows.length}
@@ -43,6 +43,7 @@ const FixturesList = <T extends AllSportsFixtures>({ table }: Props<T>) => {
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
+                    className="p-4"
                     style={{
                       width:
                         cell.column.columnDef.size !== 0

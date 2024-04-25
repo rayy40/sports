@@ -34,15 +34,17 @@ const TeamStatistics = ({ data }: Props) => {
   }
 
   return (
-    <div className="w-full p-9">
-      <div className="grid grid-cols-2 gap-16 lg:gap-28 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="w-full p-5 lg:p-9">
+      <div className="grid grid-cols-2 gap-12 lg:gap-28 lg:grid-cols-3 xl:grid-cols-4">
         {requiredStats?.map((stat, index) => (
           <div
             key={index}
-            className="py-8 border-b w-[260px] border-b-secondary-foreground/50"
+            className="py-4 lg:py-8 border-b lg:w-[260px] border-b-secondary-foreground/50"
           >
-            <h3 className="font-medium t">{stat.label}</h3>
-            <div className="font-semibold text-7xl">{stat.value}</div>
+            <h3 className="font-medium">{stat.label}</h3>
+            <div className="font-semibold text-4xl lg:text-7xl">
+              {stat.value}
+            </div>
           </div>
         ))}
       </div>

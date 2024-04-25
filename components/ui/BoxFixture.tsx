@@ -69,8 +69,8 @@ const BoxFixture = ({ sport, fixture }: Props) => {
   };
   return (
     <Link href={`/${sport}/fixture/${id}`}>
-      <div className="border relative h-[200px] border-secondary hover:border-secondary-foreground/30 transition-colors cursor-pointer rounded-sm p-6 space-y-6 shadow-sm">
-        <div className="flex min-h-[20px] text-secondary-foreground text-sm items-center justify-between">
+      <div className="border relative h-[160px] lg:h-[200px] border-secondary hover:border-secondary-foreground/30 transition-colors cursor-pointer rounded-sm p-5 lg:p-6 space-y-5 lg:space-y-6 shadow-sm">
+        <div className="flex min-h-[10px] lg:min-h-[20px] text-secondary-foreground text-sm items-center justify-between">
           <p className="whitespace-nowrap max-w-[80%] text-ellipsis overflow-hidden">
             {round}
           </p>
@@ -82,6 +82,7 @@ const BoxFixture = ({ sport, fixture }: Props) => {
           <div className="flex gap-4 items-center justify-between">
             <div className="flex gap-4 items-center">
               <ImageWithFallback
+                className="w-8 lg:w-10"
                 src={homeTeam.logo}
                 alt={`${homeTeam.name}-logo`}
               />
@@ -100,6 +101,7 @@ const BoxFixture = ({ sport, fixture }: Props) => {
           <div className="flex gap-4 items-center justify-between">
             <div className="flex gap-4 items-center">
               <ImageWithFallback
+                className="w-8 lg:w-10"
                 src={awayTeam.logo}
                 alt={`${awayTeam.name}-logo`}
               />

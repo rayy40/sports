@@ -24,11 +24,11 @@ const Lineup = ({ lineup, isAway }: { lineup: Lineups; isAway: boolean }) => {
           <p
             className={`${
               isAway ? "justify-end" : "justify-start"
-            } flex px-4 gap-8 items-center py-4 border-b`}
+            } flex px-4 gap-5 lg:gap-8  text-[0.925rem] lg:text-[1rem] items-center py-4 border-b`}
             key={player?.id}
           >
             {isAway && player?.name}
-            <span className=" text-[0.875rem] text-muted-foreground">
+            <span className=" text-sm text-muted-foreground">
               {player?.pos}
             </span>
             {!isAway && player?.name}
@@ -47,13 +47,11 @@ const Lineup = ({ lineup, isAway }: { lineup: Lineups; isAway: boolean }) => {
           <p
             className={`${
               isAway ? "justify-end" : "justify-start"
-            } flex px-4 gap-8 items-center py-4 border-b`}
+            } flex px-4 lg:gap-8 gap-5  text-[0.925rem] lg:text-[1rem] items-center py-4 border-b`}
             key={player?.id}
           >
             {isAway && player?.name}
-            <span className="text-[0.875rem] text-muted-foreground">
-              {player?.pos}
-            </span>
+            <span className="text-sm text-muted-foreground">{player?.pos}</span>
             {!isAway && player?.name}
           </p>
         ))}

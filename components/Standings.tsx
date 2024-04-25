@@ -76,6 +76,9 @@ const STable = ({
   isAdditionalNBAColumnVisible = false,
 }: STableProps) => {
   const standingsTable = useReactTable({
+    defaultColumn: {
+      minSize: 0,
+    },
     data: standing ?? [],
     columns: standingsColumns<AllSportsStandings>(sport),
     getCoreRowModel: getCoreRowModel(),
@@ -109,7 +112,7 @@ const STable = ({
   });
 
   return (
-    <Table className="border-b">
+    <Table className="border-b overflow-x-auto w-full">
       <TableHeader>
         {standingsTable?.getHeaderGroups().map((headerGroup) => (
           <TableRow
@@ -119,7 +122,8 @@ const STable = ({
             {headerGroup.headers.map((header) => {
               return (
                 <TableHead
-                  className="first:w-[100px] [&:not(:first-child,:nth-child(2))]:text-center first:pl-9"
+                  className="first:sticky [&:nth-child(2)]:sticky first:left-0
+                  [&:nth-child(2)]:left-[70px] bg-background first:w-[40px] [&:nth-child(2)]:-ml-2 lg:first:w-[100px] [&:not(:first-child,:nth-child(2))]:text-center first:pl-6 lg:first:pl-9"
                   key={header.id}
                 >
                   {header.isPlaceholder
@@ -142,7 +146,17 @@ const STable = ({
               key={row.id}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell
+                  className="first:sticky [&:nth-child(2)]:sticky first:left-0
+                [&:nth-child(2)]:left-[70px] bg-background"
+                  style={{
+                    minWidth:
+                      cell.column.columnDef.minSize !== 0
+                        ? cell.column.columnDef.minSize
+                        : "auto",
+                  }}
+                  key={cell.id}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -171,7 +185,7 @@ const renderStandingsByLeague = (
     );
     return Object.keys(standingsData).map((key, index) => (
       <div key={index}>
-        <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
+        <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
           {key}
         </p>
         <STable
@@ -198,7 +212,7 @@ const renderStandingsByLeague = (
     );
     return Object.keys(standingsData).map((key, index) => (
       <div key={index}>
-        <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
+        <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
           {key}
         </p>
         <STable
@@ -215,13 +229,13 @@ const renderStandingsByLeague = (
       return (
         <div key={d.league.id}>
           {data.length > 1 && (
-            <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
+            <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
               {d.league.name}
             </p>
           )}
           {d.league.standings?.filter(Boolean).map((standing, index) => (
             <div key={index}>
-              <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
+              <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
                 {standing?.[0].group}
               </p>
               <STable
@@ -240,7 +254,7 @@ const renderStandingsByLeague = (
       );
       return Object.keys(standingsData).map((key, index) => (
         <div key={index}>
-          <p className="capitalize font-medium text-[1.125rem] p-6 pl-9 border-b">
+          <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
             {key}
           </p>
           <STable

@@ -35,7 +35,7 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
 
   if (!team) {
     return (
-      <div className="flex font-sans text-[1rem] font-medium h-screen w-full items-center justify-center">
+      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
         <p>No team found.</p>
       </div>
     );

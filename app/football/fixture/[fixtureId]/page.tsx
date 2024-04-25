@@ -33,7 +33,7 @@ const Page = async ({ params }: { params: { fixtureId: string } }) => {
 
   if (!fixture) {
     return (
-      <div className="flex font-sans text-[1rem] font-medium h-screen w-full items-center justify-center">
+      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
         <p>No fixture found.</p>
       </div>
     );

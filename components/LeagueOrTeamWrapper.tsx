@@ -13,7 +13,7 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { fixturesListColumns } from "./Table/fixturesListColumns";
 import { getLeagueIdForTeam, getSeasonsList } from "@/lib/utils";
 import FilterWrapper from "./FilterWrapper";
@@ -54,6 +54,7 @@ const RootComponent = ({
   const { season, setSeason } = useSeasonsStore();
   const { league: leagueForTeam } = useLeagueForTeamStatsStore();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
 
   const seasonList = isSeasons(seasons)
     ? getSeasonsList<SeasonsEntity | Seasons>(seasons)
@@ -68,6 +69,12 @@ const RootComponent = ({
   const data = (isTeam ? teamFixtures : leagueFixtures) ?? fixtures ?? [];
 
   const league = getLeagueIdForTeam(data, leagueForTeam, isTeam);
+
+  useEffect(() => {
+    if (typeof window !== undefined) {
+      setIsSmallScreen(window.innerWidth < 1024);
+    }
+  }, []);
 
   const fixturesTable = useReactTable({
     defaultColumn: {
@@ -84,6 +91,8 @@ const RootComponent = ({
       columnVisibility: {
         league: false,
         status: false,
+        date: isSmallScreen ? false : true,
+        arrow: isSmallScreen ? false : true,
       },
     },
   });
@@ -137,7 +146,7 @@ const RootComponent = ({
 
   return (
     <>
-      <div className="sticky top-0 z-20 flex flex-col gap-6 p-6 pb-0 shadow-sm bg-background">
+      <div className="sticky top-0 z-20 flex flex-col gap-3 lg:gap-6 p-3 lg:p-6 pb-0 shadow-sm bg-background">
         <TabsHeader
           title={title}
           value={season}
@@ -155,7 +164,7 @@ const RootComponent = ({
           sport
         )}
       </div>
-      <div className="h-[calc(100vh-150px)]">
+      <div className="h-[calc(100vh-105px)] lg:h-[calc(100vh-150px)]">
         {renderContent(
           isFetchingLeagueFixtures,
           isFetchingTeamFixtures,

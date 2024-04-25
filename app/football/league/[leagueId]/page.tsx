@@ -39,7 +39,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
 
   if (!league) {
     return (
-      <div className="flex font-sans text-[1rem] font-medium h-screen w-full items-center justify-center">
+      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
         <p>No league found.</p>
       </div>
     );

@@ -22,8 +22,8 @@ export const fixturesListColumns = <
       const formattedDate = formatDatePatternLong(date);
 
       return (
-        <div className="flex flex-col px-2 pl-6 w-[150px] items-start">
-          <p className="text-[0.925rem] text-left font-medium text-primary-foreground">
+        <div className="hidden lg:flex flex-col px-2 lg:pl-6 lg:w-[150px] items-start">
+          <p className="text-sm lg:text-[0.925rem] text-left font-medium text-primary-foreground">
             {formattedDate}
           </p>
         </div>
@@ -63,23 +63,24 @@ export const fixturesListColumns = <
       } = getFixtureData(row.original);
 
       return (
-        <div className="grid grid-cols-list justify-center items-center gap-6 min-w-[250px] flex-1">
-          <div className="flex items-center justify-end gap-3">
+        <div className="grid grid-cols-[1fr_50px_1fr] lg:grid-cols-list justify-center items-center gap-4 lg:gap-6 lg:min-w-[250px] flex-1">
+          <div className="flex items-center justify-end gap-1 lg:gap-3">
             <p
               className={`${
                 isHomeTeamWinner
                   ? "text-primary-foreground"
                   : "text-secondary-foreground"
-              } text-[1.075rem]`}
+              } text-sm text-right lg:text-[1.075rem]`}
             >
               {teams.home.name}
             </p>
             <ImageWithFallback
+              className="w-[25px] lg:w-[40px]"
               src={teams.home.logo}
               alt={`${teams.home.name}-logo`}
             />
           </div>
-          <div className="flex items-center justify-center gap-3 text-lg font-medium">
+          <div className="flex items-center justify-center gap-1 lg:gap-3 text-[1rem] lg:text-lg font-medium">
             {homeTeamScore && (
               <p
                 className={
@@ -104,8 +105,9 @@ export const fixturesListColumns = <
               </p>
             )}
           </div>
-          <div className="flex items-center justify-start gap-3">
+          <div className="flex items-center justify-start gap-1 lg:gap-3">
             <ImageWithFallback
+              className="w-[25px] lg:w-[40px]"
               src={"visitors" in teams ? teams.visitors.logo : teams.away.logo}
               alt={`${
                 "visitors" in teams ? teams.visitors.name : teams.away.name
@@ -116,7 +118,7 @@ export const fixturesListColumns = <
                 isAwayTeamWinner
                   ? "text-primary-foreground"
                   : "text-secondary-foreground"
-              } text-[1.075rem]`}
+              } text-sm text-left lg:text-[1.075rem]`}
             >
               {"visitors" in teams ? teams.visitors.name : teams.away.name}
             </p>
@@ -148,7 +150,7 @@ export const fixturesListColumns = <
     size: 50,
     cell: () => {
       return (
-        <div className="w-[50px] px-2 ml-auto font-medium text-secondary-foreground transition-colors hover:text-primary-foreground">
+        <div className="hidden lg:block w-[50px] px-2 ml-auto font-medium text-secondary-foreground transition-colors hover:text-primary-foreground">
           <LucideArrowRight size={20} />
         </div>
       );

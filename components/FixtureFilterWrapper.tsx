@@ -27,6 +27,7 @@ type Props = {
 
 const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
   const { tab } = useFixtureTabsStore();
+  console.log(tab);
 
   const { fixtureId, homeTeam, awayTeam } = useMemo(
     () => getFixtureData(fixture),
@@ -55,6 +56,8 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
       </div>
     );
   }
+
+  console.log(fixture);
 
   if (tab === "Lineups" && isFootballDetailedFixture(fixture)) {
     if (!fixture.lineups || fixture.lineups.length !== 2) {

@@ -44,21 +44,20 @@ const Event = ({
   sport: Sports;
 }) => {
   return (
-    <div className="flex py-6 px-2 border-b items-center gap-10">
-      <p className="text-xs text-muted-foreground">
+    <div className="flex py-3 lg:py-6 px-2 border-b items-center gap-5 lg:gap-10">
+      <p className="text-xs text-muted-foreground min-w-[30px]">
         {"minute" in event ? event?.minute : `${event?.time?.elapsed}'`}
       </p>
       <ImageWithFallback
-        width={30}
-        height={30}
+        className="w-[25px] lg:w-[30px]"
         src={event.team.logo}
         alt={`${event.team.name}-logo`}
       />
       <p
         className={
           sport === "football" && event.type.toLowerCase() === "goal"
-            ? "font-semibold"
-            : "font-normal"
+            ? "font-semibold text-sm lg:text-[1rem]"
+            : "font-normal text-sm lg:text-[1rem]"
         }
       >
         {sport === "football" &&
@@ -69,7 +68,9 @@ const Event = ({
           getNFLPlayByPlayComments(event as NFLEvents)}
       </p>
       {sport === "football" && (
-        <p className="ml-auto">{renderIcon(event as Timeline)}</p>
+        <p className="text-sm lg:text-[1rem] ml-auto">
+          {renderIcon(event as Timeline)}
+        </p>
       )}
     </div>
   );
@@ -88,7 +89,7 @@ const PlayByPlay = ({ events, sport }: Props) => {
       {eventsByPeriods &&
         Object.keys(eventsByPeriods).map((period) => (
           <div key={period}>
-            <div className="capitalize px-2 text-sm text-secondary-foreground py-6 border-b">
+            <div className="capitalize px-2 text-sm text-secondary-foreground py-4 lg:py-6 border-b">
               {period}
             </div>
             {eventsByPeriods[period].map((event, index) => (
