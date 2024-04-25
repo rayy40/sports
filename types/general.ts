@@ -278,7 +278,7 @@ export function isFootballFixture(item: AllSportsFixtures): item is Fixtures {
 export function isFootballDetailedFixture(
   item: AllSportsFixtures | DetailedFixture
 ): item is DetailedFixture {
-  return "cards" in item;
+  return "fixture" in item && "goals" in item && "lineups" in item;
 }
 
 export function isNBAFixture(item: AllSportsFixtures): item is NBAGames {
