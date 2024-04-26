@@ -15,7 +15,7 @@ const DatePicker = () => {
         <Button
           variant={"outline"}
           className={
-            "w-[160px] lg:w-[200px] justify-center text-center font-medium"
+            "w-[140px] h-9 text-sm lg:w-[200px] lg:h-10 justify-center text-center font-medium"
           }
         >
           <CalendarIcon className="mr-2 h-4 w-4" />

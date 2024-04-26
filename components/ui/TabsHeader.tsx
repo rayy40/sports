@@ -28,11 +28,11 @@ const TabsHeader = ({
       />
       <h2 className="flex items-center text-lg lg:text-2xl font-medium">
         {title}
-        <span className="text-sm lg:text-[1rem] ml-3 text-secondary-foreground">
+        <span className="text-sm hidden lg:inline-block  lg:text-[1rem] ml-3 text-secondary-foreground">
           ({value ?? currValue})
         </span>
       </h2>
-      <div className="ml-auto">
+      <div className="ml-auto hidden lg:block">
         <DropDown
           title="seasons"
           data={data}

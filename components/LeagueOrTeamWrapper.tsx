@@ -146,7 +146,7 @@ const RootComponent = ({
 
   return (
     <>
-      <div className="sticky top-0 z-20 flex flex-col gap-3 lg:gap-6 p-3 lg:p-6 pb-0 shadow-sm bg-background">
+      <div className="sticky top-0 z-20 flex flex-col gap-3 lg:gap-6 p-3 lg:p-6 pb-0 lg:pb-0 shadow-sm bg-background">
         <TabsHeader
           title={title}
           value={season}

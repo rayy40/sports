@@ -185,7 +185,7 @@ const renderStandingsByLeague = (
     );
     return Object.keys(standingsData).map((key, index) => (
       <div key={index}>
-        <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
+        <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 py-5 lg:p-6 pl-6 lg:pl-9 border-b">
           {key}
         </p>
         <STable
@@ -212,7 +212,7 @@ const renderStandingsByLeague = (
     );
     return Object.keys(standingsData).map((key, index) => (
       <div key={index}>
-        <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
+        <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 py-5 lg:p-6 pl-6 lg:pl-9 border-b">
           {key}
         </p>
         <STable
@@ -229,13 +229,13 @@ const renderStandingsByLeague = (
       return (
         <div key={d.league.id}>
           {data.length > 1 && (
-            <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
+            <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 py-5 lg:p-6 pl-6 lg:pl-9 border-b">
               {d.league.name}
             </p>
           )}
           {d.league.standings?.filter(Boolean).map((standing, index) => (
             <div key={index}>
-              <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
+              <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 py-5 lg:p-6 pl-6 lg:pl-9 border-b">
                 {standing?.[0].group}
               </p>
               <STable
@@ -254,7 +254,7 @@ const renderStandingsByLeague = (
       );
       return Object.keys(standingsData).map((key, index) => (
         <div key={index}>
-          <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 lg:p-6 pl-6 lg:pl-9 border-b">
+          <p className="capitalize font-medium text-sm lg:text-[1.125rem] p-3 py-5 lg:p-6 pl-6 lg:pl-9 border-b">
             {key}
           </p>
           <STable

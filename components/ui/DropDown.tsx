@@ -8,7 +8,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/Shadcn/dropdown-menu";
-import { ButtonVariants } from "@/types/football";
+import { ButtonVariants } from "@/types/general";
 
 type Props = {
   title: string;

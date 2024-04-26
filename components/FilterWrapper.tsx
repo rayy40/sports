@@ -1,25 +1,15 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { FilterItems } from "./ui/FilterItems";
-import Tabs from "./ui/Tabs";
 import {
-  Tabs as TTabs,
   AllSportsFixtures,
-  DetailedTabsType,
   Games,
   GamesWithPeriods,
   GamesWithPeriodsAndEvents,
   SportScores,
   Sports,
-  StatusType,
 } from "@/types/general";
-import {
-  detailedTabs,
-  stats,
-  statusFilters,
-  statusTabs,
-} from "@/lib/constants";
+import { detailedTabs } from "@/lib/constants";
 import { getLeagues, getTeams } from "@/lib/utils";
 import {
   useLeagueForTeamStatsStore,
@@ -28,10 +18,11 @@ import {
   useTabsStore,
   useTeamStore,
 } from "@/lib/store";
-import { Filters, Fixtures } from "@/types/football";
-import { FilterDropDown } from "./Table/FilterDropDown";
-import { DropDown } from "./ui/DropDown";
-import { Column, Table } from "@tanstack/react-table";
+import { Fixtures } from "@/types/football";
+import { Table } from "@tanstack/react-table";
+import MobileFilterWrapper from "./ui/MobileFilterWrapper";
+import DesktopFilterWrapper from "./ui/DesktopFilterWrapper";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 type Props = {
   isFootball?: boolean;
@@ -57,168 +48,74 @@ const FilterWrapper = ({
   isTeam = false,
 }: Props) => {
   const { tab } = useTabsStore();
-  const { stat, setStat } = useStatStore();
+  const { setStat } = useStatStore();
   const { setLeague } = useLeagueStore();
-  const { league: leagueForTeam, setLeague: setLeagueForTeam } =
-    useLeagueForTeamStatsStore();
+  const { setLeague: setLeagueForTeam } = useLeagueForTeamStatsStore();
   const { setTeam } = useTeamStore();
-  const isSquadsAvailable =
-    sport === "basketball" ||
-    sport === "football" ||
-    sport === "american-football";
-  sport === "australian-football";
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const tabs = useMemo(() => {
+    const tabWithoutStats = detailedTabs.filter(
+      (tab) => tab.status.toLowerCase() !== "stats"
+    );
+    switch (sport) {
+      case "football":
+        return detailedTabs.slice(0, -1);
+      case "american-football":
+        return isTeam ? tabWithoutStats : detailedTabs.slice(0, -2);
+      case "australian-football":
+      case "basketball":
+        return isTeam ? detailedTabs : detailedTabs.slice(0, -2);
+      default:
+        return isTeam ? detailedTabs.slice(0, -1) : detailedTabs.slice(0, -2);
+    }
+  }, [sport, isTeam]);
 
   const leagueInfos = useMemo(
     () => (fixtures ? getLeagues(fixtures as Data[], isFootball) : []),
     [fixtures, isFootball]
   );
 
-  const leagueName = leagueInfos.length > 0 ? leagueInfos[0].name : "";
-
-  const leaguesListForTeams = leagueInfos.map((l) => l.name);
-
   const teamInfos = useMemo(
     () => (fixtures ? getTeams(fixtures as Data[]) : []),
     [fixtures]
   );
 
-  const renderDropDown = (
-    title: string,
-    data: string[],
-    value: string,
-    setValue: (arg: string) => void
-  ) => {
-    return (
-      <DropDown
-        title={title}
-        data={data}
-        value={value}
-        setValue={setValue}
-        variant={"secondary"}
-      />
-    );
-  };
-
-  const renderTabs = (
-    tabs: TTabs<StatusType | DetailedTabsType>[],
-    isStatus: boolean
-  ) => {
-    return tabs.map((tab, index) => (
-      <Tabs key={index} label={tab.label} id={tab.status} isStatus={isStatus} />
-    ));
-  };
-
-  const renderFilterItems = (
-    title: string,
-    data: Filters[],
-    setFilter: (league: string | null) => void
-  ) => {
-    if (data.length > 1) {
-      return (
-        <FilterItems
-          title={`Filter By: ${title}`}
-          data={data}
-          setFilter={setFilter}
-        />
-      );
-    }
-    return null;
-  };
-
-  const renderFilterDropDown = (
-    title: string,
-    labels: Filters[],
-    column: Column<AllSportsFixtures> | undefined
-  ) => {
-    if (labels.length > 1) {
-      return <FilterDropDown title={title} labels={labels} column={column} />;
-    }
-    return null;
-  };
-
-  const renderHomePageFilters = () => {
-    return (
-      <>
-        <div className="flex items-end gap-4">
-          {renderTabs(statusTabs, true)}
-        </div>
-        <div className="space-x-4">
-          {renderFilterItems("League", leagueInfos, setLeague)}
-          {renderFilterItems("Team", teamInfos, setTeam)}
-        </div>
-      </>
-    );
-  };
-
-  const renderLeaguePageFilters = () => {
-    const tabs =
-      sport === "football"
-        ? detailedTabs.slice(0, -1)
-        : detailedTabs.slice(0, -2);
-    return (
-      <>
-        <div className="flex items-end gap-4">{renderTabs(tabs, false)}</div>
-        <div className="space-x-4">
-          {tab === "Fixtures" &&
-            renderFilterDropDown(
-              "status",
-              statusFilters,
-              table?.getColumn("status")
-            )}
-          {tab === "Fixtures" &&
-            renderFilterDropDown("team", teamInfos, table?.getColumn("teams"))}
-          {tab === "Stats" &&
-            sport === "football" &&
-            renderDropDown(stat, stats, stat, setStat)}
-        </div>
-      </>
-    );
-  };
-
-  const renderTeamPageFilters = () => {
-    let tabs: TTabs<DetailedTabsType>[];
-    if (sport === "american-football") {
-      tabs = detailedTabs.filter((tab) => tab.status.toLowerCase() !== "stats");
-    } else if (isSquadsAvailable) {
-      tabs = detailedTabs;
-    } else {
-      tabs = detailedTabs.slice(0, -1);
-    }
-
-    return (
-      <>
-        <div className="flex items-end gap-4">{renderTabs(tabs, false)}</div>
-        <div className="space-x-4">
-          {tab === "Fixtures" &&
-            renderFilterDropDown(
-              "status",
-              statusFilters,
-              table?.getColumn("status")
-            )}
-          {tab === "Fixtures" &&
-            renderFilterDropDown(
-              "league",
-              leagueInfos,
-              table?.getColumn("league")
-            )}
-          {tab === "Stats" &&
-            leaguesListForTeams.length > 1 &&
-            renderDropDown(
-              leagueName,
-              leaguesListForTeams,
-              leagueForTeam ?? leagueName,
-              setLeagueForTeam
-            )}
-        </div>
-      </>
-    );
-  };
-
   return (
     <div className="flex items-end justify-between gap-4">
-      {isHome && renderHomePageFilters()}
-      {!isHome && isTeam && renderTeamPageFilters()}
-      {!isHome && !isTeam && renderLeaguePageFilters()}
+      {isDesktop ? (
+        <DesktopFilterWrapper
+          sport={sport}
+          tab={tab}
+          tabs={tabs}
+          table={table}
+          teams={teamInfos}
+          leagues={leagueInfos}
+          setTeam={setTeam}
+          setLeague={setLeague}
+          setLeagueForTeam={setLeagueForTeam}
+          setStat={setStat}
+          isHome={isHome}
+          isLeague={!isTeam}
+          isTeam={isTeam}
+        />
+      ) : (
+        <MobileFilterWrapper
+          sport={sport}
+          tab={tab}
+          tabs={tabs}
+          table={table}
+          teams={teamInfos}
+          leagues={leagueInfos}
+          setTeam={setTeam}
+          setLeague={setLeague}
+          setLeagueForTeam={setLeagueForTeam}
+          setStat={setStat}
+          isHome={isHome}
+          isLeague={!isTeam}
+          isTeam={isTeam}
+        />
+      )}
     </div>
   );
 };

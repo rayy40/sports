@@ -18,11 +18,11 @@ import { topAssistColumns } from "../Table/topAssistColumns";
 
 type Props = {
   data: PlayerStats[];
-  stat: string;
+  stat: string | null;
 };
 
 const PlayerStats = ({ data, stat }: Props) => {
-  const selectColumns = (stat: string) => {
+  const selectColumns = (stat: string | null) => {
     switch (stat) {
       case "top assists":
         return topAssistColumns;
@@ -49,7 +49,8 @@ const PlayerStats = ({ data, stat }: Props) => {
               {headerGroup.headers.map((header) => {
                 return (
                   <TableHead
-                    className="first:w-[100px] [&:nth-child(2)]:min-w-[200px] [&:not(:first-child,:nth-child(2))]:text-center first:pl-9"
+                    className="first:sticky [&:nth-child(2)]:sticky first:left-0
+                  [&:nth-child(2)]:left-[70px] bg-background first:w-[40px] [&:nth-child(2)]:-ml-2 lg:first:w-[100px] [&:not(:first-child,:nth-child(2))]:text-center first:pl-6 lg:first:pl-9"
                     key={header.id}
                   >
                     {header.isPlaceholder
@@ -72,7 +73,11 @@ const PlayerStats = ({ data, stat }: Props) => {
                 key={row.id}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    className="first:sticky [&:nth-child(2)]:sticky first:left-0
+                  [&:nth-child(2)]:left-[70px] bg-background"
+                    key={cell.id}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
