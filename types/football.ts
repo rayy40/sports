@@ -70,10 +70,6 @@ export interface FulltimeOrExtratimeOrPenalty {
   away?: null;
 }
 
-export interface Filters {
-  id: number | string;
-  name: string;
-}
 export interface Leagues {
   league: League;
   country: Country;

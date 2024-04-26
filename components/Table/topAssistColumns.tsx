@@ -1,6 +1,13 @@
 "use client";
 
-import { Games, Goals, Player, Team, PlayerStats, Passes } from "@/lib/types";
+import {
+  Games,
+  Goals,
+  Player,
+  Team,
+  PlayerStats,
+  Passes,
+} from "@/types/football";
 import { ColumnDef, Getter } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";

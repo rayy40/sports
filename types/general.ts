@@ -20,6 +20,7 @@ import {
   TotalOrAverageStats,
 } from "./australian-football";
 import { NFLGames, NFLStandings } from "./american-football";
+import { Table } from "@tanstack/react-table";
 
 export type SportScores = BasketballScores | BaseballScores;
 
@@ -61,6 +62,11 @@ export interface ShortStatusMap {
   Abandoned: string[];
   NotPlayed: string[];
   AllGames: string[];
+}
+
+export interface Filters {
+  id: number | string;
+  name: string;
 }
 
 export type Tabs<T> = {
@@ -318,3 +324,19 @@ export function isAFLTeamStats(
 ): item is AustralianFootballTeamStatisticsResponse<TotalOrAverageStats> {
   return "statistics" in item && "disposals" in item.statistics;
 }
+
+export type FilterWrappers = {
+  sport: Sports;
+  tab: DetailedTabsType;
+  tabs: Tabs<DetailedTabsType>[];
+  table: Table<AllSportsFixtures> | undefined;
+  teams: Filters[];
+  leagues: Filters[];
+  setTeam: (team: string | null) => void;
+  setLeague: (league: string | null) => void;
+  setLeagueForTeam: (league: string | null) => void;
+  setStat: (stat: string | null) => void;
+  isHome: boolean;
+  isTeam: boolean;
+  isLeague: boolean;
+};

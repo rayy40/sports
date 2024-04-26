@@ -8,7 +8,7 @@ import {
   Shots,
   Team,
   PlayerStats,
-} from "@/lib/types";
+} from "@/types/football";
 import { ColumnDef, Getter } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
