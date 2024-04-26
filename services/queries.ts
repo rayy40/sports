@@ -161,7 +161,7 @@ export function usePlayersStandings(
   season: string | null,
   sport: Sports,
   tab: DetailedTabsType,
-  stat: string,
+  stat: string | null,
   isTeam: boolean
 ) {
   return useQuery({

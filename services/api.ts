@@ -580,12 +580,12 @@ export const getPlayersForTeam = async (
 };
 
 export const getPlayerStandings = async (
-  stat: string,
+  stat: string | null,
   id: number,
   season: string | null,
   sport: Sports
 ) => {
-  if (!season) return undefined;
+  if (!season || !stat) return undefined;
 
   const axiosInstance = createAxiosInstance(sport);
 
