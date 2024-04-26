@@ -129,9 +129,9 @@ export const fixturesListColumns = <
     filterFn: (row, id, value) => {
       const teamsInfo: Teams | NBATeams = row.getValue(id);
       const awayTeam =
-        "away" in teamsInfo ? teamsInfo.away.name : teamsInfo.visitors.name;
+        "away" in teamsInfo ? teamsInfo.away.id : teamsInfo.visitors.id;
       const teams = [teamsInfo.home.id, awayTeam];
-      return teams.some((team) => value === team);
+      return teams.some((team) => value.toString() === team.toString());
     },
   },
   {
@@ -141,7 +141,7 @@ export const fixturesListColumns = <
     enableColumnFilter: true,
     filterFn: (row, id, value) => {
       const leagueInfo: League | FootballLeague = row.getValue(id);
-      return value === leagueInfo.id;
+      return value.toString() === leagueInfo.id.toString();
     },
   },
   {
