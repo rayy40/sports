@@ -73,11 +73,11 @@ export const statusFilters = [
   { id: "Finished", name: "Finished" },
 ];
 
-export const stats = [
-  "top scorers",
-  "top assists",
-  "yellow cards",
-  "red cards",
+export const statsFilters = [
+  { id: "top scorers", name: "Top Scorers" },
+  { id: "top assists", name: "Top Assists" },
+  { id: "yellow cards", name: "Yellow Cards" },
+  { id: "red cards", name: "Red Cards" },
 ];
 
 export const BasketballSeasons = [
