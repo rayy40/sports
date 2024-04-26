@@ -18,8 +18,8 @@ export interface FixtureTabsStore {
 }
 
 export interface StatStore {
-  stat: string;
-  setStat: (arg: string) => void;
+  stat: string | null;
+  setStat: (stat: string | null) => void;
 }
 
 export interface DateStore {
@@ -59,7 +59,7 @@ export const useFixtureTabsStore = create<FixtureTabsStore>((set) => ({
 
 export const useStatStore = create<StatStore>((set) => ({
   stat: "top scorers",
-  setStat: (arg: string) => set({ stat: arg }),
+  setStat: (stat: string | null) => set({ stat }),
 }));
 
 export const useDateStore = create<DateStore>((set) => ({
