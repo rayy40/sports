@@ -32,18 +32,18 @@ const Page = async () => {
 
   if (typeof fixtures === "string") {
     return (
-      <div className="h-screen w-full">
+      <div className="w-full h-screen">
         <Error message={fixtures} />
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen font-sans bg-background">
+    <div className="flex flex-col w-full h-screen font-sans bg-background">
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <div className="sticky top-0 z-10 px-3 lg:px-6 border border-b shadow-sm bg-background">
+        <div className="sticky top-0 z-10 px-3 border border-b shadow-sm lg:px-6 bg-background">
           <div className="flex items-center justify-between py-3 lg:py-6">
-            <h2 className="flex items-center gap-2 lg:gap-3 text-xl lg:text-2xl font-medium text-secondary-foreground">
+            <h2 className="flex items-center gap-2 text-xl font-medium lg:gap-3 lg:text-2xl text-secondary-foreground">
               <Baseball width={50} height={50} />
               Games
             </h2>
@@ -51,7 +51,7 @@ const Page = async () => {
           </div>
           <FilterWrapper fixtures={fixtures} isHome={true} sport={"baseball"} />
         </div>
-        <div className="h-[calc(100vh-100px)] lg:h-[calc(100vh-150px)] overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <HomeWrapper sport={"baseball"} />
         </div>
       </HydrationBoundary>

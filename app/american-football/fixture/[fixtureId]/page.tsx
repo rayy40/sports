@@ -22,14 +22,14 @@ const Page = async ({ params }: { params: { fixtureId: string } }) => {
 
   if (typeof fixture === "string") {
     return (
-      <div className="h-screen w-full">
+      <div className="w-full h-screen">
         <Error message={fixture} />
       </div>
     );
   }
 
   return (
-    <div className="w-full min-h-screen font-sans bg-background">
+    <div className="flex flex-col w-full h-screen font-sans bg-background">
       <HydrationBoundary state={dehydrate(queryClient)}>
         <FixtureHeader fixture={fixture} tabs={tabs} />
         <FixtureFilterWrapper fixture={fixture} sport="american-football" />

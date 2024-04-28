@@ -182,8 +182,8 @@ const RootComponent = ({
   }
 
   return (
-    <>
-      <div className="sticky top-0 z-20 flex flex-col gap-3 lg:gap-6 p-3 lg:p-6 pb-0 lg:pb-0 shadow-sm bg-background">
+    <div className="flex flex-col h-screen">
+      <div className="sticky top-0 z-20 flex flex-col gap-3 p-3 pb-0 shadow-sm lg:gap-6 lg:p-6 lg:pb-0 bg-background">
         <TabsHeader
           title={title}
           value={season}
@@ -201,7 +201,7 @@ const RootComponent = ({
           sport
         )}
       </div>
-      <div className="h-[calc(100vh-105px)] lg:h-[calc(100vh-150px)]">
+      <div className="flex-1">
         {renderContent(
           isFetchingLeagueFixtures,
           isFetchingTeamFixtures,
@@ -213,7 +213,7 @@ const RootComponent = ({
           sport
         )}
       </div>
-    </>
+    </div>
   );
 };
 

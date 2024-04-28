@@ -51,7 +51,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
     fixtureStatisticsQuery.isFetching
   ) {
     return (
-      <div className="w-full h-[calc(100vh-245px)]">
+      <div className="flex-1 w-full">
         <Loading />
       </div>
     );
@@ -64,7 +64,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
     fixtureStatisticsQuery.isError
   ) {
     return (
-      <div className="w-full h-[calc(100vh-245px)]">
+      <div className="flex-1 w-full">
         <Error
           message={
             headToHeadFixturesQuery.error?.message ||
@@ -80,7 +80,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
   if (tab === "Lineups" && isFootballDetailedFixture(fixture)) {
     if (!fixture.lineups || fixture.lineups.length !== 2) {
       return (
-        <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
+        <div className="flex items-center justify-center flex-1 w-full">
           <p>No lineups found for this fixture.</p>
         </div>
       );
@@ -91,7 +91,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
   if (tab === "Match Stats" && isFootballDetailedFixture(fixture)) {
     if (!fixture.statistics || fixture.statistics.length === 0) {
       return (
-        <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
+        <div className="flex items-center justify-center flex-1 w-full">
           <p>No statistics found for this fixture.</p>
         </div>
       );
@@ -103,7 +103,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
       fixtureStatisticsQuery.data.length === 0
     ) {
       return (
-        <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
+        <div className="flex items-center justify-center flex-1 w-full">
           <p>No statistics found for this fixture.</p>
         </div>
       );
@@ -114,7 +114,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
   if (tab === "Play By Play" && isFootballDetailedFixture(fixture)) {
     if (!fixture.events || fixture.events.length === 0) {
       return (
-        <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
+        <div className="flex items-center justify-center flex-1 w-full">
           <p>No events found for this fixture.</p>
         </div>
       );
@@ -123,7 +123,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
   } else if (tab === "Play By Play") {
     if (!fixtureEventsQuery.data || fixtureEventsQuery.data.length === 0) {
       return (
-        <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
+        <div className="flex items-center justify-center flex-1 w-full">
           <p>No events found for this fixture.</p>
         </div>
       );
@@ -136,7 +136,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
     headToHeadFixturesQuery.data.length === 0
   ) {
     return (
-      <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
+      <div className="flex items-center justify-center flex-1 w-full">
         <p>No head to head fixtures found for this fixture.</p>
       </div>
     );
