@@ -11,22 +11,12 @@ import {
   SheetTrigger,
 } from "./Shadcn/sheet";
 import { Button } from "./Shadcn/button";
-import {
-  ChevronsUpDown,
-  ArrowRight,
-  ArrowLeft,
-  SlidersHorizontal,
-} from "lucide-react";
+import { ArrowRight, ArrowLeft, SlidersHorizontal } from "lucide-react";
 import { StatusType, Tabs, Filters, FilterWrappers } from "@/types/general";
 import { useStatusStore, useTabsStore } from "@/lib/store";
 import { Column } from "@tanstack/react-table";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerTrigger,
-} from "./Shadcn/drawer";
 import { statsFilters, statusFilters, statusTabs } from "@/lib/constants";
+import DrawerWrapper from "./DrawerWrapper";
 
 type FilterByProps<TData, TValue> = {
   setFilter?: (league: string | null) => void;
@@ -203,35 +193,11 @@ const MobileFilterWrapper = ({
   };
 
   return (
-    <div className="w-full flex gap-3">
+    <div className="w-full flex lg:hidden gap-3">
       {isHome ? (
         <p className="p-2 font-medium underline-tabs">Fixtures</p>
       ) : (
-        <Drawer>
-          <DrawerTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full mt-1 flex items-center justify-between"
-            >
-              <p>{tab}</p>
-              <ChevronsUpDown size="15" />
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent className="font-sans">
-            <div className="mt-4 border-t">
-              {tabs.map((tab) => (
-                <DrawerClose key={tab.label} asChild>
-                  <p
-                    onClick={() => setTab(tab.status)}
-                    className="p-4 cursor-pointer text-sm border-b"
-                  >
-                    {tab.status}
-                  </p>
-                </DrawerClose>
-              ))}
-            </div>
-          </DrawerContent>
-        </Drawer>
+        <DrawerWrapper value={tab} values={tabs} setValue={setTab} />
       )}
       <Sheet>
         <SheetTrigger asChild>

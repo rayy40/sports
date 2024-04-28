@@ -104,12 +104,12 @@ const DesktopFilterWrapper = ({
   };
 
   return (
-    <>
+    <div className="hidden lg:flex gap-4 w-full items-end justify-between">
       <div className="flex items-end gap-4">
         {renderTabs(isHome ? statusTabs : tabs, isHome ? true : false)}
       </div>
       <div className="space-x-4">{renderFilters()}</div>
-    </>
+    </div>
   );
 };
 

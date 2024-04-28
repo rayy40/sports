@@ -22,7 +22,6 @@ import { Fixtures } from "@/types/football";
 import { Table } from "@tanstack/react-table";
 import MobileFilterWrapper from "./ui/MobileFilterWrapper";
 import DesktopFilterWrapper from "./ui/DesktopFilterWrapper";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 type Props = {
   isFootball?: boolean;
@@ -52,7 +51,6 @@ const FilterWrapper = ({
   const { setLeague } = useLeagueStore();
   const { setLeague: setLeagueForTeam } = useLeagueForTeamStatsStore();
   const { setTeam } = useTeamStore();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const tabs = useMemo(() => {
     const tabWithoutStats = detailedTabs.filter(
@@ -82,41 +80,38 @@ const FilterWrapper = ({
   );
 
   return (
-    <div className="flex items-end justify-between gap-4">
-      {isDesktop ? (
-        <DesktopFilterWrapper
-          sport={sport}
-          tab={tab}
-          tabs={tabs}
-          table={table}
-          teams={teamInfos}
-          leagues={leagueInfos}
-          setTeam={setTeam}
-          setLeague={setLeague}
-          setLeagueForTeam={setLeagueForTeam}
-          setStat={setStat}
-          isHome={isHome}
-          isLeague={!isTeam}
-          isTeam={isTeam}
-        />
-      ) : (
-        <MobileFilterWrapper
-          sport={sport}
-          tab={tab}
-          tabs={tabs}
-          table={table}
-          teams={teamInfos}
-          leagues={leagueInfos}
-          setTeam={setTeam}
-          setLeague={setLeague}
-          setLeagueForTeam={setLeagueForTeam}
-          setStat={setStat}
-          isHome={isHome}
-          isLeague={!isTeam}
-          isTeam={isTeam}
-        />
-      )}
-    </div>
+    <>
+      <DesktopFilterWrapper
+        sport={sport}
+        tab={tab}
+        tabs={tabs}
+        table={table}
+        teams={teamInfos}
+        leagues={leagueInfos}
+        setTeam={setTeam}
+        setLeague={setLeague}
+        setLeagueForTeam={setLeagueForTeam}
+        setStat={setStat}
+        isHome={isHome}
+        isLeague={!isTeam}
+        isTeam={isTeam}
+      />
+      <MobileFilterWrapper
+        sport={sport}
+        tab={tab}
+        tabs={tabs}
+        table={table}
+        teams={teamInfos}
+        leagues={leagueInfos}
+        setTeam={setTeam}
+        setLeague={setLeague}
+        setLeagueForTeam={setLeagueForTeam}
+        setStat={setStat}
+        isHome={isHome}
+        isLeague={!isTeam}
+        isTeam={isTeam}
+      />
+    </>
   );
 };
 
