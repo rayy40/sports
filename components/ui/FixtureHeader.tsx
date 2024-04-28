@@ -1,9 +1,10 @@
 import { getFixtureData } from "@/lib/utils";
-import { AllSportsFixtures, FixtureTabsType, Sports } from "@/types/general";
+import { AllSportsFixtures, FixtureTabsType } from "@/types/general";
 import { format } from "date-fns";
 import React from "react";
 import ImageWithFallback from "../ImageWithFallback";
 import Tabs from "./Tabs";
+import DrawerWrapper from "./DrawerWrapper";
 
 type Props = {
   fixture: AllSportsFixtures;
@@ -72,16 +73,21 @@ const FixtureHeader = ({ fixture, tabs }: Props) => {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-0 flex items-center gap-2 lg:gap-4 -translate-x-1/2 left-1/2">
-        {tabs.map((tab, index) => (
-          <Tabs
-            key={index}
-            label={tab}
-            id={tab}
-            isStatus={false}
-            isStat={true}
-          />
-        ))}
+      <div className="absolute bottom-0 left-0 w-full">
+        <div className="block px-2 w-full lg:hidden">
+          <DrawerWrapper values={tabs} />
+        </div>
+        <div className="flex items-center justify-center gap-4">
+          {tabs.map((tab, index) => (
+            <Tabs
+              key={index}
+              label={tab}
+              id={tab}
+              isStatus={false}
+              isStat={true}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
