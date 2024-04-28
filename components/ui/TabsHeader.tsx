@@ -20,7 +20,7 @@ const TabsHeader = ({
   value,
 }: Props) => {
   return (
-    <div className="flex items-center gap-2 lg:gap-4">
+    <div className="flex py-2 items-center gap-2 lg:gap-4">
       <ImageWithFallback
         className="w-[40px] lg:w-[50px]"
         src={logo}
