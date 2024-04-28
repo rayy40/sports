@@ -1,14 +1,16 @@
-import { Periods as RugbyPeriods } from "./rugby";
-import { Periods as HockeyPeriods } from "./hockey";
+import { RugbyGameStats, Periods as RugbyPeriods } from "./rugby";
+import { HockeyGameStats, Periods as HockeyPeriods } from "./hockey";
 import {
   DetailedFixture,
   Fixtures,
   TeamStatistics as FootballTeamStatistics,
+  Squads,
   StandingsEntity,
 } from "./football";
 import {
   BasketballScores,
   NBAGames,
+  NBAPlayer,
   NBAStandings,
   NBAStatistics,
 } from "./basketball";
@@ -19,7 +21,7 @@ import {
   AustralianFootballTeamStatisticsResponse,
   TotalOrAverageStats,
 } from "./australian-football";
-import { NFLGames, NFLStandings } from "./american-football";
+import { NFLGames, NFLPlayer, NFLStandings } from "./american-football";
 import { Table } from "@tanstack/react-table";
 
 export type SportScores = BasketballScores | BaseballScores;
@@ -275,7 +277,14 @@ export type AllSportsStandings =
   | StandingsEntity
   | AustralianFootballStandings
   | NFLStandings
-  | Standings;
+  | Standings<HockeyGameStats | RugbyGameStats | GamesStats>;
+
+export type WithoutStandingEntity = Exclude<
+  AllSportsStandings,
+  StandingsEntity
+>;
+
+export type AllSportsPlayesr = NFLPlayer | NBAPlayer | Squads | Player;
 
 export function isFootballFixture(item: AllSportsFixtures): item is Fixtures {
   return "goals" in item;
@@ -323,6 +332,10 @@ export function isAFLTeamStats(
   item: AllSportsTeamStats
 ): item is AustralianFootballTeamStatisticsResponse<TotalOrAverageStats> {
   return "statistics" in item && "disposals" in item.statistics;
+}
+
+export function isAPIError(item: any): item is string {
+  return typeof item === "string";
 }
 
 export type FilterWrappers = {

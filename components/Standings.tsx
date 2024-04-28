@@ -4,6 +4,7 @@ import {
   AllSportsStandings,
   Sports,
   Standings as TStandings,
+  WithoutStandingEntity,
 } from "@/types/general";
 import { StandingsReponse } from "@/types/football";
 import {
@@ -47,13 +48,7 @@ function isNBAStandingsResponse(data: any): data is NBAStandings[] {
 }
 
 type Props = {
-  standing: (
-    | TStandings[]
-    | NBAStandings
-    | StandingsReponse
-    | AustralianFootballStandings
-    | NFLStandings
-  )[];
+  standing: (WithoutStandingEntity | TStandings[])[];
   sport: Sports;
 };
 
@@ -169,13 +164,7 @@ const STable = ({
 };
 
 const renderStandingsByLeague = (
-  data: (
-    | TStandings[]
-    | StandingsReponse
-    | NBAStandings
-    | AustralianFootballStandings
-    | NFLStandings
-  )[],
+  data: (WithoutStandingEntity | TStandings[])[],
   sport: Sports
 ) => {
   if (isNBAStandingsResponse(data)) {

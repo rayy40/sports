@@ -1,4 +1,4 @@
-import { PlayersEntity, Squads } from "@/types/football";
+import { PlayersEntity } from "@/types/football";
 import { getPlayersByPosition } from "@/lib/utils";
 import React from "react";
 import {
@@ -12,11 +12,11 @@ import {
 import ImageWithFallback from "../ImageWithFallback";
 import { NBAPlayer } from "@/types/basketball";
 import Link from "next/link";
-import { Player, Sports } from "@/types/general";
+import { AllSportsPlayesr, Sports } from "@/types/general";
 import { NFLPlayer } from "@/types/american-football";
 
 type Props = {
-  data: (Squads | NBAPlayer | Player | NFLPlayer)[];
+  data: AllSportsPlayesr[];
   sport: Sports;
 };
 
@@ -36,7 +36,11 @@ const Squads = ({ data, sport }: Props) => {
     <div className="h-full overflow-y-auto">
       {Object.keys(playersByPosition).map((pos) => (
         <div key={pos}>
-          <p className="font-medium text-[1.125rem] p-6 pl-9 border-b">{pos}</p>
+          {pos && (
+            <p className="font-medium text-[1.125rem] p-6 pl-9 border-b">
+              {pos}
+            </p>
+          )}
           <Table>
             <TableHeader>
               <TableRow>
@@ -62,7 +66,7 @@ const Squads = ({ data, sport }: Props) => {
                     className="text-left pl-9"
                   >
                     <div className="flex items-center gap-3">
-                      {player.photo.length > 0 && (
+                      {player?.photo?.length > 0 && (
                         <Link href={`/player/${player.id}`}>
                           <ImageWithFallback
                             src={player.photo}

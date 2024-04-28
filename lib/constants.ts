@@ -80,7 +80,7 @@ export const statsFilters = [
   { id: "red cards", name: "Red Cards" },
 ];
 
-export const BasketballSeasons = [
+export const basketballSeasons = [
   "2016-2017",
   "2017-2018",
   "2018-2019",
@@ -91,11 +91,11 @@ export const BasketballSeasons = [
   "2023-2024",
 ];
 
-export const Seasons = [2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016];
+export const seasonsList = [2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016];
 
 export const NBAGroup = ["conference", "division"];
 
-export const ImpFootballLeagueIds = [
+export const impFootballLeagueIds = [
   1032, 128, 188, 78, 79, 82, 218, 219, 39, 116, 233, 235, 288, 145, 144, 73,
   475, 72, 136, 172, 265, 169, 239, 281, 210, 212, 318, 345, 119, 242, 539, 528,
   46, 45, 44, 48, 528, 697, 39, 40, 41, 42, 43, 65, 66, 61, 62, 63, 64, 81, 80,
@@ -106,3 +106,6 @@ export const ImpFootballLeagueIds = [
   772, 480, 2, 3, 5, 38, 493, 14, 531, 525, 848, 1, 29, 31, 32, 30, 8, 490, 34,
   37, 536, 137,
 ];
+
+export const errorMessage =
+  "Something went wrong, please try again after sometime.";

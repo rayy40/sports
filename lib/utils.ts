@@ -1,7 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
-  Filters,
   Leagues,
   League as FootballLeague,
   PlayersEntity,
@@ -23,6 +22,7 @@ import {
   NFLTeamsStatisticsResponse,
 } from "@/types/american-football";
 import {
+  Filters,
   APIResponse,
   StatusType,
   TeamStatistics,
@@ -35,12 +35,11 @@ import {
   isAFLFixture,
   isNFLFixture,
 } from "@/types/general";
-import { ImpFootballLeagueIds, shortStatusMap } from "./constants";
+import { impFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import {
   AustralianFootballFixtureStatistics,
   AustralianFootballStatistics,
-  AustralianFootballTeamStatisticsResponse,
   TotalOrAverageStats,
 } from "@/types/australian-football";
 import { differenceInYears } from "date-fns";
@@ -127,7 +126,7 @@ export const filterDataByStatus = (
     if (
       isFootball &&
       isFootballFixture(item) &&
-      !ImpFootballLeagueIds.includes(item.league.id)
+      !impFootballLeagueIds.includes(item.league.id)
     ) {
       return;
     }
@@ -199,7 +198,7 @@ export const getLeagues = <
       if (
         "id" in item.league &&
         isFixture &&
-        !ImpFootballLeagueIds.includes(item.league.id)
+        !impFootballLeagueIds.includes(item.league.id)
       )
         return;
       if (!uniqueIds.has(item.league.name)) {
