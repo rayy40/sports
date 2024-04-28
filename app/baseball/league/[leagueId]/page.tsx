@@ -1,6 +1,4 @@
-import { Suspense } from "react";
-import { Games, League, Seasons } from "@/types/general";
-import { BaseballScores } from "@/types/baseball";
+import { League, Seasons } from "@/types/general";
 import {
   HydrationBoundary,
   QueryClient,
@@ -9,36 +7,41 @@ import {
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
+import Error from "@/components/Error";
+import NotFound from "@/components/ui/NotFound";
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+  const league: League<Seasons[]> = await queryClient.fetchQuery({
     queryKey: [leagueId, "baseball", "league"],
     queryFn: () => getLeagueById(leagueId, "baseball"),
   });
 
-  const league: League<Seasons[]> | undefined = queryClient.getQueryData([
-    leagueId,
-    "baseball",
-    "league",
-  ]);
+  if (!league) {
+    return <NotFound type="league" sport="baseball" />;
+  }
 
-  const season = league?.seasons[league.seasons.length - 1].season;
+  if (typeof league === "string") {
+    return (
+      <div className="h-screen w-full">
+        <Error message={league} />
+      </div>
+    );
+  }
 
-  await queryClient.prefetchQuery({
+  const season = league?.seasons[league?.seasons?.length - 1]?.season;
+
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [leagueId, season, "baseball", "fixtures"],
     queryFn: () =>
       getFixturesByLeagueIdAndSeason(leagueId, season!, "baseball"),
   });
 
-  const fixtures: Games<BaseballScores>[] | undefined =
-    queryClient.getQueryData([leagueId, season, "baseball", "fixtures"]);
-
-  if (!league) {
+  if (typeof fixtures === "string") {
     return (
-      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
-        <p>No league found.</p>
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
       </div>
     );
   }
@@ -53,7 +56,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           seasons={league.seasons}
           sport="baseball"
           currSeason={season ?? "-"}
-          fixtures={fixtures}
+          fixtures={fixtures ?? []}
         />
       </HydrationBoundary>
     </div>

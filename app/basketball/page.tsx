@@ -10,25 +10,32 @@ import {
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
 import DatePicker from "@/components/ui/DatePicker";
-import { Games } from "@/types/general";
-import { BasketballScores } from "@/types/basketball";
+import Error from "@/components/Error";
 
 const Page = async () => {
   const date = new Date();
   const formattedDate = format(date, "yyyy-MM-dd");
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [formattedDate, "basketball", "fixtures"],
     queryFn: () => getFixturesByDate(formattedDate, "basketball"),
   });
 
-  const fixtures: Games<BasketballScores>[] | undefined =
-    queryClient.getQueryData([formattedDate, "basketball", "fixtures"]);
-
   if (!fixtures) {
-    <div className="flex text-sm lg:text-[1rem] items-center justify-center w-full h-screen">
-      <p>No fixtures found.</p>
-    </div>;
+    return (
+      <div className="flex text-sm lg:text-[1rem] items-center justify-center w-full h-screen">
+        <p>No fixtures found.</p>
+      </div>
+    );
+  }
+
+  if (typeof fixtures === "string") {
+    return (
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
+      </div>
+    );
   }
 
   return (

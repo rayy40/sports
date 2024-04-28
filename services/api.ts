@@ -1,54 +1,36 @@
+import { errorMessage } from "@/lib/constants";
 import {
   NFLEvents,
-  NFLGames,
-  NFLPlayer,
-  NFLStandings,
   NFLTeamsStatisticsResponse,
 } from "@/types/american-football";
 import {
   AustralianFootballFixtureStatisticsResponse,
-  AustralianFootballGames,
   AustralianFootballLeagueOrTeamInfo,
-  AustralianFootballStandings,
   AustralianFootballTeamStatisticsResponse,
   TotalOrAverageStats,
 } from "@/types/australian-football";
-import { BaseballScores } from "@/types/baseball";
+import { NBAStatistics, NBATeamresponse } from "@/types/basketball";
 import {
-  BasketballScores,
-  NBAGames,
-  NBAPlayer,
-  NBAStandings,
-  NBAStatistics,
-  NBATeamresponse,
-} from "@/types/basketball";
-import {
-  Fixtures,
   Leagues,
   TeamResponse as FootballTeamResponse,
   TeamStatistics as FootballTeamStatistics,
-  StandingsReponse,
-  Squads,
   PlayerStats,
 } from "@/types/football";
 import {
   APINonArrayResponse,
   APIResponse,
-  Games,
-  GamesStats,
-  GamesWithPeriods,
-  GamesWithPeriodsAndEvents,
+  AllSportsFixtures,
+  AllSportsPlayesr,
   League,
-  Player,
   Seasons,
   Sports,
   Standings,
   Team,
   TeamResponse,
   TeamStatistics,
+  WithoutStandingEntity,
 } from "@/types/general";
-import { HockeyEvents, HockeyGameStats } from "@/types/hockey";
-import { RugbyGameStats } from "@/types/rugby";
+import { HockeyEvents } from "@/types/hockey";
 import axios from "axios";
 
 const getBaseURL = (sport: Sports) => {
@@ -64,13 +46,13 @@ const getBaseURL = (sport: Sports) => {
     case "football":
       return `https://v3.football.api-sports.io`;
     default:
-      return "";
+      return undefined;
   }
 };
 
 const getHost = (sport: Sports) => {
   switch (sport) {
-    case "australian-football":
+    case "american-football":
     case "basketball":
     case "baseball":
     case "rugby":
@@ -81,7 +63,7 @@ const getHost = (sport: Sports) => {
     case "football":
       return `v3.football.api-sports.io`;
     default:
-      return "";
+      return undefined;
   }
 };
 
@@ -95,10 +77,17 @@ const axiosNBAInstance = axios.create({
 });
 
 function createAxiosInstance(sport: Sports) {
+  const baseURL = getBaseURL(sport);
+  const host = getHost(sport);
+
+  if (!baseURL || !host) {
+    throw new Error(`Unsupported sport: ${sport}`);
+  }
+
   return axios.create({
-    baseURL: getBaseURL(sport),
+    baseURL: baseURL,
     headers: {
-      "x-rapidapi-host": getHost(sport),
+      "x-rapidapi-host": host,
       "x-rapidapi-key":
         process.env.RAPIDAPI_KEY ?? process.env.NEXT_PUBLIC_RAPIDAPI_KEY!,
     },
@@ -106,30 +95,42 @@ function createAxiosInstance(sport: Sports) {
 }
 
 export const getLeagueById = async (id: number, sport: Sports) => {
-  const axiosInstance = createAxiosInstance(sport);
-  switch (sport) {
-    case "basketball":
-    case "baseball":
-    case "rugby":
-    case "hockey":
-      return (
-        await axiosInstance.get<APIResponse<League<Seasons[]>>>(
-          `/leagues?id=${id}`
-        )
-      ).data.response?.[0];
-    case "australian-football":
-      return (
-        await axiosInstance.get<
+  try {
+    const axiosInstance = createAxiosInstance(sport);
+    switch (sport) {
+      case "basketball":
+      case "baseball":
+      case "rugby":
+      case "hockey":
+        const response = await axiosInstance.get<
+          APIResponse<League<Seasons[]>>
+        >(`/leagues?id=${id}`);
+        if (!Array.isArray(response.data.errors)) {
+          throw new Error(errorMessage);
+        }
+        return response.data.response?.[0];
+      case "australian-football":
+        const AFLresponse = await axiosInstance.get<
           APIResponse<AustralianFootballLeagueOrTeamInfo>
-        >(`/leagues?id=${id}`)
-      ).data.response;
-    case "american-football":
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<Leagues>>(`/leagues?id=${id}`)
-      ).data.response?.[0];
-    default:
-      return undefined;
+        >(`/leagues?id=${id}`);
+        if (!Array.isArray(AFLresponse.data.errors)) {
+          throw new Error(errorMessage);
+        }
+        return AFLresponse.data.response;
+      case "american-football":
+      case "football":
+        const footballResponse = await axiosInstance.get<APIResponse<Leagues>>(
+          `/leagues?id=${id}`
+        );
+        if (!Array.isArray(footballResponse.data.errors)) {
+          throw new Error(errorMessage);
+        }
+        return footballResponse.data.response?.[0];
+      default:
+        throw new Error("Unrecognized sport.");
+    }
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -138,34 +139,51 @@ export const getTeamById = async (
   sport: Sports,
   isNBATeam: boolean = false
 ) => {
-  const axiosInstance = createAxiosInstance(sport);
-  switch (sport) {
-    case "basketball":
-      if (isNBATeam) {
-        return (
-          await axiosNBAInstance.get<APIResponse<NBATeamresponse>>(
-            `/teams?id=${id}`
-          )
-        ).data.response?.[0];
-      }
-    case "baseball":
-    case "rugby":
-    case "hockey":
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<TeamResponse>>(`/teams?id=${id}`)
-      ).data.response?.[0];
-    case "australian-football":
-      return (await axiosInstance.get<APIResponse<Team>>(`/teams?id=${id}`))
-        .data.response?.[0];
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<FootballTeamResponse>>(
+  try {
+    const axiosInstance = createAxiosInstance(sport);
+    switch (sport) {
+      case "basketball":
+        if (isNBATeam) {
+          const nbaTeamResponse = await axiosNBAInstance.get<
+            APIResponse<NBATeamresponse>
+          >(`/teams?id=${id}`);
+          if (!Array.isArray(nbaTeamResponse.data.errors)) {
+            throw new Error(errorMessage);
+          }
+          return nbaTeamResponse.data.response?.[0];
+        }
+      case "baseball":
+      case "rugby":
+      case "hockey":
+      case "american-football":
+        const response = await axiosInstance.get<APIResponse<TeamResponse>>(
           `/teams?id=${id}`
-        )
-      ).data.response?.[0];
-    default:
-      return undefined;
+        );
+        if (!Array.isArray(response.data.errors)) {
+          throw new Error(errorMessage);
+        }
+        return response.data.response?.[0];
+      case "australian-football":
+        const AFLresponse = await axiosInstance.get<APIResponse<Team>>(
+          `/teams?id=${id}`
+        );
+        if (!Array.isArray(AFLresponse.data.errors)) {
+          throw new Error(errorMessage);
+        }
+        return AFLresponse.data.response?.[0];
+      case "football":
+        const footballResponse = await axiosInstance.get<
+          APIResponse<FootballTeamResponse>
+        >(`/teams?id=${id}`);
+        if (!Array.isArray(footballResponse.data.errors)) {
+          throw new Error(errorMessage);
+        }
+        return footballResponse.data.response?.[0];
+      default:
+        throw new Error("Unrecognized sport.");
+    }
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -177,49 +195,17 @@ export const getTeamSeasons = async (id: number, sport: Sports) => {
 };
 
 export const getFixturesByDate = async (date: string, sport: Sports) => {
-  const axiosInstance = createAxiosInstance(sport);
-
-  switch (sport) {
-    case "basketball":
-      return (
-        await axiosInstance.get<APIResponse<Games<BasketballScores>>>(
-          `/games?date=${date}`
-        )
-      ).data.response;
-    case "baseball":
-      return (
-        await axiosInstance.get<APIResponse<Games<BaseballScores>>>(
-          `/games?date=${date}`
-        )
-      ).data.response;
-    case "rugby":
-      return (
-        await axiosInstance.get<APIResponse<GamesWithPeriods<number | null>>>(
-          `/games?date=${date}`
-        )
-      ).data.response;
-    case "australian-football":
-      return (
-        await axiosInstance.get<APIResponse<AustralianFootballGames>>(
-          `/games?date=${date}`
-        )
-      ).data.response;
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<NFLGames>>(`/games?date=${date}`)
-      ).data.response;
-    case "hockey":
-      return (
-        await axiosInstance.get<
-          APIResponse<GamesWithPeriodsAndEvents<number | null>>
-        >(`/games?date=${date}`)
-      ).data.response;
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<Fixtures>>(`/fixtures?date=${date}`)
-      ).data.response;
-    default:
-      return undefined;
+  try {
+    const axiosInstance = createAxiosInstance(sport);
+    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+      `/${sport === "football" ? "fixtures" : "games"}?date=${date}`
+    );
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return response.data.response;
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -228,64 +214,32 @@ export const getFixturesByLeagueIdAndSeason = async (
   season: string | null,
   sport: Sports
 ) => {
-  const axiosInstance = createAxiosInstance(sport);
+  const isNBAFixture = sport === "basketball" && leagueId === 12;
 
   if (!season) {
-    return undefined;
+    throw new Error(
+      "No season found. A season is required to fetch fixtures for a particular league."
+    );
   }
 
-  switch (sport) {
-    case "basketball":
-      if (leagueId === 12) {
-        return (
-          await axiosNBAInstance.get<APIResponse<NBAGames>>(
-            `/games?season=${season}`
-          )
-        ).data.response;
+  try {
+    const axiosInstance = !isNBAFixture
+      ? createAxiosInstance(sport)
+      : axiosNBAInstance;
+    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+      `/${sport === "football" ? "fixtures" : "games"}?season=${season}`,
+      {
+        params: {
+          ...(isNBAFixture ? {} : { league: leagueId }),
+        },
       }
-      return (
-        await axiosInstance.get<APIResponse<Games<BasketballScores>>>(
-          `/games?league=${leagueId}&season=${season}`
-        )
-      ).data.response;
-    case "baseball":
-      return (
-        await axiosInstance.get<APIResponse<Games<BaseballScores>>>(
-          `/games?league=${leagueId}&season=${season}`
-        )
-      ).data.response;
-    case "rugby":
-      return (
-        await axiosInstance.get<APIResponse<GamesWithPeriods<number | null>>>(
-          `/games?league=${leagueId}&season=${season}`
-        )
-      ).data.response;
-    case "australian-football":
-      return (
-        await axiosInstance.get<APIResponse<AustralianFootballGames>>(
-          `/games?league=${leagueId}&season=${season}`
-        )
-      ).data.response;
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<NFLGames>>(
-          `/games?league=${leagueId}&season=${season}`
-        )
-      ).data.response;
-    case "hockey":
-      return (
-        await axiosInstance.get<
-          APIResponse<GamesWithPeriodsAndEvents<number | null>>
-        >(`/games?league=${leagueId}&season=${season}`)
-      ).data.response;
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<Fixtures>>(
-          `/fixtures?league=${leagueId}&season=${season}`
-        )
-      ).data.response;
-    default:
-      return undefined;
+    );
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return response.data.response;
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -295,64 +249,32 @@ export const getFixturesByTeamIdAndSeason = async (
   sport: Sports,
   isNBATeam: boolean = false
 ) => {
-  const axiosInstance = createAxiosInstance(sport);
-
   if (!season) {
-    return undefined;
+    throw new Error(
+      "No season found. A season is required to fetch fixtures for a particular league."
+    );
   }
 
-  switch (sport) {
-    case "basketball":
-      if (isNBATeam) {
-        return (
-          await axiosNBAInstance.get<APIResponse<NBAGames>>(
-            `/games?team=${teamId}&season=${season}`
-          )
-        ).data.response;
+  try {
+    const axiosInstance = !isNBATeam
+      ? createAxiosInstance(sport)
+      : axiosNBAInstance;
+    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+      `/${
+        sport === "football" ? "fixtures" : "games"
+      }?season=${season}&team=${teamId}`,
+      {
+        params: {
+          ...(sport === "australian-football" ? { league: 1 } : {}),
+        },
       }
-      return (
-        await axiosInstance.get<APIResponse<Games<BasketballScores>>>(
-          `/games?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "baseball":
-      return (
-        await axiosInstance.get<APIResponse<Games<BaseballScores>>>(
-          `/games?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "rugby":
-      return (
-        await axiosInstance.get<APIResponse<GamesWithPeriods<number | null>>>(
-          `/games?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "hockey":
-      return (
-        await axiosInstance.get<
-          APIResponse<GamesWithPeriodsAndEvents<number | null>>
-        >(`/games?team=${teamId}&season=${season}`)
-      ).data.response;
-    case "australian-football":
-      return (
-        await axiosInstance.get<APIResponse<AustralianFootballGames>>(
-          `/games?league=1&team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<NFLGames>>(
-          `/games?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<Fixtures>>(
-          `/fixtures?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    default:
-      return undefined;
+    );
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return response.data.response;
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -366,62 +288,31 @@ export const getStandingsByLeagueIdAndSeason = async (
   season: string | null,
   sport: Sports
 ) => {
-  const axiosInstance = createAxiosInstance(sport);
+  const isNBAStandings = sport === "basketball" && id === 12;
+
   if (!season) {
-    return undefined;
+    throw new Error(
+      "No season found. A season is required to fetch fixtures for a particular league."
+    );
   }
-  switch (sport) {
-    case "baseball":
-      return (
-        await axiosInstance.get<APIResponse<Standings<GamesStats>[]>>(
-          `/standings?league=${id}&season=${season}`
-        )
-      ).data.response;
-    case "hockey":
-      return (
-        await axiosInstance.get<APIResponse<Standings<HockeyGameStats>[]>>(
-          `/standings?league=${id}&season=${season}`
-        )
-      ).data.response;
-    case "rugby":
-      return (
-        await axiosInstance.get<APIResponse<Standings<RugbyGameStats>[]>>(
-          `/standings?league=${id}&season=${season}`
-        )
-      ).data.response;
-    case "australian-football":
-      return (
-        await axiosInstance.get<APIResponse<AustralianFootballStandings>>(
-          `/standings?league=${id}&season=${season}`
-        )
-      ).data.response;
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<NFLStandings>>(
-          `/standings?league=${id}&season=${season}`
-        )
-      ).data.response;
-    case "basketball":
-      if (id === 12) {
-        return (
-          await axiosNBAInstance.get<APIResponse<NBAStandings>>(
-            `/standings?league=standard&season=${season}`
-          )
-        ).data.response;
-      }
-      return (
-        await axiosInstance.get<APIResponse<Standings<GamesStats>[]>>(
-          `/standings?league=${id}&season=${season}`
-        )
-      ).data.response;
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<StandingsReponse>>(
-          `/standings?league=${id}&season=${season}`
-        )
-      ).data.response;
-    default:
-      return undefined;
+
+  try {
+    const axiosInstance = !isNBAStandings
+      ? createAxiosInstance(sport)
+      : axiosNBAInstance;
+    const response = await axiosInstance.get<
+      APIResponse<WithoutStandingEntity | Standings[]>
+    >(`/standings?season=${season}`, {
+      params: {
+        ...(isNBAStandings ? { league: "standard" } : { league: id }),
+      },
+    });
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return response.data.response;
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -432,63 +323,39 @@ export const getStandingsByTeamIdAndSeason = async (
   isNBATeam: boolean,
   sport: Sports
 ) => {
-  const axiosInstance = createAxiosInstance(sport);
-  if (!season || !leagueId) {
-    return undefined;
+  if (!season) {
+    throw new Error(
+      "No season found. A season is required to fetch fixtures for a particular league."
+    );
   }
 
-  switch (sport) {
-    case "baseball":
-      return (
-        await axiosInstance.get<APIResponse<Standings<GamesStats>[]>>(
-          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "hockey":
-      return (
-        await axiosInstance.get<APIResponse<Standings<HockeyGameStats>[]>>(
-          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "rugby":
-      return (
-        await axiosInstance.get<APIResponse<Standings<RugbyGameStats>[]>>(
-          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<NFLStandings>>(
-          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "australian-football":
-      return (
-        await axiosInstance.get<APIResponse<AustralianFootballStandings>>(
-          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "basketball":
-      if (isNBATeam) {
-        return (
-          await axiosNBAInstance.get<APIResponse<NBAStandings>>(
-            `/standings?league=standard&team=${teamId}&season=${season}`
-          )
-        ).data.response;
-      }
-      return (
-        await axiosInstance.get<APIResponse<Standings<GamesStats>[]>>(
-          `/standings?league=${leagueId}&team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<StandingsReponse>>(
-          `/standings?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    default:
-      return undefined;
+  if (!leagueId) {
+    throw new Error(
+      "A league is required for getting standings for a particular team."
+    );
+  }
+
+  try {
+    const axiosInstance = !isNBATeam
+      ? createAxiosInstance(sport)
+      : axiosNBAInstance;
+    const response = await axiosInstance.get<
+      APIResponse<WithoutStandingEntity | Standings[]>
+    >(`/standings?season=${season}&team=${teamId}`, {
+      params: {
+        ...(isNBATeam
+          ? { league: "standard" }
+          : sport === "football"
+          ? {}
+          : { league: leagueId }),
+      },
+    });
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return response.data.response;
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -547,35 +414,24 @@ export const getPlayersForTeam = async (
 ) => {
   if (!season) return undefined;
 
-  const axiosInstance = createAxiosInstance(sport);
-
-  switch (sport) {
-    case "australian-football":
-      return (
-        await axiosInstance.get<APIResponse<Player>>(
-          `/players?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<NFLPlayer>>(
-          `/players?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "basketball":
-      return (
-        await axiosNBAInstance.get<APIResponse<NBAPlayer>>(
-          `/players?team=${teamId}&season=${season}`
-        )
-      ).data.response;
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<Squads>>(
-          `/players/squads?team=${teamId}`
-        )
-      ).data.response;
-    default:
-      return undefined;
+  try {
+    const axiosInstance = createAxiosInstance(sport);
+    const response = await axiosInstance.get<APIResponse<AllSportsPlayesr>>(
+      sport === "football"
+        ? `players/squads?team=${teamId}`
+        : `players?team=${teamId}`,
+      {
+        params: {
+          ...(sport == "football" ? {} : { season: season }),
+        },
+      }
+    );
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return response.data.response;
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -624,58 +480,19 @@ export const getFixtureById = async (
   sport: Sports,
   isNBATeam: boolean = false
 ) => {
-  const axiosInstance = createAxiosInstance(sport);
-
-  switch (sport) {
-    case "basketball":
-      if (isNBATeam) {
-        return (
-          await axiosNBAInstance.get<APIResponse<NBAGames>>(
-            `/games?id=${fixtureId}`
-          )
-        ).data.response;
-      }
-      return (
-        await axiosInstance.get<APIResponse<Games<BasketballScores>>>(
-          `/games?id=${fixtureId}`
-        )
-      ).data.response?.[0];
-    case "baseball":
-      return (
-        await axiosInstance.get<APIResponse<Games<BaseballScores>>>(
-          `/games?id=${fixtureId}`
-        )
-      ).data.response?.[0];
-    case "rugby":
-      return (
-        await axiosInstance.get<APIResponse<GamesWithPeriods<number | null>>>(
-          `/games?id=${fixtureId}`
-        )
-      ).data.response?.[0];
-    case "hockey":
-      return (
-        await axiosInstance.get<
-          APIResponse<GamesWithPeriodsAndEvents<number | null>>
-        >(`/games?id=${fixtureId}`)
-      ).data.response?.[0];
-    case "australian-football":
-      return (
-        await axiosInstance.get<APIResponse<AustralianFootballGames>>(
-          `/games?id=${fixtureId}`
-        )
-      ).data.response?.[0];
-    case "american-football":
-      return (
-        await axiosInstance.get<APIResponse<NFLGames>>(`/games?id=${fixtureId}`)
-      ).data.response?.[0];
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<Fixtures>>(
-          `/fixtures?id=${fixtureId}`
-        )
-      ).data.response?.[0];
-    default:
-      return undefined;
+  try {
+    const axiosInstance = !isNBATeam
+      ? createAxiosInstance(sport)
+      : axiosNBAInstance;
+    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+      `/${sport === "football" ? "fixtures" : "games"}?id=${fixtureId}`
+    );
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return isNBATeam ? response.data.response : response.data.response?.[0];
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 
@@ -684,41 +501,26 @@ export const getHeadtoHeadFixtures = async (
   teamId2: number,
   sport: Sports
 ) => {
-  const axiosInstance = createAxiosInstance(sport);
-
-  switch (sport) {
-    case "football":
-      return (
-        await axiosInstance.get<APIResponse<Fixtures>>(
-          `/fixtures/headtohead?h2h=${teamId1}-${teamId2}`
-        )
-      ).data.response;
-    case "rugby":
-      return (
-        await axiosInstance.get<APIResponse<GamesWithPeriods<number | null>>>(
-          `/games/h2h?h2h=${teamId1}-${teamId2}`
-        )
-      ).data.response;
-    case "hockey":
-      return (
-        await axiosInstance.get<
-          APIResponse<GamesWithPeriodsAndEvents<number | null>>
-        >(`/games/h2h?h2h=${teamId1}-${teamId2}`)
-      ).data.response;
-    case "baseball":
-      return (
-        await axiosInstance.get<APIResponse<Games<BaseballScores>>>(
-          `/games/h2h?h2h=${teamId1}-${teamId2}`
-        )
-      ).data.response;
-    case "basketball":
-      return (
-        await axiosInstance.get<APIResponse<Games<BasketballScores>>>(
-          `/games?h2h=${teamId1}-${teamId2}`
-        )
-      ).data.response;
-    default:
-      return undefined;
+  try {
+    const axiosInstance = createAxiosInstance(sport);
+    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+      sport === "football"
+        ? "fixtures/headtohead"
+        : sport === "basketball"
+        ? "games"
+        : "games/h2h",
+      {
+        params: {
+          h2h: `${teamId1}-${teamId2}`,
+        },
+      }
+    );
+    if (!Array.isArray(response.data.errors)) {
+      throw new Error(errorMessage);
+    }
+    return response.data.response;
+  } catch (error) {
+    return (error as Error).message;
   }
 };
 

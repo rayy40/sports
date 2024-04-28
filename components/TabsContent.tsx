@@ -1,4 +1,4 @@
-import { AllSportsFixtures, Sports } from "@/types/general";
+import { AllSportsFixtures, Sports, isAPIError } from "@/types/general";
 import FixturesList from "./ui/FixturesList";
 import { Table } from "@tanstack/react-table";
 import Loading from "./Loading";
@@ -14,6 +14,7 @@ import Standings from "./Standings";
 import TeamStatistics from "./ui/TeamStatistics";
 import Squads from "./ui/Squads";
 import PlayerStats from "./ui/PlayerStats";
+import Error from "./Error";
 
 type Props = {
   id: number;
@@ -38,108 +39,140 @@ const TabsContent = ({
   const { stat } = useStatStore();
   const { season } = useSeasonsStore();
 
-  const { data: standingsLeagueData, isFetching: isFetchingLeagueStandings } =
-    useStandingsByLeagueIdAndSeason(
-      id,
-      season ?? currSeason,
-      sport,
-      isTeam,
-      tab
-    );
-
-  const { data: standingsTeamData, isFetching: isFetchingTeamStandings } =
-    useStandingsByTeamIdAndSeason(
-      id,
-      league,
-      season ?? currSeason,
-      sport,
-      isTeam,
-      isNBATeam,
-      tab
-    );
-
-  const { data: squadsData, isFetching: isFetchingSquads } = usePlayersForTeam(
+  const standingsLeaguesQuery = useStandingsByLeagueIdAndSeason(
     id,
     season ?? currSeason,
     sport,
+    isTeam,
     tab
   );
 
-  const { data: statisticsData, isFetching: isFetchingStatistics } =
-    useStatisticsByTeamIdAndSeason(
-      id,
-      league,
-      season ?? currSeason,
-      sport,
-      tab,
-      isTeam,
-      isNBATeam
-    );
+  const standingsTeamQuery = useStandingsByTeamIdAndSeason(
+    id,
+    league,
+    season ?? currSeason,
+    sport,
+    isTeam,
+    isNBATeam,
+    tab
+  );
 
-  const { data: playersStandingsData, isFetching: isFetchingPlayersStandings } =
-    usePlayersStandings(id, season ?? currSeason, sport, tab, stat, isTeam);
+  const playersQuery = usePlayersForTeam(id, season ?? currSeason, sport, tab);
+
+  const teamStatisticsQuery = useStatisticsByTeamIdAndSeason(
+    id,
+    league,
+    season ?? currSeason,
+    sport,
+    tab,
+    isTeam,
+    isNBATeam
+  );
+
+  const playersStandingsQuery = usePlayersStandings(
+    id,
+    season ?? currSeason,
+    sport,
+    tab,
+    stat,
+    isTeam
+  );
 
   if (
-    isFetchingLeagueStandings ||
-    isFetchingTeamStandings ||
-    isFetchingStatistics ||
-    isFetchingPlayersStandings ||
-    isFetchingSquads
+    standingsLeaguesQuery.isFetching ||
+    standingsTeamQuery.isFetching ||
+    teamStatisticsQuery.isFetching ||
+    playersQuery.isFetching ||
+    playersStandingsQuery.isFetching
   ) {
     return <Loading />;
   }
 
+  if (
+    standingsLeaguesQuery.isError ||
+    standingsTeamQuery.isError ||
+    teamStatisticsQuery.isError ||
+    playersQuery.isError ||
+    playersStandingsQuery.isError
+  ) {
+    return (
+      <Error
+        message={
+          standingsLeaguesQuery.error?.message ||
+          standingsTeamQuery.error?.message ||
+          teamStatisticsQuery.error?.message ||
+          playersQuery.error?.message ||
+          playersStandingsQuery.error?.message
+        }
+      />
+    );
+  }
+
+  if (isAPIError(playersQuery.data)) {
+    return <Error message="No players found." />;
+  } else if (isAPIError(standingsTeamQuery.data)) {
+    return <Error message="No standings found." />;
+  } else if (isAPIError(standingsLeaguesQuery.data)) {
+    return <Error message="No standings found." />;
+  }
+
   if (tab === "Squads") {
-    if (!squadsData || squadsData.length === 0) {
+    if (!playersQuery.data || playersQuery.data.length === 0) {
       return (
         <div className="flex items-center justify-center w-full h-full">
           No Squads found.
         </div>
       );
     }
-    return <Squads data={squadsData} sport={sport} />;
+    return <Squads data={playersQuery.data} sport={sport} />;
   }
 
   if (tab === "Stats") {
     if (!isTeam) {
-      if (!playersStandingsData || playersStandingsData.length === 0) {
+      if (
+        !playersStandingsQuery.data ||
+        playersStandingsQuery.data.length === 0
+      ) {
         return (
           <div className="flex items-center justify-center w-full h-full">
             No Standings for players found.
           </div>
         );
       }
-      return <PlayerStats stat={stat} data={playersStandingsData} />;
+      return <PlayerStats stat={stat} data={playersStandingsQuery.data} />;
     }
-    if (!statisticsData) {
+    if (!teamStatisticsQuery.data) {
       return (
         <div className="flex items-center justify-center w-full h-full">
           No Stats found.
         </div>
       );
     }
-    return <TeamStatistics data={statisticsData} />;
+    return <TeamStatistics data={teamStatisticsQuery.data} />;
   }
 
   if (tab === "Standings") {
     if (isTeam) {
-      if (!standingsTeamData || standingsTeamData.length === 0) {
+      if (!standingsTeamQuery.data || standingsTeamQuery.data.length === 0) {
         return (
           <div className="flex items-center justify-center w-full h-full">
             No Standings found.
           </div>
         );
       }
-      return <Standings sport={sport} standing={standingsTeamData} />;
+      return <Standings sport={sport} standing={standingsTeamQuery.data} />;
     } else {
-      if (!standingsLeagueData || standingsLeagueData.length === 0) {
+      if (
+        !standingsLeaguesQuery.data ||
+        standingsLeaguesQuery.data.length === 0
+      ) {
         return (
           <div className="flex items-center justify-center w-full h-full">
             No Standings found.
           </div>
         );
       }
-      return <Standings sport={sport} standing={standingsLeagueData} />;
+      return <Standings sport={sport} standing={standingsLeaguesQuery.data} />;
     }
   }
 

@@ -5,7 +5,12 @@ import {
   useFixturesByLeagueIdAndSeason,
   useFixturesByTeamIdAndSeason,
 } from "@/services/queries";
-import { Seasons, Sports, AllSportsFixtures } from "@/types/general";
+import {
+  Seasons,
+  Sports,
+  AllSportsFixtures,
+  isAPIError,
+} from "@/types/general";
 import {
   ColumnFiltersState,
   Table,
@@ -21,6 +26,7 @@ import TabsContent from "./TabsContent";
 import { SeasonsEntity } from "@/types/football";
 import Loading from "./Loading";
 import TabsHeader from "./ui/TabsHeader";
+import Error from "./Error";
 
 export function isSeasons(
   item: (Seasons | SeasonsEntity)[] | (number | string)[]
@@ -56,17 +62,35 @@ const RootComponent = ({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
 
+  const {
+    data: leagueFixtures,
+    isFetching: isFetchingLeagueFixtures,
+    isError: isLeagueFixturesError,
+    error: leagueFixturesError,
+  } = useFixturesByLeagueIdAndSeason(id, season, sport, isTeam);
+
+  const {
+    data: teamFixtures,
+    isFetching: isFetchingTeamFixtures,
+    isError: isTeamFixturesError,
+    error: teamFixturesError,
+  } = useFixturesByTeamIdAndSeason(id, season, sport, isTeam);
+
   const seasonList = isSeasons(seasons)
     ? getSeasonsList<SeasonsEntity | Seasons>(seasons)
     : seasons?.map(String).slice().reverse();
 
-  const { data: leagueFixtures, isFetching: isFetchingLeagueFixtures } =
-    useFixturesByLeagueIdAndSeason(id, season, sport, isTeam);
+  let data: AllSportsFixtures[] | undefined = undefined;
 
-  const { data: teamFixtures, isFetching: isFetchingTeamFixtures } =
-    useFixturesByTeamIdAndSeason(id, season, sport, isTeam);
-
-  const data = (isTeam ? teamFixtures : leagueFixtures) ?? fixtures ?? [];
+  if (isTeam && teamFixtures && !isAPIError(teamFixtures)) {
+    data = teamFixtures;
+  } else if (!isTeam && leagueFixtures && !isAPIError(leagueFixtures)) {
+    data = leagueFixtures;
+  } else if (fixtures) {
+    data = fixtures;
+  } else {
+    data = [];
+  }
 
   const league = getLeagueIdForTeam(data, leagueForTeam, isTeam);
 
@@ -143,6 +167,19 @@ const RootComponent = ({
       );
     }
   };
+
+  if (
+    isTeamFixturesError ||
+    isLeagueFixturesError ||
+    typeof leagueFixtures === "string" ||
+    typeof teamFixtures === "string"
+  ) {
+    return (
+      <Error
+        message={teamFixturesError?.message ?? leagueFixturesError?.message}
+      />
+    );
+  }
 
   return (
     <>

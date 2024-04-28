@@ -1,4 +1,4 @@
-import { GamesWithPeriods, League, Seasons } from "@/types/general";
+import { League, Seasons } from "@/types/general";
 import {
   HydrationBoundary,
   QueryClient,
@@ -7,35 +7,40 @@ import {
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
+import NotFound from "@/components/ui/NotFound";
+import Error from "@/components/Error";
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+  const league: League<Seasons[]> = await queryClient.fetchQuery({
     queryKey: [leagueId, "rugby", "league"],
     queryFn: () => getLeagueById(leagueId, "rugby"),
   });
 
-  const league: League<Seasons[]> | undefined = queryClient.getQueryData([
-    leagueId,
-    "rugby",
-    "league",
-  ]);
+  if (!league) {
+    return <NotFound type="league" sport="rugby" />;
+  }
 
-  const season = league?.seasons[league.seasons.length - 1].season;
+  if (typeof league === "string") {
+    return (
+      <div className="h-screen w-full">
+        <Error message={league} />
+      </div>
+    );
+  }
 
-  await queryClient.prefetchQuery({
+  const season = league?.seasons[league?.seasons?.length - 1]?.season;
+
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [leagueId, season, "rugby", "fixtures"],
     queryFn: () => getFixturesByLeagueIdAndSeason(leagueId, season!, "rugby"),
   });
 
-  const fixtures: GamesWithPeriods<number | null>[] | undefined =
-    queryClient.getQueryData([leagueId, season, "rugby", "fixtures"]);
-
-  if (!league) {
+  if (typeof fixtures === "string") {
     return (
-      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
-        <p>No league found.</p>
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
       </div>
     );
   }
@@ -50,7 +55,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           seasons={league.seasons}
           sport="rugby"
           currSeason={season ?? "-"}
-          fixtures={fixtures}
+          fixtures={fixtures ?? []}
         />
       </HydrationBoundary>
     </div>

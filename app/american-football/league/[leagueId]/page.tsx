@@ -6,45 +6,37 @@ import {
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
-import { NFLGames } from "@/types/american-football";
 import { Leagues } from "@/types/football";
+import NotFound from "@/components/ui/NotFound";
+import Error from "@/components/Error";
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+  const league: Leagues = await queryClient.fetchQuery({
     queryKey: [leagueId, "american-football", "league"],
     queryFn: () => getLeagueById(leagueId, "american-football"),
   });
 
-  const league: Leagues | undefined = queryClient.getQueryData([
-    leagueId,
-    "american-football",
-    "league",
-  ]);
-
   if (!league) {
-    return (
-      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
-        <p>No league found.</p>
-      </div>
-    );
+    return <NotFound type="league" sport="american-football" />;
   }
 
   const season = league?.seasons?.[0]?.year.toString();
 
-  await queryClient.prefetchQuery({
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [leagueId, season, "american-football", "fixtures"],
     queryFn: () =>
       getFixturesByLeagueIdAndSeason(leagueId, season!, "american-football"),
   });
 
-  const fixtures: NFLGames[] | undefined = queryClient.getQueryData([
-    leagueId,
-    season,
-    "american-football",
-    "fixtures",
-  ]);
+  if (typeof fixtures === "string") {
+    return (
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
+      </div>
+    );
+  }
 
   return (
     <div className="relative font-sans">
@@ -56,7 +48,7 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           seasons={league.seasons?.slice(0).reverse() ?? []}
           sport="american-football"
           currSeason={season ?? "-"}
-          fixtures={fixtures}
+          fixtures={fixtures ?? []}
         />
       </HydrationBoundary>
     </div>

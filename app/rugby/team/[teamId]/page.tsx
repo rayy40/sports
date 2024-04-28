@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import {
   HydrationBoundary,
   QueryClient,
@@ -6,37 +5,35 @@ import {
 } from "@tanstack/react-query";
 import { getFixturesByTeamIdAndSeason, getTeamById } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
-import { GamesWithPeriods, TeamResponse } from "@/types/general";
-import { Seasons } from "@/lib/constants";
+import { TeamResponse } from "@/types/general";
+import { seasonsList } from "@/lib/constants";
+import NotFound from "@/components/ui/NotFound";
+import Error from "@/components/Error";
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const teamId = parseInt(params.teamId);
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+
+  const team: TeamResponse = await queryClient.fetchQuery({
     queryKey: [teamId, "rugby", "team"],
     queryFn: () => getTeamById(teamId, "rugby"),
   });
 
-  const team: TeamResponse | undefined = queryClient.getQueryData([
-    teamId,
-    "rugby",
-    "team",
-  ]);
+  if (!team) {
+    return <NotFound type="team" sport="rugby" />;
+  }
 
   const season = "2023";
 
-  await queryClient.prefetchQuery({
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [teamId, season, "rugby", "fixtures"],
     queryFn: () => getFixturesByTeamIdAndSeason(teamId, season, "rugby"),
   });
 
-  const fixtures: GamesWithPeriods<number | null>[] | undefined =
-    queryClient.getQueryData([teamId, season, "rugby", "fixtures"]);
-
-  if (!team) {
+  if (typeof fixtures === "string") {
     return (
-      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
-        <p>No team found.</p>
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
       </div>
     );
   }
@@ -48,11 +45,11 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
           title={team.name}
           logo={team.logo}
           id={team.id}
-          seasons={Seasons}
+          seasons={seasonsList}
           sport="rugby"
           isTeam={true}
           currSeason={season ?? "-"}
-          fixtures={fixtures}
+          fixtures={fixtures ?? []}
         />
       </HydrationBoundary>
     </div>

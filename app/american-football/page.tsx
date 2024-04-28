@@ -10,34 +10,39 @@ import {
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
 import DatePicker from "@/components/ui/DatePicker";
-import { NFLGames } from "@/types/american-football";
+import Error from "@/components/Error";
 
 const Page = async () => {
   const date = new Date();
   const formattedDate = format(date, "yyyy-MM-dd");
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [formattedDate, "american-football", "fixtures"],
     queryFn: () => getFixturesByDate(formattedDate, "american-football"),
   });
 
-  const fixtures: NFLGames[] | undefined = queryClient.getQueryData([
-    formattedDate,
-    "american-football",
-    "fixtures",
-  ]);
-
   if (!fixtures) {
-    <div className="flex text-sm lg:text-[1rem] items-center justify-center w-full h-screen">
-      <p>No fixtures found.</p>
-    </div>;
+    return (
+      <div className="flex text-sm lg:text-[1rem] items-center justify-center w-full h-screen">
+        <p>No fixtures found.</p>
+      </div>
+    );
+  }
+
+  if (typeof fixtures === "string") {
+    return (
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
+      </div>
+    );
   }
 
   return (
     <div className="w-full min-h-screen font-sans bg-background">
       <HydrationBoundary state={dehydrate(queryClient)}>
         <div className="px-3 lg:px-6 sticky top-0 z-10 border border-b shadow-sm bg-background">
-          <div className="px-3 lg:px-6 flex items-center justify-between">
+          <div className="py-3 lg:py-6 flex items-center justify-between">
             <h2 className="flex items-center gap-2 lg:gap-3 text-xl lg:text-2xl font-medium text-secondary-foreground">
               <NFL width={50} height={50} />
               Games

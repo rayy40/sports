@@ -5,13 +5,11 @@ import {
 } from "@tanstack/react-query";
 import { getFixturesByTeamIdAndSeason, getTeamById } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
-import { Games, TeamResponse } from "@/types/general";
-import {
-  BasketballScores,
-  NBAGames,
-  NBATeamresponse,
-} from "@/types/basketball";
-import { Seasons, BasketballSeasons } from "@/lib/constants";
+import { TeamResponse } from "@/types/general";
+import { NBATeamresponse } from "@/types/basketball";
+import { seasonsList, basketballSeasons } from "@/lib/constants";
+import NotFound from "@/components/ui/NotFound";
+import Error from "@/components/Error";
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const isNBATeam = params.teamId.split("-")[0] === "nba";
@@ -21,29 +19,27 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
     : parseInt(params.teamId);
 
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+  const team: TeamResponse | NBATeamresponse = await queryClient.fetchQuery({
     queryKey: [teamId, "basketball", "team"],
     queryFn: () => getTeamById(teamId, "basketball", isNBATeam),
   });
 
-  const team: TeamResponse | NBATeamresponse | undefined =
-    queryClient.getQueryData([teamId, "basketball", "team"]);
+  if (!team) {
+    return <NotFound type="team" sport="basketball" />;
+  }
 
   const season = isNBATeam ? "2023" : "2023-2024";
 
-  await queryClient.prefetchQuery({
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [teamId, season, "basketball", "fixtures"],
     queryFn: () =>
       getFixturesByTeamIdAndSeason(teamId, season, "basketball", isNBATeam),
   });
 
-  const fixtures: Games<BasketballScores>[] | NBAGames[] | undefined =
-    queryClient.getQueryData([teamId, season, "basketball", "fixtures"]);
-
-  if (!team) {
+  if (typeof fixtures === "string") {
     return (
-      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
-        <p>No team found.</p>
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
       </div>
     );
   }
@@ -55,12 +51,12 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
           title={team.name}
           logo={team.logo}
           id={team.id}
-          seasons={isNBATeam ? Seasons : BasketballSeasons}
+          seasons={isNBATeam ? seasonsList : basketballSeasons}
           sport="basketball"
           isTeam={true}
           isNBATeam={isNBATeam}
           currSeason={season ?? "-"}
-          fixtures={fixtures}
+          fixtures={fixtures ?? []}
         />
       </HydrationBoundary>
     </div>

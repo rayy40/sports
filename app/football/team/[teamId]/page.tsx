@@ -1,5 +1,4 @@
-import { Suspense } from "react";
-import { Fixtures, TeamResponse } from "@/types/football";
+import { TeamResponse } from "@/types/football";
 import {
   HydrationBoundary,
   QueryClient,
@@ -11,46 +10,53 @@ import {
   getTeamSeasons,
 } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
+import Error from "@/components/Error";
+import NotFound from "@/components/ui/NotFound";
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const teamId = parseInt(params.teamId);
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+  const team: TeamResponse = await queryClient.fetchQuery({
     queryKey: [teamId, "football", "team"],
     queryFn: () => getTeamById(teamId, "football"),
   });
 
-  const team: TeamResponse | undefined = queryClient.getQueryData([
-    teamId,
-    "football",
-    "team",
-  ]);
+  if (!team) {
+    return <NotFound type="team" sport="football" />;
+  }
 
-  await queryClient.prefetchQuery({
+  if (typeof team === "string") {
+    return (
+      <div className="h-screen w-full">
+        <Error message={team} />
+      </div>
+    );
+  }
+
+  const seasonsList = await queryClient.fetchQuery({
     queryKey: [teamId, "football", "team", "seasons"],
     queryFn: () => getTeamSeasons(teamId, "football"),
   });
 
-  const seasonsList: number[] =
-    queryClient.getQueryData([teamId, "football", "team", "seasons"]) ?? [];
-  const season = seasonsList?.[seasonsList?.length - 1].toString();
+  if (!seasonsList) {
+    return (
+      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
+        <p>No season found.</p>
+      </div>
+    );
+  }
 
-  await queryClient.prefetchQuery({
+  const season = seasonsList?.[seasonsList?.length - 1]?.toString();
+
+  const fixtures = await queryClient.fetchQuery({
     queryKey: [teamId, season, "football", "fixtures"],
     queryFn: () => getFixturesByTeamIdAndSeason(teamId, season, "football"),
   });
 
-  const fixtures: Fixtures[] | undefined = queryClient.getQueryData([
-    teamId,
-    season,
-    "football",
-    "fixtures",
-  ]);
-
-  if (!team) {
+  if (typeof fixtures === "string") {
     return (
-      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
-        <p>No team found.</p>
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
       </div>
     );
   }
@@ -66,7 +72,7 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
           sport="football"
           isTeam={true}
           currSeason={season}
-          fixtures={fixtures}
+          fixtures={fixtures ?? []}
         />
       </HydrationBoundary>
     </div>

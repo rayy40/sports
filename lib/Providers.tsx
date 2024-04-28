@@ -14,6 +14,7 @@ const Providers = ({ children }: { children: ReactNode }) => {
             staleTime: 60 * 60 * 1000,
             retry: 3,
             retryDelay: 1000,
+            throwOnError: true,
           },
         },
       })

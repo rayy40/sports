@@ -19,6 +19,7 @@ import {
 import Loading from "./Loading";
 import HeadtoHead from "./ui/HeadtoHead";
 import { getFixtureData } from "@/lib/utils";
+import Error from "./Error";
 
 type Props = {
   fixture: DetailedFixture | AllSportsFixtures;
@@ -27,28 +28,27 @@ type Props = {
 
 const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
   const { tab } = useFixtureTabsStore();
-  console.log(tab);
 
   const { fixtureId, homeTeam, awayTeam } = useMemo(
     () => getFixtureData(fixture),
     [fixture]
   );
 
-  const { data: statsFixturesData, isFetching: isFetchingStatsFixtures } =
-    useFixtureStatistics(fixtureId, sport, tab);
+  const fixtureStatisticsQuery = useFixtureStatistics(fixtureId, sport, tab);
 
-  const {
-    data: headtoHeadFixturesData,
-    isFetching: isFetchingHeadtoHeadFixtures,
-  } = useHeadtoHeadFixtures(homeTeam.id, awayTeam.id, sport, tab);
+  const headToHeadFixturesQuery = useHeadtoHeadFixtures(
+    homeTeam.id,
+    awayTeam.id,
+    sport,
+    tab
+  );
 
-  const { data: fixturesEventsData, isFetching: isFetchingFixturesEvents } =
-    useFixtureEvents(fixtureId, sport, tab);
+  const fixtureEventsQuery = useFixtureEvents(fixtureId, sport, tab);
 
   if (
-    isFetchingHeadtoHeadFixtures ||
-    isFetchingFixturesEvents ||
-    isFetchingStatsFixtures
+    headToHeadFixturesQuery.isFetching ||
+    fixtureEventsQuery.isFetching ||
+    fixtureStatisticsQuery.isFetching
   ) {
     return (
       <div className="w-full h-[calc(100vh-245px)]">
@@ -57,7 +57,25 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
     );
   }
 
-  console.log(fixture);
+  if (
+    headToHeadFixturesQuery.isError ||
+    typeof headToHeadFixturesQuery.data === "string" ||
+    fixtureEventsQuery.isError ||
+    fixtureStatisticsQuery.isError
+  ) {
+    return (
+      <div className="w-full h-[calc(100vh-245px)]">
+        <Error
+          message={
+            headToHeadFixturesQuery.error?.message ||
+            fixtureStatisticsQuery.error?.message ||
+            fixtureEventsQuery.error?.message ||
+            "Something went wrong."
+          }
+        />
+      </div>
+    );
+  }
 
   if (tab === "Lineups" && isFootballDetailedFixture(fixture)) {
     if (!fixture.lineups || fixture.lineups.length !== 2) {
@@ -80,14 +98,17 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
     }
     return <MatchStat stats={fixture.statistics} />;
   } else if (tab === "Match Stats") {
-    if (!statsFixturesData || statsFixturesData.length === 0) {
+    if (
+      !fixtureStatisticsQuery.data ||
+      fixtureStatisticsQuery.data.length === 0
+    ) {
       return (
         <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
           <p>No statistics found for this fixture.</p>
         </div>
       );
     }
-    return <MatchStat stats={statsFixturesData} />;
+    return <MatchStat stats={fixtureStatisticsQuery.data} />;
   }
 
   if (tab === "Play By Play" && isFootballDetailedFixture(fixture)) {
@@ -100,24 +121,27 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
     }
     return <PlayByPlay events={fixture.events} sport={sport} />;
   } else if (tab === "Play By Play") {
-    if (!fixturesEventsData || fixturesEventsData.length === 0) {
+    if (!fixtureEventsQuery.data || fixtureEventsQuery.data.length === 0) {
       return (
         <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
           <p>No events found for this fixture.</p>
         </div>
       );
     }
-    return <PlayByPlay events={fixturesEventsData} sport={sport} />;
+    return <PlayByPlay events={fixtureEventsQuery.data} sport={sport} />;
   }
 
-  if (!headtoHeadFixturesData || headtoHeadFixturesData.length === 0) {
+  if (
+    !headToHeadFixturesQuery.data ||
+    headToHeadFixturesQuery.data.length === 0
+  ) {
     return (
       <div className="w-full flex items-center justify-center h-[calc(100vh-245px)]">
         <p>No head to head fixtures found for this fixture.</p>
       </div>
     );
   }
-  return <HeadtoHead fixtures={headtoHeadFixturesData} sport={sport} />;
+  return <HeadtoHead fixtures={headToHeadFixturesQuery.data} sport={sport} />;
 };
 
 export default FixtureFilterWrapper;

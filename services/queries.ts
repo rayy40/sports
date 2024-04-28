@@ -180,7 +180,11 @@ export function useHeadtoHeadFixtures(
   return useQuery({
     queryKey: [teamId1, teamId2, sport, "fixtures", "headtohead"],
     queryFn: () => getHeadtoHeadFixtures(teamId1, teamId2, sport),
-    enabled: tab === "Head to Head" && (!!teamId1 || !!teamId2),
+    enabled:
+      tab === "Head to Head" &&
+      sport !== "american-football" &&
+      sport !== "australian-football" &&
+      (!!teamId1 || !!teamId2),
   });
 }
 

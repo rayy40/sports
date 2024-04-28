@@ -1,8 +1,8 @@
+import Error from "@/components/Error";
 import FixtureFilterWrapper from "@/components/FixtureFilterWrapper";
 import FixtureHeader from "@/components/ui/FixtureHeader";
 import { getFixtureById } from "@/services/api";
-import { NFLGames } from "@/types/american-football";
-import { FixtureTabsType } from "@/types/general";
+import { AllSportsFixtures, FixtureTabsType } from "@/types/general";
 import {
   HydrationBoundary,
   QueryClient,
@@ -13,23 +13,17 @@ import React from "react";
 const Page = async ({ params }: { params: { fixtureId: string } }) => {
   const fixtureId = parseInt(params.fixtureId);
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
+  const fixture: AllSportsFixtures = await queryClient.fetchQuery({
     queryKey: [fixtureId, "american-football", "fixture"],
     queryFn: () => getFixtureById(fixtureId, "american-football"),
   });
 
-  const fixture: NFLGames | undefined = queryClient.getQueryData([
-    fixtureId,
-    "american-football",
-    "fixture",
-  ]);
-
   const tabs: FixtureTabsType[] = ["Match Stats", "Play By Play"];
 
-  if (!fixture) {
+  if (typeof fixture === "string") {
     return (
-      <div className="flex font-sans text-sm lg:text-[1rem] font-medium h-screen w-full items-center justify-center">
-        <p>No fixture found.</p>
+      <div className="h-screen w-full">
+        <Error message={fixture} />
       </div>
     );
   }

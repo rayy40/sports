@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { Hockey } from "@/Assets/Icons/Sports";
 import HomeWrapper from "@/components/HomeWrapper";
 import FilterWrapper from "@/components/FilterWrapper";
@@ -9,26 +9,33 @@ import {
 } from "@tanstack/react-query";
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
-import Loading from "@/components/Loading";
 import DatePicker from "@/components/ui/DatePicker";
-import { GamesWithPeriodsAndEvents } from "@/types/general";
+import Error from "@/components/Error";
 
 const Page = async () => {
   const date = new Date();
   const formattedDate = format(date, "yyyy-MM-dd");
   const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: [formattedDate, "hockey", "fixtues"],
+
+  const fixtures = await queryClient.fetchQuery({
+    queryKey: [formattedDate, "hockey", "fixtures"],
     queryFn: () => getFixturesByDate(formattedDate, "hockey"),
   });
 
-  const fixtures: GamesWithPeriodsAndEvents<number | null>[] | undefined =
-    queryClient.getQueryData([formattedDate, "hockey", "fixtures"]);
-
   if (!fixtures) {
-    <div className="flex text-sm lg:text-[1rem] items-center justify-center w-full h-screen">
-      <p>No fixtures found.</p>
-    </div>;
+    return (
+      <div className="flex text-sm lg:text-[1rem] items-center justify-center w-full h-screen">
+        <p>No fixtures found.</p>
+      </div>
+    );
+  }
+
+  if (typeof fixtures === "string") {
+    return (
+      <div className="h-screen w-full">
+        <Error message={fixtures} />
+      </div>
+    );
   }
 
   return (
