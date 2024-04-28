@@ -47,7 +47,7 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
                       src={homeTeam.logo}
                       alt={`${homeTeam.name}-logo`}
                     />
-                    <p>{homeTeam.name}</p>
+                    <p className="text-left">{homeTeam.name}</p>
                   </div>
                   <div className="flex lg:ml-6 ml-4 items-center gap-2 lg:gap-4">
                     <p
@@ -71,7 +71,7 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
                     </p>
                   </div>
                   <div className="flex items-center justify-end gap-2 lg:gap-4">
-                    <p>{awayTeam.name}</p>
+                    <p className="text-right">{awayTeam.name}</p>
                     <ImageWithFallback
                       className="w-[25px] lg:w-[30px]"
                       src={awayTeam.logo}
