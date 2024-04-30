@@ -340,15 +340,15 @@ export function isAPIError(item: any): item is string {
 
 export type FilterWrappers = {
   sport: Sports;
-  tab: DetailedTabsType;
-  tabs: Tabs<DetailedTabsType>[];
-  table: Table<AllSportsFixtures> | undefined;
-  teams: Filters[];
-  leagues: Filters[];
-  setTeam: (team: string | null) => void;
-  setLeague: (league: string | null) => void;
-  setLeagueForTeam: (league: string | null) => void;
-  setStat: (stat: string | null) => void;
+  tab?: DetailedTabsType;
+  tabs?: Tabs<DetailedTabsType>[];
+  table?: Table<AllSportsFixtures> | undefined;
+  teams?: Filters[];
+  leagues?: Filters[];
+  setTeam?: (team: string | null) => void;
+  setLeague?: (league: string | null) => void;
+  setLeagueForTeam?: (league: string | null) => void;
+  setStat?: (stat: string | null) => void;
   isHome: boolean;
   isTeam: boolean;
   isLeague: boolean;

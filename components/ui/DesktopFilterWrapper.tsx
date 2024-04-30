@@ -28,10 +28,10 @@ const DesktopFilterWrapper = ({
   isLeague,
 }: FilterWrappers) => {
   const renderTabs = (
-    tabs: TTabs<StatusType | DetailedTabsType>[],
-    isStatus: boolean
+    isStatus: boolean,
+    tabs?: TTabs<StatusType | DetailedTabsType>[]
   ) => {
-    return tabs.map((tab, index) => (
+    return tabs?.map((tab, index) => (
       <Tabs key={index} label={tab.label} id={tab.status} isStatus={isStatus} />
     ));
   };
@@ -56,7 +56,7 @@ const DesktopFilterWrapper = ({
   };
 
   const renderFilters = () => {
-    if (isHome) {
+    if (isHome && teams && leagues) {
       return (
         <>
           {renderFilterDropDown("Teams", teams, undefined, setTeam)}
@@ -73,6 +73,7 @@ const DesktopFilterWrapper = ({
               table?.getColumn("status")
             )}
           {tab === "Fixtures" &&
+            teams &&
             renderFilterDropDown("team", teams, table?.getColumn("teams"))}
           {tab === "Stats" &&
             sport === "football" &&
@@ -89,8 +90,10 @@ const DesktopFilterWrapper = ({
               table?.getColumn("status")
             )}
           {tab === "Fixtures" &&
+            leagues &&
             renderFilterDropDown("league", leagues, table?.getColumn("league"))}
           {tab === "Stats" &&
+            leagues &&
             leagues.length > 1 &&
             renderFilterDropDown(
               "league",
@@ -104,10 +107,12 @@ const DesktopFilterWrapper = ({
   };
 
   return (
-    <div className="hidden lg:flex gap-4 w-full items-end justify-between">
-      <div className="flex items-end gap-4">
-        {renderTabs(isHome ? statusTabs : tabs, isHome ? true : false)}
-      </div>
+    <div className="items-end justify-between hidden w-full gap-4 lg:flex">
+      {(isHome || isLeague || isTeam) && (
+        <div className="flex items-end gap-4">
+          {renderTabs(isHome ? true : false, isHome ? statusTabs : tabs)}
+        </div>
+      )}
       <div className="space-x-4">{renderFilters()}</div>
     </div>
   );

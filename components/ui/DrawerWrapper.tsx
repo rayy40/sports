@@ -14,7 +14,7 @@ import { useFixtureTabsStore } from "@/lib/store";
 
 type Props = {
   value?: string;
-  values: (Tabs<DetailedTabsType> | FixtureTabsType)[];
+  values?: (Tabs<DetailedTabsType> | FixtureTabsType)[];
   setValue?: (value: DetailedTabsType) => void;
 };
 
@@ -34,7 +34,7 @@ const DrawerWrapper = ({ value, values, setValue }: Props) => {
       <DrawerTrigger asChild>
         <Button
           variant="outline"
-          className="w-full mt-1 flex items-center justify-between"
+          className="flex items-center justify-between w-full mt-1"
         >
           <p>{value ?? tab}</p>
           <ChevronsUpDown size="15" />
@@ -42,7 +42,7 @@ const DrawerWrapper = ({ value, values, setValue }: Props) => {
       </DrawerTrigger>
       <DrawerContent className="font-sans">
         <div className="mt-4 border-t">
-          {values.map((tab) => (
+          {values?.map((tab) => (
             <DrawerClose
               key={typeof tab !== "string" ? tab.label : tab}
               asChild
@@ -51,7 +51,7 @@ const DrawerWrapper = ({ value, values, setValue }: Props) => {
                 onClick={() =>
                   handleClick(typeof tab !== "string" ? tab.status : tab)
                 }
-                className="p-4 cursor-pointer text-sm border-b"
+                className="p-4 text-sm border-b cursor-pointer"
               >
                 {typeof tab !== "string" ? tab.label : tab}
               </p>

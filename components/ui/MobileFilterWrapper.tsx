@@ -17,6 +17,15 @@ import { useStatusStore, useTabsStore } from "@/lib/store";
 import { Column } from "@tanstack/react-table";
 import { statsFilters, statusFilters, statusTabs } from "@/lib/constants";
 import DrawerWrapper from "./DrawerWrapper";
+import {
+  Baseball,
+  Basketball,
+  Football,
+  Hockey,
+  NFL,
+  Rugby,
+} from "@/Assets/Icons/Sports";
+import Link from "next/link";
 
 type FilterByProps<TData, TValue> = {
   setFilter?: (league: string | null) => void;
@@ -25,6 +34,36 @@ type FilterByProps<TData, TValue> = {
   filters?: Filters[];
   column?: Column<TData, TValue>;
 };
+
+const sports = [
+  {
+    id: "football",
+    name: "Football",
+    icon: <Football width={30} height={30} />,
+  },
+  {
+    id: "basketball",
+    name: "Basketball",
+    icon: <Basketball width={30} height={30} />,
+  },
+  {
+    id: "baseball",
+    name: "Baseball",
+    icon: <Baseball width={30} height={30} />,
+  },
+  {
+    id: "american-football",
+    name: "AFL",
+    icon: <NFL width={30} height={30} />,
+  },
+  { id: "hockey", name: "Hockey", icon: <Hockey width={30} height={30} /> },
+  { id: "rugby", name: "Rugby", icon: <Rugby width={30} height={30} /> },
+  {
+    id: "australian-football",
+    name: "NFL",
+    icon: <NFL width={30} height={30} />,
+  },
+];
 
 const FilterBy = <TData, TValue>({
   type,
@@ -56,7 +95,7 @@ const FilterBy = <TData, TValue>({
     <Sheet>
       <SheetTrigger asChild>
         <Button
-          className="w-full flex items-center justify-between p-6 border-b"
+          className="flex items-center justify-between w-full p-6 border-b"
           variant="ghost"
         >
           Filter By {type}
@@ -64,14 +103,14 @@ const FilterBy = <TData, TValue>({
         </Button>
       </SheetTrigger>
       <SheetContent
-        className="w-full h-full overflow-y-auto font-sans p-0"
+        className="w-full h-full p-0 overflow-y-auto font-sans"
         side="left"
       >
-        <SheetHeader className="sticky top-0 bg-background z-10">
-          <SheetTitle className="flex relative items-center text-lg justify-center w-full p-6 border-b">
+        <SheetHeader className="sticky top-0 z-10 bg-background">
+          <SheetTitle className="relative flex items-center justify-center w-full p-6 text-lg border-b">
             <SheetClose asChild>
               <ArrowLeft
-                className="absolute cursor-pointer left-6 top-1/2 -translate-y-1/2"
+                className="absolute -translate-y-1/2 cursor-pointer left-6 top-1/2"
                 size="20"
               />
             </SheetClose>
@@ -181,7 +220,7 @@ const MobileFilterWrapper = ({
             type="Leagues"
           />
         )}
-        {tab === "Stats" && leagues.length > 1 && (
+        {tab === "Stats" && leagues && leagues.length > 1 && (
           <FilterBy
             filters={leagues}
             setFilter={setLeagueForTeam}
@@ -192,33 +231,78 @@ const MobileFilterWrapper = ({
     );
   };
 
-  return (
-    <div className="w-full flex lg:hidden gap-3">
-      {isHome ? (
-        <p className="p-2 font-medium underline-tabs">Fixtures</p>
-      ) : (
-        <DrawerWrapper value={tab} values={tabs} setValue={setTab} />
-      )}
+  const Sports = () => {
+    return (
       <Sheet>
         <SheetTrigger asChild>
-          <Button className="ml-auto mt-1" variant={"outline"}>
+          <Button
+            className="flex items-center justify-between w-full p-6 border-b"
+            variant="ghost"
+          >
+            More Sports
+            <ArrowRight size="15" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent
+          className="w-full h-full p-0 overflow-y-auto font-sans"
+          side="left"
+        >
+          <SheetHeader className="sticky top-0 z-10 bg-background">
+            <SheetTitle className="relative flex items-center justify-center w-full p-6 text-lg border-b">
+              <SheetClose asChild>
+                <ArrowLeft
+                  className="absolute -translate-y-1/2 cursor-pointer left-6 top-1/2"
+                  size="20"
+                />
+              </SheetClose>
+              <p>Sports</p>
+            </SheetTitle>
+          </SheetHeader>
+          <div>
+            {sports?.map((sport, index) => (
+              <SheetClose asChild key={index}>
+                <Link
+                  href={`/${sport.id}`}
+                  className="flex items-center justify-between w-full p-6 text-sm border-b cursor-pointer"
+                >
+                  <p>{sport.name}</p>
+                  {sport.icon}
+                </Link>
+              </SheetClose>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  };
+
+  return (
+    <div className="flex w-full gap-3 lg:hidden">
+      {isHome ? (
+        <p className="p-2 font-medium underline-tabs">Fixtures</p>
+      ) : isLeague || isTeam ? (
+        <DrawerWrapper value={tab} values={tabs} setValue={setTab} />
+      ) : null}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button className="mt-1 ml-auto" variant={"outline"}>
             <SlidersHorizontal size="15" />
           </Button>
         </SheetTrigger>
-        <SheetContent className="w-full h-screen font-sans p-0" side="left">
+        <SheetContent className="w-full h-screen p-0 font-sans" side="left">
           <SheetHeader>
-            <SheetTitle className="text-lg text-left w-full p-6 border-b">
+            <SheetTitle className="w-full p-6 text-lg text-left border-b">
               Filters
             </SheetTitle>
           </SheetHeader>
+          <Sports />
           {isHome && renderHomePageFilters()}
           {!isHome && isLeague && renderLeaguePageFilters()}
           {!isHome && isTeam && renderTeamPageFilters()}
-          <SheetFooter>
+          <SheetFooter className="absolute bottom-0 left-0 w-full">
             <SheetClose asChild>
               <Button
                 onClick={removeFilters}
-                size="sm"
                 className="w-full"
                 variant="outline"
               >
