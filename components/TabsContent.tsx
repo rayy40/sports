@@ -1,4 +1,4 @@
-import { AllSportsFixtures, Sports, isAPIError } from "@/types/general";
+import { AllSportsFixtures, Sports } from "@/types/general";
 import FixturesList from "./ui/FixturesList";
 import { Table } from "@tanstack/react-table";
 import Loading from "./Loading";
@@ -89,31 +89,37 @@ const TabsContent = ({
   }
 
   if (
-    standingsLeaguesQuery.isError ||
-    standingsTeamQuery.isError ||
-    teamStatisticsQuery.isError ||
-    playersQuery.isError ||
-    playersStandingsQuery.isError
+    tab === "Standings" &&
+    (standingsLeaguesQuery.isError || standingsTeamQuery.isError)
   ) {
     return (
       <Error
+        sport={sport}
         message={
           standingsLeaguesQuery.error?.message ||
-          standingsTeamQuery.error?.message ||
-          teamStatisticsQuery.error?.message ||
-          playersQuery.error?.message ||
-          playersStandingsQuery.error?.message
+          standingsTeamQuery.error?.message
         }
       />
     );
   }
 
-  if (isAPIError(playersQuery.data)) {
-    return <Error message="No players found." />;
-  } else if (isAPIError(standingsTeamQuery.data)) {
-    return <Error message="No standings found." />;
-  } else if (isAPIError(standingsLeaguesQuery.data)) {
-    return <Error message="No standings found." />;
+  if (tab === "Squads" && playersQuery.isError) {
+    return <Error sport={sport} message={playersQuery.error?.message} />;
+  }
+
+  if (
+    tab === "Stats" &&
+    (teamStatisticsQuery.isError || playersStandingsQuery.isError)
+  ) {
+    return (
+      <Error
+        sport={sport}
+        message={
+          teamStatisticsQuery.error?.message ||
+          playersStandingsQuery.error?.message
+        }
+      />
+    );
   }
 
   if (tab === "Squads") {

@@ -59,7 +59,6 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
 
   if (
     headToHeadFixturesQuery.isError ||
-    typeof headToHeadFixturesQuery.data === "string" ||
     fixtureEventsQuery.isError ||
     fixtureStatisticsQuery.isError
   ) {
@@ -69,8 +68,7 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
           message={
             headToHeadFixturesQuery.error?.message ||
             fixtureStatisticsQuery.error?.message ||
-            fixtureEventsQuery.error?.message ||
-            "Something went wrong."
+            fixtureEventsQuery.error?.message
           }
         />
       </div>
