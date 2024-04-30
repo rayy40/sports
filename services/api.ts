@@ -95,42 +95,38 @@ function createAxiosInstance(sport: Sports) {
 }
 
 export const getLeagueById = async (id: number, sport: Sports) => {
-  try {
-    const axiosInstance = createAxiosInstance(sport);
-    switch (sport) {
-      case "basketball":
-      case "baseball":
-      case "rugby":
-      case "hockey":
-        const response = await axiosInstance.get<
-          APIResponse<League<Seasons[]>>
-        >(`/leagues?id=${id}`);
-        if (!Array.isArray(response.data.errors)) {
-          throw new Error(errorMessage);
-        }
-        return response.data.response?.[0];
-      case "australian-football":
-        const AFLresponse = await axiosInstance.get<
-          APIResponse<AustralianFootballLeagueOrTeamInfo>
-        >(`/leagues?id=${id}`);
-        if (!Array.isArray(AFLresponse.data.errors)) {
-          throw new Error(errorMessage);
-        }
-        return AFLresponse.data.response;
-      case "american-football":
-      case "football":
-        const footballResponse = await axiosInstance.get<APIResponse<Leagues>>(
-          `/leagues?id=${id}`
-        );
-        if (!Array.isArray(footballResponse.data.errors)) {
-          throw new Error(errorMessage);
-        }
-        return footballResponse.data.response?.[0];
-      default:
-        throw new Error("Unrecognized sport.");
-    }
-  } catch (error) {
-    return (error as Error).message;
+  const axiosInstance = createAxiosInstance(sport);
+  switch (sport) {
+    case "basketball":
+    case "baseball":
+    case "rugby":
+    case "hockey":
+      const response = await axiosInstance.get<APIResponse<League<Seasons[]>>>(
+        `/leagues?id=${id}`
+      );
+      if (!Array.isArray(response.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return response.data.response?.[0];
+    case "australian-football":
+      const AFLresponse = await axiosInstance.get<
+        APIResponse<AustralianFootballLeagueOrTeamInfo>
+      >(`/leagues?id=${id}`);
+      if (!Array.isArray(AFLresponse.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return AFLresponse.data.response;
+    case "american-football":
+    case "football":
+      const footballResponse = await axiosInstance.get<APIResponse<Leagues>>(
+        `/leagues?id=${id}`
+      );
+      if (!Array.isArray(footballResponse.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return footballResponse.data.response?.[0];
+    default:
+      throw new Error("Unrecognized sport.");
   }
 };
 
@@ -139,51 +135,47 @@ export const getTeamById = async (
   sport: Sports,
   isNBATeam: boolean = false
 ) => {
-  try {
-    const axiosInstance = createAxiosInstance(sport);
-    switch (sport) {
-      case "basketball":
-        if (isNBATeam) {
-          const nbaTeamResponse = await axiosNBAInstance.get<
-            APIResponse<NBATeamresponse>
-          >(`/teams?id=${id}`);
-          if (!Array.isArray(nbaTeamResponse.data.errors)) {
-            throw new Error(errorMessage);
-          }
-          return nbaTeamResponse.data.response?.[0];
-        }
-      case "baseball":
-      case "rugby":
-      case "hockey":
-      case "american-football":
-        const response = await axiosInstance.get<APIResponse<TeamResponse>>(
-          `/teams?id=${id}`
-        );
-        if (!Array.isArray(response.data.errors)) {
-          throw new Error(errorMessage);
-        }
-        return response.data.response?.[0];
-      case "australian-football":
-        const AFLresponse = await axiosInstance.get<APIResponse<Team>>(
-          `/teams?id=${id}`
-        );
-        if (!Array.isArray(AFLresponse.data.errors)) {
-          throw new Error(errorMessage);
-        }
-        return AFLresponse.data.response?.[0];
-      case "football":
-        const footballResponse = await axiosInstance.get<
-          APIResponse<FootballTeamResponse>
+  const axiosInstance = createAxiosInstance(sport);
+  switch (sport) {
+    case "basketball":
+      if (isNBATeam) {
+        const nbaTeamResponse = await axiosNBAInstance.get<
+          APIResponse<NBATeamresponse>
         >(`/teams?id=${id}`);
-        if (!Array.isArray(footballResponse.data.errors)) {
+        if (!Array.isArray(nbaTeamResponse.data.errors)) {
           throw new Error(errorMessage);
         }
-        return footballResponse.data.response?.[0];
-      default:
-        throw new Error("Unrecognized sport.");
-    }
-  } catch (error) {
-    return (error as Error).message;
+        return nbaTeamResponse.data.response?.[0];
+      }
+    case "baseball":
+    case "rugby":
+    case "hockey":
+    case "american-football":
+      const response = await axiosInstance.get<APIResponse<TeamResponse>>(
+        `/teams?id=${id}`
+      );
+      if (!Array.isArray(response.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return response.data.response?.[0];
+    case "australian-football":
+      const AFLresponse = await axiosInstance.get<APIResponse<Team>>(
+        `/teams?id=${id}`
+      );
+      if (!Array.isArray(AFLresponse.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return AFLresponse.data.response?.[0];
+    case "football":
+      const footballResponse = await axiosInstance.get<
+        APIResponse<FootballTeamResponse>
+      >(`/teams?id=${id}`);
+      if (!Array.isArray(footballResponse.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return footballResponse.data.response?.[0];
+    default:
+      throw new Error("Unrecognized sport.");
   }
 };
 
@@ -195,18 +187,14 @@ export const getTeamSeasons = async (id: number, sport: Sports) => {
 };
 
 export const getFixturesByDate = async (date: string, sport: Sports) => {
-  try {
-    const axiosInstance = createAxiosInstance(sport);
-    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
-      `/${sport === "football" ? "fixtures" : "games"}?date=${date}`
-    );
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
-    }
-    return response.data.response;
-  } catch (error) {
-    return (error as Error).message;
+  const axiosInstance = createAxiosInstance(sport);
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    `/${sport === "football" ? "fixtures" : "games"}?date=${date}`
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return response.data.response;
 };
 
 export const getFixturesByLeagueIdAndSeason = async (
@@ -221,26 +209,21 @@ export const getFixturesByLeagueIdAndSeason = async (
       "No season found. A season is required to fetch fixtures for a particular league."
     );
   }
-
-  try {
-    const axiosInstance = !isNBAFixture
-      ? createAxiosInstance(sport)
-      : axiosNBAInstance;
-    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
-      `/${sport === "football" ? "fixtures" : "games"}?season=${season}`,
-      {
-        params: {
-          ...(isNBAFixture ? {} : { league: leagueId }),
-        },
-      }
-    );
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
+  const axiosInstance = !isNBAFixture
+    ? createAxiosInstance(sport)
+    : axiosNBAInstance;
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    `/${sport === "football" ? "fixtures" : "games"}?season=${season}`,
+    {
+      params: {
+        ...(isNBAFixture ? {} : { league: leagueId }),
+      },
     }
-    return response.data.response;
-  } catch (error) {
-    return (error as Error).message;
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return response.data.response;
 };
 
 export const getFixturesByTeamIdAndSeason = async (
@@ -254,28 +237,23 @@ export const getFixturesByTeamIdAndSeason = async (
       "No season found. A season is required to fetch fixtures for a particular league."
     );
   }
-
-  try {
-    const axiosInstance = !isNBATeam
-      ? createAxiosInstance(sport)
-      : axiosNBAInstance;
-    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
-      `/${
-        sport === "football" ? "fixtures" : "games"
-      }?season=${season}&team=${teamId}`,
-      {
-        params: {
-          ...(sport === "australian-football" ? { league: 1 } : {}),
-        },
-      }
-    );
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
+  const axiosInstance = !isNBATeam
+    ? createAxiosInstance(sport)
+    : axiosNBAInstance;
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    `/${
+      sport === "football" ? "fixtures" : "games"
+    }?season=${season}&team=${teamId}`,
+    {
+      params: {
+        ...(sport === "australian-football" ? { league: 1 } : {}),
+      },
     }
-    return response.data.response;
-  } catch (error) {
-    return (error as Error).message;
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return response.data.response;
 };
 
 export const getNBASeasons = async () => {
@@ -295,25 +273,20 @@ export const getStandingsByLeagueIdAndSeason = async (
       "No season found. A season is required to fetch fixtures for a particular league."
     );
   }
-
-  try {
-    const axiosInstance = !isNBAStandings
-      ? createAxiosInstance(sport)
-      : axiosNBAInstance;
-    const response = await axiosInstance.get<
-      APIResponse<WithoutStandingEntity | Standings[]>
-    >(`/standings?season=${season}`, {
-      params: {
-        ...(isNBAStandings ? { league: "standard" } : { league: id }),
-      },
-    });
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
-    }
-    return response.data.response;
-  } catch (error) {
-    return (error as Error).message;
+  const axiosInstance = !isNBAStandings
+    ? createAxiosInstance(sport)
+    : axiosNBAInstance;
+  const response = await axiosInstance.get<
+    APIResponse<WithoutStandingEntity | Standings[]>
+  >(`/standings?season=${season}`, {
+    params: {
+      ...(isNBAStandings ? { league: "standard" } : { league: id }),
+    },
+  });
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return response.data.response;
 };
 
 export const getStandingsByTeamIdAndSeason = async (
@@ -335,28 +308,24 @@ export const getStandingsByTeamIdAndSeason = async (
     );
   }
 
-  try {
-    const axiosInstance = !isNBATeam
-      ? createAxiosInstance(sport)
-      : axiosNBAInstance;
-    const response = await axiosInstance.get<
-      APIResponse<WithoutStandingEntity | Standings[]>
-    >(`/standings?season=${season}&team=${teamId}`, {
-      params: {
-        ...(isNBATeam
-          ? { league: "standard" }
-          : sport === "football"
-          ? {}
-          : { league: leagueId }),
-      },
-    });
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
-    }
-    return response.data.response;
-  } catch (error) {
-    return (error as Error).message;
+  const axiosInstance = !isNBATeam
+    ? createAxiosInstance(sport)
+    : axiosNBAInstance;
+  const response = await axiosInstance.get<
+    APIResponse<WithoutStandingEntity | Standings[]>
+  >(`/standings?season=${season}&team=${teamId}`, {
+    params: {
+      ...(isNBATeam
+        ? { league: "standard" }
+        : sport === "football"
+        ? {}
+        : { league: leagueId }),
+    },
+  });
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return response.data.response;
 };
 
 export const getTeamStatisticsBySeason = async (
@@ -413,26 +382,21 @@ export const getPlayersForTeam = async (
   sport: Sports
 ) => {
   if (!season) return undefined;
-
-  try {
-    const axiosInstance = createAxiosInstance(sport);
-    const response = await axiosInstance.get<APIResponse<AllSportsPlayesr>>(
-      sport === "football"
-        ? `players/squads?team=${teamId}`
-        : `players?team=${teamId}`,
-      {
-        params: {
-          ...(sport == "football" ? {} : { season: season }),
-        },
-      }
-    );
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
+  const axiosInstance = createAxiosInstance(sport);
+  const response = await axiosInstance.get<APIResponse<AllSportsPlayesr>>(
+    sport === "football"
+      ? `players/squads?team=${teamId}`
+      : `players?team=${teamId}`,
+    {
+      params: {
+        ...(sport == "football" ? {} : { season: season }),
+      },
     }
-    return response.data.response;
-  } catch (error) {
-    return (error as Error).message;
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return response.data.response;
 };
 
 export const getPlayerStandings = async (
@@ -480,20 +444,16 @@ export const getFixtureById = async (
   sport: Sports,
   isNBATeam: boolean = false
 ) => {
-  try {
-    const axiosInstance = !isNBATeam
-      ? createAxiosInstance(sport)
-      : axiosNBAInstance;
-    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
-      `/${sport === "football" ? "fixtures" : "games"}?id=${fixtureId}`
-    );
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
-    }
-    return isNBATeam ? response.data.response : response.data.response?.[0];
-  } catch (error) {
-    return (error as Error).message;
+  const axiosInstance = !isNBATeam
+    ? createAxiosInstance(sport)
+    : axiosNBAInstance;
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    `/${sport === "football" ? "fixtures" : "games"}?id=${fixtureId}`
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return isNBATeam ? response.data.response : response.data.response?.[0];
 };
 
 export const getHeadtoHeadFixtures = async (
@@ -501,27 +461,23 @@ export const getHeadtoHeadFixtures = async (
   teamId2: number,
   sport: Sports
 ) => {
-  try {
-    const axiosInstance = createAxiosInstance(sport);
-    const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
-      sport === "football"
-        ? "fixtures/headtohead"
-        : sport === "basketball"
-        ? "games"
-        : "games/h2h",
-      {
-        params: {
-          h2h: `${teamId1}-${teamId2}`,
-        },
-      }
-    );
-    if (!Array.isArray(response.data.errors)) {
-      throw new Error(errorMessage);
+  const axiosInstance = createAxiosInstance(sport);
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    sport === "football"
+      ? "fixtures/headtohead"
+      : sport === "basketball"
+      ? "games"
+      : "games/h2h",
+    {
+      params: {
+        h2h: `${teamId1}-${teamId2}`,
+      },
     }
-    return response.data.response;
-  } catch (error) {
-    return (error as Error).message;
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
   }
+  return response.data.response;
 };
 
 export const getFixtureEvents = async (fixtureId: number, sport: Sports) => {
@@ -567,4 +523,40 @@ export const getFixtureStatistics = async (
     default:
       return undefined;
   }
+};
+
+export const getNBAFixtures = async (date: string) => {
+  const axiosInstance = createAxiosInstance("basketball");
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    `/games?league=12&date=${date}&season=2023-2024`
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
+  }
+  return response.data.response;
+};
+
+export const getMLBFixtures = async (date: string) => {
+  const axiosInstance = createAxiosInstance("baseball");
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    `/games?league=1&date=${date}&season=2024`
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
+  }
+  return response.data.response;
+};
+
+export const getFeaturedFootballFixtures = async (
+  date: string,
+  leagueId: number
+) => {
+  const axiosInstance = createAxiosInstance("football");
+  const response = await axiosInstance.get<APIResponse<AllSportsFixtures>>(
+    `/fixtures?league=${leagueId}&date=${date}&season=2023`
+  );
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
+  }
+  return response.data.response;
 };
