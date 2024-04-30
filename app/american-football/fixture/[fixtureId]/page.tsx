@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Show various data for NFL.",
 };
 
-export const getFixture = cache(async (id: number) => {
+const getFixture = cache(async (id: number) => {
   return await getFixtureById(id, "american-football");
 });
 

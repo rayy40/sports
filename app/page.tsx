@@ -12,24 +12,22 @@ import BoxFixture from "@/components/ui/BoxFixture";
 import { getFixtureData } from "@/lib/utils";
 import MobileFilterWrapper from "@/components/ui/MobileFilterWrapper";
 
-export const getNBAFeatuerdFixtures = cache(async (date: string) => {
+const getNBAFeatuerdFixtures = cache(async (date: string) => {
   return await getNBAFixtures(date);
 });
 
-export const getMLBFeaturedFixtures = cache(async (date: string) => {
+const getMLBFeaturedFixtures = cache(async (date: string) => {
   return await getMLBFixtures(date);
 });
 
-export const getFootballFeaturedFixtures = cache(
-  async (date: string, id: number) => {
-    return await getFeaturedFootballFixtures(date, id);
-  }
-);
+const getFootballFeaturedFixtures = cache(async (date: string, id: number) => {
+  return await getFeaturedFootballFixtures(date, id);
+});
 
-export const getAFLFeaturedFixtures = cache(async (date: string) => {
+const getAFLFeaturedFixtures = cache(async (date: string) => {
   return await getFixturesByDate(date, "australian-football");
 });
-export const getNFLFeaturedFixtures = cache(async (date: string) => {
+const getNFLFeaturedFixtures = cache(async (date: string) => {
   return await getFixturesByDate(date, "american-football");
 });
 

@@ -13,15 +13,15 @@ export const metadata: Metadata = {
   description: "Show various data for basketball.",
 };
 
-export const getLeague = cache(async (id: number) => {
+const getLeague = cache(async (id: number) => {
   return await getLeagueById(id, "basketball");
 });
 
-export const getFixture = cache(async (id: number, season: string) => {
+const getFixture = cache(async (id: number, season: string) => {
   return await getFixturesByLeagueIdAndSeason(id, season, "basketball");
 });
 
-export const getSeasons = cache(async () => {
+const getSeasons = cache(async () => {
   return await getNBASeasons();
 });
 

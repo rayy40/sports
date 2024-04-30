@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: "Show various data for football.",
 };
 
-export const getFixture = cache(async (id: number) => {
+const getFixture = cache(async (id: number) => {
   return await getFixtureById(id, "football");
 });
 

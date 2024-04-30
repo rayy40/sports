@@ -12,11 +12,11 @@ export const metadata: Metadata = {
   description: "Show various data for baseball.",
 };
 
-export const getTeam = cache(async (id: number) => {
+const getTeam = cache(async (id: number) => {
   return await getTeamById(id, "baseball");
 });
 
-export const getFixture = cache(async (id: number, season: string) => {
+const getFixture = cache(async (id: number, season: string) => {
   return await getFixturesByTeamIdAndSeason(id, season, "baseball");
 });
 
