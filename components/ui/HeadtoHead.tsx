@@ -13,7 +13,7 @@ type Props = {
 
 const HeadtoHead = ({ fixtures, sport }: Props) => {
   return (
-    <div className="max-w-[1000px] mx-auto">
+    <div className="max-w-[1000px] w-full mx-auto">
       {fixtures
         .filter((fixture) => {
           const { fixtureStatus } = getFixtureData(fixture);
@@ -36,7 +36,7 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
           } = getFixtureData(fixture);
           return (
             <div key={fixtureId} className="border-b">
-              <div className="text-center w-full text-muted-foreground text-xs py-4 border-b">
+              <div className="w-full py-4 text-xs text-center border-b text-muted-foreground">
                 {format(fixtureDate, "EEEE d MMMM yyyy")}
               </div>
               <Link href={`/${sport}/fixture/${fixtureId}`}>
@@ -49,7 +49,7 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
                     />
                     <p className="text-left">{homeTeam.name}</p>
                   </div>
-                  <div className="flex lg:ml-6 ml-4 items-center gap-2 lg:gap-4">
+                  <div className="flex items-center gap-2 ml-4 lg:ml-6 lg:gap-4">
                     <p
                       className={`${
                         isHomeTeamWinner

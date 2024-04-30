@@ -83,7 +83,11 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
         </div>
       );
     }
-    return <Lineups lineups={fixture.lineups} sport={sport} />;
+    return (
+      <div className="flex-1 w-full overflow-y-auto">
+        <Lineups lineups={fixture.lineups} sport={sport} />
+      </div>
+    );
   }
 
   if (tab === "Match Stats" && isFootballDetailedFixture(fixture)) {
@@ -94,7 +98,11 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
         </div>
       );
     }
-    return <MatchStat stats={fixture.statistics} />;
+    return (
+      <div className="flex-1 w-full overflow-y-auto">
+        <MatchStat stats={fixture.statistics} />
+      </div>
+    );
   } else if (tab === "Match Stats") {
     if (
       !fixtureStatisticsQuery.data ||
@@ -106,7 +114,11 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
         </div>
       );
     }
-    return <MatchStat stats={fixtureStatisticsQuery.data} />;
+    return (
+      <div className="flex-1 w-full overflow-y-auto">
+        <MatchStat stats={fixtureStatisticsQuery.data} />
+      </div>
+    );
   }
 
   if (tab === "Play By Play" && isFootballDetailedFixture(fixture)) {
@@ -117,7 +129,11 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
         </div>
       );
     }
-    return <PlayByPlay events={fixture.events} sport={sport} />;
+    return (
+      <div className="flex-1 w-full overflow-y-auto">
+        <PlayByPlay events={fixture.events} sport={sport} />
+      </div>
+    );
   } else if (tab === "Play By Play") {
     if (!fixtureEventsQuery.data || fixtureEventsQuery.data.length === 0) {
       return (
@@ -126,7 +142,11 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
         </div>
       );
     }
-    return <PlayByPlay events={fixtureEventsQuery.data} sport={sport} />;
+    return (
+      <div className="flex-1 w-full overflow-y-auto">
+        <PlayByPlay events={fixtureEventsQuery.data} sport={sport} />
+      </div>
+    );
   }
 
   if (
@@ -139,7 +159,11 @@ const FixtureFilterWrapper = ({ fixture, sport }: Props) => {
       </div>
     );
   }
-  return <HeadtoHead fixtures={headToHeadFixturesQuery.data} sport={sport} />;
+  return (
+    <div className="flex-1 w-full overflow-y-auto">
+      <HeadtoHead fixtures={headToHeadFixturesQuery.data} sport={sport} />
+    </div>
+  );
 };
 
 export default FixtureFilterWrapper;

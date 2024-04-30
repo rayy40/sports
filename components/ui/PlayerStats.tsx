@@ -1,4 +1,4 @@
-import { PlayerStats } from "@/types/football";
+import { PlayerStats as TPlayerStats } from "@/types/football";
 import {
   getCoreRowModel,
   useReactTable,
@@ -17,7 +17,7 @@ import {
 import { topAssistColumns } from "../Table/topAssistColumns";
 
 type Props = {
-  data: PlayerStats[];
+  data: TPlayerStats[];
   stat: string | null;
 };
 

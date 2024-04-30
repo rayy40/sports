@@ -85,7 +85,7 @@ const PlayByPlay = ({ events, sport }: Props) => {
   );
 
   return (
-    <div className="max-w-[1000px] mx-auto">
+    <div className="max-w-[1000px] w-full mx-auto">
       {eventsByPeriods &&
         Object.keys(eventsByPeriods).map((period) => (
           <div key={period}>

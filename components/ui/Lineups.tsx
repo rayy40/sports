@@ -1,17 +1,17 @@
-import { Lineups } from "@/types/football";
+import { Lineups as TLineups } from "@/types/football";
 import { Sports } from "@/types/general";
 import React from "react";
 
 type Props = {
-  lineups: Lineups[];
+  lineups: TLineups[];
   sport: Sports;
 };
 
-const Lineup = ({ lineup, isAway }: { lineup: Lineups; isAway: boolean }) => {
+const Lineup = ({ lineup, isAway }: { lineup: TLineups; isAway: boolean }) => {
   if (!lineup) return <p>No lineup found.</p>;
 
   return (
-    <div className="space-y-10 w-full">
+    <div className="w-full space-y-10">
       <div>
         <p
           className={`${
@@ -28,7 +28,7 @@ const Lineup = ({ lineup, isAway }: { lineup: Lineups; isAway: boolean }) => {
             key={player?.id}
           >
             {isAway && player?.name}
-            <span className=" text-sm text-muted-foreground">
+            <span className="text-sm  text-muted-foreground">
               {player?.pos}
             </span>
             {!isAway && player?.name}
@@ -62,7 +62,7 @@ const Lineup = ({ lineup, isAway }: { lineup: Lineups; isAway: boolean }) => {
 
 const Lineups = ({ lineups, sport }: Props) => {
   return (
-    <div className="max-w-[1000px] mx-auto">
+    <div className="max-w-[1000px] w-full mx-auto">
       <div className="flex justify-between">
         <Lineup lineup={lineups?.[0]} isAway={false} />
         <Lineup lineup={lineups?.[1]} isAway={true} />

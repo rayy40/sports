@@ -80,7 +80,7 @@ const MatchStat = ({ stats }: Props) => {
     : undefined;
 
   return (
-    <div className="max-w-[1000px] mx-auto">
+    <div className="max-w-[1000px] w-full mx-auto">
       <Table className="my-6">
         <TableBody>
           {mergedStats &&
