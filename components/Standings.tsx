@@ -107,7 +107,7 @@ const STable = ({
   });
 
   return (
-    <Table className="border-b overflow-x-auto w-full">
+    <Table className="w-full overflow-x-auto border-b">
       <TableHeader>
         {standingsTable?.getHeaderGroups().map((headerGroup) => (
           <TableRow
@@ -259,9 +259,7 @@ const renderStandingsByLeague = (
 
 const Standings = ({ standing, sport }: Props) => {
   return (
-    <div className="h-full overflow-y-auto">
-      {renderStandingsByLeague(standing, sport)}
-    </div>
+    <div className="h-full">{renderStandingsByLeague(standing, sport)}</div>
   );
 };
 

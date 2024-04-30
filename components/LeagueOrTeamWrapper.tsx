@@ -5,12 +5,7 @@ import {
   useFixturesByLeagueIdAndSeason,
   useFixturesByTeamIdAndSeason,
 } from "@/services/queries";
-import {
-  Seasons,
-  Sports,
-  AllSportsFixtures,
-  isAPIError,
-} from "@/types/general";
+import { Seasons, Sports, AllSportsFixtures } from "@/types/general";
 import {
   ColumnFiltersState,
   Table,
@@ -82,9 +77,9 @@ const RootComponent = ({
 
   let data: AllSportsFixtures[] | undefined = undefined;
 
-  if (isTeam && teamFixtures && !isAPIError(teamFixtures)) {
+  if (isTeam && teamFixtures) {
     data = teamFixtures;
-  } else if (!isTeam && leagueFixtures && !isAPIError(leagueFixtures)) {
+  } else if (!isTeam && leagueFixtures) {
     data = leagueFixtures;
   } else if (fixtures) {
     data = fixtures;
@@ -177,6 +172,7 @@ const RootComponent = ({
     return (
       <Error
         message={teamFixturesError?.message ?? leagueFixturesError?.message}
+        sport={sport}
       />
     );
   }
@@ -201,7 +197,7 @@ const RootComponent = ({
           sport
         )}
       </div>
-      <div className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         {renderContent(
           isFetchingLeagueFixtures,
           isFetchingTeamFixtures,
