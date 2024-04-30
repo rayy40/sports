@@ -251,7 +251,7 @@ export const filterSearch = <T extends { name: string }>(
 
   if (keyword !== "") {
     const results = data?.filter((d) => {
-      return d.name.toLowerCase().startsWith(keyword.toLowerCase());
+      return d.name.toLowerCase().includes(keyword.toLowerCase());
     });
     setData(results ?? []);
   } else {

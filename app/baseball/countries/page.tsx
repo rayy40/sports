@@ -7,7 +7,7 @@ import { Country } from "@/types/general";
 
 const Page = () => {
   const { initialData, value, values, setValue, setValues, isLoading } =
-    useCountriesOrLeagues<Country>("countries", "football");
+    useCountriesOrLeagues<Country>("countries", "baseball");
 
   if (isLoading) {
     return (
@@ -25,7 +25,7 @@ const Page = () => {
       values={values}
       setValues={setValues}
       type={"countries"}
-      sport={"football"}
+      sport={"baseball"}
     />
   );
 };

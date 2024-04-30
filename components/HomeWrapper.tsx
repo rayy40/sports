@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Virtuoso } from "react-virtuoso";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import BoxFixture from "./ui/BoxFixture";
 import {
   useDateStore,
@@ -18,21 +18,31 @@ import {
   getLeagueId,
   getLeagueName,
 } from "@/lib/utils";
-import { AllSportsFixtures, Sports } from "@/types/general";
+import { AllSportsFixtures, Country, Sports } from "@/types/general";
 import Error from "./Error";
 import { useFixturesByDate } from "@/services/queries";
+import BoxList from "./ui/BoxList";
 
 type Props = {
   sport: Sports;
+  countries?: Country[] | null;
   isFootball?: boolean;
 };
 
-const HomeFixtures = ({ sport, isFootball = false }: Props) => {
+const HomeFixtures = ({ sport, countries, isFootball = false }: Props) => {
   const { status } = useStatusStore();
   const { date } = useDateStore();
   const { league } = useLeagueStore();
   const { team } = useTeamStore();
   const formattedDate = format(date, "yyyy-MM-dd");
+
+  useEffect(() => {
+    if (!countries) return;
+    window.localStorage.setItem(
+      `${sport}-countries`,
+      JSON.stringify(countries)
+    );
+  }, [countries, sport]);
 
   const { data, isFetching, isError, error } = useFixturesByDate(
     formattedDate,
@@ -117,36 +127,70 @@ const HomeFixtures = ({ sport, isFootball = false }: Props) => {
   }
 
   return (
-    <Virtuoso
-      data={filteredFixtures}
-      itemContent={(_, fixtures) => (
-        <div className="px-3 py-10 space-y-4 border-b lg:space-y-2 lg:px-6">
-          <div className="flex items-center justify-between w-full px-1 py-2 rounded-sm bg-secondary/70">
-            <Link
-              className="text-[1rem] font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
-              href={`/${sport}/league/${fixtures[0].leagueId}`}
-            >
-              {fixtures[0].leagueName}
-            </Link>
-            <Link
-              href={`/${sport}/league/${fixtures[0].leagueId}`}
-              className="mr-2 text-sm text-secondary-foreground underline-hover"
-            >
-              See more
-            </Link>
-          </div>
-          <div className="grid gap-6 grid-cols-fixtures">
-            {fixtures.map((fixture) => (
-              <BoxFixture
-                key={getFixtureData(fixture).fixtureId}
-                sport={sport}
-                fixture={getFixtureData(fixture)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    />
+    <div className="h-full">
+      <Virtuoso
+        data={filteredFixtures}
+        itemContent={(index, fixtures) => (
+          <>
+            {index === 0 && countries && (
+              <div className="px-3 border-b py-10 space-y-4 lg:px-6">
+                <div className="flex items-center justify-between w-full px-1 py-2 rounded-sm bg-secondary/50">
+                  <Link
+                    className="text-[1rem] font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
+                    href={`/${sport}/countries`}
+                  >
+                    Countries
+                  </Link>
+                  <Link
+                    className="mr-2 text-sm text-secondary-foreground underline-hover"
+                    href={`/${sport}/countries`}
+                  >
+                    See more
+                  </Link>
+                </div>
+                <div className="grid gap-6 grid-cols-fixtures">
+                  {countries
+                    .filter((_, index) => index < 5)
+                    .map((country) => (
+                      <BoxList
+                        key={country.code}
+                        logo={country.flag}
+                        name={country.name}
+                        url={`/${sport}/countries/${country.code}/league`}
+                      />
+                    ))}
+                </div>
+              </div>
+            )}
+            <div className="px-3 py-10 space-y-4 border-b lg:px-6">
+              <div className="flex items-center justify-between w-full px-1 py-2 rounded-sm bg-secondary/50">
+                <Link
+                  className="text-[1rem] font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
+                  href={`/${sport}/league/${fixtures[0].leagueId}`}
+                >
+                  {fixtures[0].leagueName}
+                </Link>
+                <Link
+                  href={`/${sport}/league/${fixtures[0].leagueId}`}
+                  className="mr-2 text-sm text-secondary-foreground underline-hover"
+                >
+                  See more
+                </Link>
+              </div>
+              <div className="grid gap-6 grid-cols-fixtures">
+                {fixtures.map((fixture) => (
+                  <BoxFixture
+                    key={getFixtureData(fixture).fixtureId}
+                    sport={sport}
+                    fixture={getFixtureData(fixture)}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      />
+    </div>
   );
 };
 

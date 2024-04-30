@@ -21,6 +21,7 @@ import {
   APIResponse,
   AllSportsFixtures,
   AllSportsPlayesr,
+  Country,
   League,
   Seasons,
   Sports,
@@ -93,6 +94,42 @@ function createAxiosInstance(sport: Sports) {
     },
   });
 }
+
+export const getCountries = async (sport: Sports) => {
+  const axiosInstance = createAxiosInstance(sport);
+  const response = await axiosInstance.get<APIResponse<Country>>("/countries");
+  if (!Array.isArray(response.data.errors)) {
+    throw new Error(errorMessage);
+  }
+  return response.data.response;
+};
+
+export const getLeaguesByCode = async (sport: Sports, code: string) => {
+  const axiosInstance = createAxiosInstance(sport);
+  switch (sport) {
+    case "basketball":
+    case "baseball":
+    case "rugby":
+    case "hockey":
+      const response = await axiosInstance.get<APIResponse<League<Seasons[]>>>(
+        `/leagues?code=${code}`
+      );
+      if (!Array.isArray(response.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return response.data.response?.[0];
+    case "football":
+      const footballResponse = await axiosInstance.get<APIResponse<Leagues>>(
+        `/leagues?code=${code}`
+      );
+      if (!Array.isArray(footballResponse.data.errors)) {
+        throw new Error(errorMessage);
+      }
+      return footballResponse.data.response?.[0];
+    default:
+      throw new Error("Unrecognized sport.");
+  }
+};
 
 export const getLeagueById = async (id: number, sport: Sports) => {
   const axiosInstance = createAxiosInstance(sport);

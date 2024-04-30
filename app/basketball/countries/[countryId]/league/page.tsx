@@ -3,11 +3,11 @@
 import CountriesWrapper from "@/components/CountriesWrapper";
 import Loading from "@/components/Loading";
 import useCountriesOrLeagues from "@/hooks/useCountriesOrLeagues";
-import { Country } from "@/types/general";
+import { League, Seasons } from "@/types/general";
 
 const Page = () => {
   const { initialData, value, values, setValue, setValues, isLoading } =
-    useCountriesOrLeagues<Country>("countries", "football");
+    useCountriesOrLeagues<League<Seasons[]>>("leagues", "basketball");
 
   if (isLoading) {
     return (
@@ -18,14 +18,14 @@ const Page = () => {
   }
 
   return (
-    <CountriesWrapper<Country>
+    <CountriesWrapper<League<Seasons[]>>
       initialData={initialData}
       value={value}
       setValue={setValue}
       values={values}
       setValues={setValues}
-      type={"countries"}
-      sport={"football"}
+      type={"league"}
+      sport={"basketball"}
     />
   );
 };
