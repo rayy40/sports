@@ -1,8 +1,4 @@
-export interface Country {
-  name: string;
-  code: string;
-  flag: string;
-}
+import { Country } from "./general";
 
 export interface Fixtures {
   fixture: Fixture;
