@@ -1,59 +1,59 @@
-import { Team } from "@/types/general";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
 import { getFixturesByTeamIdAndSeason, getTeamById } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
+import { Team } from "@/types/general";
 import { seasonsList } from "@/lib/constants";
+import ErrorBoundary from "@/components/Error";
 import NotFound from "@/components/ui/NotFound";
-import Error from "@/components/Error";
+import { cache } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "AFL",
+  description: "Show various data for AFL.",
+};
+
+export const getTeam = cache(async (id: number) => {
+  return await getTeamById(id, "australian-football");
+});
+
+export const getFixture = cache(async (id: number, season: string) => {
+  return await getFixturesByTeamIdAndSeason(id, season, "australian-football");
+});
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const teamId = parseInt(params.teamId);
-  const queryClient = new QueryClient();
-  const team: Team = await queryClient.fetchQuery({
-    queryKey: [teamId, "australian-football", "team"],
-    queryFn: () => getTeamById(teamId, "australian-football"),
-  });
+  try {
+    const team = (await getTeam(teamId)) as Team;
 
-  if (!team) {
-    return <NotFound type="team" sport="australian-football" />;
-  }
+    if (!team) {
+      return <NotFound type="team" sport="australian-football" />;
+    }
 
-  const season = "2023";
+    const season = "2023";
 
-  const fixtures = await queryClient.fetchQuery({
-    queryKey: [teamId, season, "australian-football", "fixtures"],
-    queryFn: () =>
-      getFixturesByTeamIdAndSeason(teamId, season, "australian-football"),
-  });
+    const fixtures = await getFixture(teamId, season);
 
-  if (typeof fixtures === "string") {
     return (
-      <div className="h-screen w-full">
-        <Error message={fixtures} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative font-sans">
-      <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="relative font-sans">
         <LeagueOrTeamWrapper
-          title={team?.name}
-          logo={team?.logo}
-          isTeam={true}
+          title={team.name}
+          logo={team.logo}
           id={team.id}
           seasons={seasonsList}
           sport="australian-football"
-          currSeason={season}
+          isTeam={true}
+          currSeason={season ?? "-"}
           fixtures={fixtures ?? []}
         />
-      </HydrationBoundary>
-    </div>
-  );
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div className="w-full h-screen">
+        <ErrorBoundary message={(error as Error).message} sport="basketball" />
+      </div>
+    );
+  }
 };
 
 export default Page;

@@ -1,41 +1,41 @@
-import Error from "@/components/Error";
+import React, { cache } from "react";
+
+import ErrorBoundary from "@/components/Error";
 import FixtureFilterWrapper from "@/components/FixtureFilterWrapper";
 import FixtureHeader from "@/components/ui/FixtureHeader";
 import { getFixtureById } from "@/services/api";
 import { AllSportsFixtures, FixtureTabsType } from "@/types/general";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
-import React from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Rugby",
+  description: "Show various data for rugby.",
+};
+
+export const getFixture = cache(async (id: number) => {
+  return await getFixtureById(id, "rugby");
+});
 
 const Page = async ({ params }: { params: { fixtureId: string } }) => {
   const fixtureId = parseInt(params.fixtureId);
-  const queryClient = new QueryClient();
-  const fixture: AllSportsFixtures = await queryClient.fetchQuery({
-    queryKey: [fixtureId, "rugby", "fixture"],
-    queryFn: () => getFixtureById(fixtureId, "rugby"),
-  });
+  try {
+    const fixture = (await getFixture(fixtureId)) as AllSportsFixtures;
 
-  const tabs: FixtureTabsType[] = ["Head to Head"];
+    const tabs: FixtureTabsType[] = ["Head to Head"];
 
-  if (typeof fixture === "string") {
+    return (
+      <div className="flex flex-col w-full h-screen font-sans bg-background">
+        <FixtureHeader fixture={fixture} tabs={tabs} />
+        <FixtureFilterWrapper fixture={fixture} sport="rugby" />
+      </div>
+    );
+  } catch (error) {
     return (
       <div className="w-full h-screen">
-        <Error message={fixture} />
+        <ErrorBoundary message={(error as Error).message} sport="rugby" />
       </div>
     );
   }
-
-  return (
-    <div className="flex flex-col w-full h-screen font-sans bg-background">
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <FixtureHeader fixture={fixture} tabs={tabs} />
-        <FixtureFilterWrapper fixture={fixture} sport="rugby" />
-      </HydrationBoundary>
-    </div>
-  );
 };
 
 export default Page;

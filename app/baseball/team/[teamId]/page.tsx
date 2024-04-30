@@ -1,46 +1,39 @@
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
 import { getFixturesByTeamIdAndSeason, getTeamById } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
 import { TeamResponse } from "@/types/general";
 import { seasonsList } from "@/lib/constants";
-import Error from "@/components/Error";
+import ErrorBoundary from "@/components/Error";
 import NotFound from "@/components/ui/NotFound";
+import { cache } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Baseball",
+  description: "Show various data for baseball.",
+};
+
+export const getTeam = cache(async (id: number) => {
+  return await getTeamById(id, "baseball");
+});
+
+export const getFixture = cache(async (id: number, season: string) => {
+  return await getFixturesByTeamIdAndSeason(id, season, "baseball");
+});
 
 const Page = async ({ params }: { params: { teamId: string } }) => {
   const teamId = parseInt(params.teamId);
-  const queryClient = new QueryClient();
+  try {
+    const team = (await getTeam(teamId)) as TeamResponse;
+    if (!team) {
+      return <NotFound type="team" sport="baseball" />;
+    }
 
-  const team: TeamResponse = await queryClient.fetchQuery({
-    queryKey: [teamId, "baseball", "team"],
-    queryFn: () => getTeamById(teamId, "baseball"),
-  });
+    const season = "2023";
 
-  if (!team) {
-    return <NotFound type="team" sport="baseball" />;
-  }
+    const fixtures = await getFixture(teamId, season);
 
-  const season = "2023";
-
-  const fixtures = await queryClient.fetchQuery({
-    queryKey: [teamId, season, "baseball", "fixtures"],
-    queryFn: () => getFixturesByTeamIdAndSeason(teamId, season, "baseball"),
-  });
-
-  if (typeof fixtures === "string") {
     return (
-      <div className="h-screen w-full">
-        <Error message={fixtures} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative font-sans">
-      <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="relative font-sans">
         <LeagueOrTeamWrapper
           title={team.name}
           logo={team.logo}
@@ -51,9 +44,15 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
           currSeason={season ?? "-"}
           fixtures={fixtures ?? []}
         />
-      </HydrationBoundary>
-    </div>
-  );
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div className="w-full h-screen">
+        <ErrorBoundary message={(error as Error).message} sport="basketball" />
+      </div>
+    );
+  }
 };
 
 export default Page;

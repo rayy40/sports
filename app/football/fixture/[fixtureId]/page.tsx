@@ -1,47 +1,47 @@
-import Error from "@/components/Error";
+import React, { cache } from "react";
+
+import ErrorBoundary from "@/components/Error";
 import FixtureFilterWrapper from "@/components/FixtureFilterWrapper";
 import FixtureHeader from "@/components/ui/FixtureHeader";
 import { getFixtureById } from "@/services/api";
 import { DetailedFixture } from "@/types/football";
 import { FixtureTabsType } from "@/types/general";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
-import React from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Football",
+  description: "Show various data for football.",
+};
+
+export const getFixture = cache(async (id: number) => {
+  return await getFixtureById(id, "football");
+});
 
 const Page = async ({ params }: { params: { fixtureId: string } }) => {
   const fixtureId = parseInt(params.fixtureId);
-  const queryClient = new QueryClient();
-  const fixture: DetailedFixture = await queryClient.fetchQuery({
-    queryKey: [fixtureId, "football", "fixture"],
-    queryFn: () => getFixtureById(fixtureId, "football"),
-  });
+  try {
+    const fixture = (await getFixture(fixtureId)) as DetailedFixture;
 
-  const tabs: FixtureTabsType[] = [
-    "Match Stats",
-    "Lineups",
-    "Play By Play",
-    "Head to Head",
-  ];
+    const tabs: FixtureTabsType[] = [
+      "Match Stats",
+      "Lineups",
+      "Play By Play",
+      "Head to Head",
+    ];
 
-  if (typeof fixture === "string") {
+    return (
+      <div className="flex flex-col w-full h-screen font-sans bg-background">
+        <FixtureHeader fixture={fixture} tabs={tabs} />
+        <FixtureFilterWrapper fixture={fixture} sport="football" />
+      </div>
+    );
+  } catch (error) {
     return (
       <div className="w-full h-screen">
-        <Error message={fixture} />
+        <ErrorBoundary message={(error as Error).message} sport="football" />
       </div>
     );
   }
-
-  return (
-    <div className="flex flex-col w-full h-screen font-sans bg-background">
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <FixtureHeader fixture={fixture} tabs={tabs} />
-        <FixtureFilterWrapper fixture={fixture} sport="football" />
-      </HydrationBoundary>
-    </div>
-  );
 };
 
 export default Page;

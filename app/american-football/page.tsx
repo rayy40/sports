@@ -1,64 +1,65 @@
-import React from "react";
+import React, { cache } from "react";
 import { NFL } from "@/Assets/Icons/Sports";
 import HomeWrapper from "@/components/HomeWrapper";
 import FilterWrapper from "@/components/FilterWrapper";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
 import { getFixturesByDate } from "@/services/api";
 import { format } from "date-fns";
 import DatePicker from "@/components/ui/DatePicker";
-import Error from "@/components/Error";
+import ErrorBoundary from "@/components/Error";
+import { AllSportsFixtures } from "@/types/general";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "NFL",
+  description: "Show various data for NFL.",
+};
+
+export const getFixture = cache(async (date: string) => {
+  return await getFixturesByDate(date, "american-football");
+});
 
 const Page = async () => {
   const date = new Date();
   const formattedDate = format(date, "yyyy-MM-dd");
-  const queryClient = new QueryClient();
+  let fixtures: AllSportsFixtures[] | null | undefined = undefined;
 
-  const fixtures = await queryClient.fetchQuery({
-    queryKey: [formattedDate, "american-football", "fixtures"],
-    queryFn: () => getFixturesByDate(formattedDate, "american-football"),
-  });
-
-  if (!fixtures) {
+  try {
+    fixtures = await getFixture(formattedDate);
+  } catch (error) {
     return (
-      <div className="flex text-sm lg:text-[1rem] items-center justify-center w-full h-screen">
-        <p>No fixtures found.</p>
+      <div className="w-full h-screen">
+        <ErrorBoundary message={(error as Error).message} />
       </div>
     );
   }
 
-  if (typeof fixtures === "string") {
+  if (!fixtures) {
     return (
-      <div className="w-full h-screen">
-        <Error message={fixtures} />
+      <div className="h-screen text-sm lg:text-[1rem] w-full flex items-center justify-center">
+        <p>No fixtures found.</p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col w-full min-h-screen font-sans bg-background">
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <div className="sticky top-0 z-10 px-3 border border-b shadow-sm lg:px-6 bg-background">
-          <div className="flex items-center justify-between py-3 lg:py-6">
-            <h2 className="flex items-center gap-2 text-xl font-medium lg:gap-3 lg:text-2xl text-secondary-foreground">
-              <NFL width={50} height={50} />
-              Games
-            </h2>
-            <DatePicker />
-          </div>
-          <FilterWrapper
-            fixtures={fixtures}
-            isHome={true}
-            sport={"american-football"}
-          />
+      <div className="sticky top-0 z-10 px-3 border border-b shadow-sm lg:px-6 bg-background">
+        <div className="flex items-center justify-between py-3 lg:py-6">
+          <h2 className="flex items-center gap-2 text-xl font-medium lg:gap-3 lg:text-2xl text-secondary-foreground">
+            <NFL width={50} height={50} />
+            Games
+          </h2>
+          <DatePicker />
         </div>
-        <div className="flex-1 overflow-y-auto">
-          <HomeWrapper sport={"american-football"} />
-        </div>
-      </HydrationBoundary>
+        <FilterWrapper
+          fixtures={fixtures}
+          isHome={true}
+          sport={"american-football"}
+        />
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <HomeWrapper sport={"american-football"} />
+      </div>
     </div>
   );
 };

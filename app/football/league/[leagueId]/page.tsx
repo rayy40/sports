@@ -1,55 +1,45 @@
-import { Fixtures, Leagues } from "@/types/football";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
+import { Leagues } from "@/types/football";
 import { getFixturesByLeagueIdAndSeason, getLeagueById } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
-import Error from "@/components/Error";
+import ErrorBoundary from "@/components/Error";
 import NotFound from "@/components/ui/NotFound";
+import { cache } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Football",
+  description: "Show various data for football.",
+};
+
+export const getLeague = cache(async (id: number) => {
+  return await getLeagueById(id, "football");
+});
+
+export const getFixture = cache(async (id: number, season: string) => {
+  return await getFixturesByLeagueIdAndSeason(id, season, "football");
+});
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
-  const queryClient = new QueryClient();
 
-  const league: Leagues = await queryClient.fetchQuery({
-    queryKey: [leagueId, "football", "league"],
-    queryFn: () => getLeagueById(leagueId, "football"),
-  });
+  try {
+    const league = (await getLeague(leagueId)) as Leagues;
 
-  if (!league) {
-    return <NotFound type="league" sport="football" />;
-  }
+    if (!league) {
+      return <NotFound type="league" sport="football" />;
+    }
 
-  if (typeof league === "string") {
+    const season =
+      league.seasons?.[league.seasons?.length - 1]?.year.toString();
+
+    if (!season) {
+      return <NotFound type="season" sport="football" />;
+    }
+
+    const fixtures = await getFixture(leagueId, season);
+
     return (
-      <div className="h-screen w-full">
-        <Error message={league} />
-      </div>
-    );
-  }
-
-  const season =
-    league?.seasons?.[league?.seasons?.length - 1]?.year.toString();
-
-  const fixtures = await queryClient.fetchQuery({
-    queryKey: [leagueId, season, "football", "fixtures"],
-    queryFn: () =>
-      getFixturesByLeagueIdAndSeason(leagueId, season!, "football"),
-  });
-
-  if (typeof fixtures === "string") {
-    return (
-      <div className="h-screen w-full">
-        <Error message={fixtures} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative font-sans">
-      <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="relative font-sans">
         <LeagueOrTeamWrapper
           title={league.league.name}
           logo={league.league.logo}
@@ -59,9 +49,15 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           currSeason={season ?? "-"}
           fixtures={fixtures ?? []}
         />
-      </HydrationBoundary>
-    </div>
-  );
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div className="w-full h-screen">
+        <ErrorBoundary message={(error as Error).message} sport="football" />
+      </div>
+    );
+  }
 };
 
 export default Page;

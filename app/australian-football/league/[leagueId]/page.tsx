@@ -1,52 +1,46 @@
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
 import { AustralianFootballLeagueOrTeamInfo } from "@/types/australian-football";
 import NotFound from "@/components/ui/NotFound";
-import Error from "@/components/Error";
+import ErrorBoundary from "@/components/Error";
+import { cache } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "AFL",
+  description: "Show various data for AFL.",
+};
+
+export const getLeague = cache(async (id: number) => {
+  return await getLeagueById(id, "australian-football");
+});
+
+export const getFixture = cache(async (id: number, season: string) => {
+  return await getFixturesByLeagueIdAndSeason(
+    id,
+    season,
+    "australian-football"
+  );
+});
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
-  const queryClient = new QueryClient();
-  const league: AustralianFootballLeagueOrTeamInfo[] =
-    await queryClient.fetchQuery({
-      queryKey: [leagueId, "australian-football", "league"],
-      queryFn: () => getLeagueById(leagueId, "australian-football"),
-    });
 
-  if (!league) {
-    return <NotFound type="league" sport="australian-football" />;
-  }
+  try {
+    const league = (await getLeague(
+      leagueId
+    )) as AustralianFootballLeagueOrTeamInfo[];
+    if (!league) {
+      return <NotFound type="league" sport="australian-football" />;
+    }
+    const seasonsList = league.map((league) => league.season);
+    const currSeason = seasonsList[seasonsList.length - 1].toString();
 
-  const seasonsList = league.map((league) => league.season);
-  const currSeason = seasonsList[seasonsList.length - 1].toString();
+    const fixtures = await getFixture(leagueId, currSeason);
 
-  const fixtures = await queryClient.fetchQuery({
-    queryKey: [leagueId, currSeason, "australian-football", "fixtures"],
-    queryFn: () =>
-      getFixturesByLeagueIdAndSeason(
-        leagueId,
-        currSeason,
-        "australian-football"
-      ),
-  });
-
-  if (typeof fixtures === "string") {
     return (
-      <div className="h-screen w-full">
-        <Error message={fixtures} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative font-sans">
-      <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="relative font-sans">
         <LeagueOrTeamWrapper
           title={league[league.length - 1].name}
           logo={league[league.length - 1].logo}
@@ -56,9 +50,15 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           currSeason={currSeason}
           fixtures={fixtures ?? []}
         />
-      </HydrationBoundary>
-    </div>
-  );
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div className="w-full h-screen">
+        <ErrorBoundary message={(error as Error).message} sport="hockey" />
+      </div>
+    );
+  }
 };
 
 export default Page;

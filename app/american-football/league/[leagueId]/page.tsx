@@ -1,58 +1,65 @@
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
-import { getLeagueById } from "@/services/api";
-import { getFixturesByLeagueIdAndSeason } from "@/services/api";
+import { getFixturesByLeagueIdAndSeason, getLeagueById } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
-import { Leagues } from "@/types/football";
+import ErrorBoundary from "@/components/Error";
 import NotFound from "@/components/ui/NotFound";
-import Error from "@/components/Error";
+import { cache } from "react";
+import { Leagues } from "@/types/football";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "NFL",
+  description: "Show various data for NFL.",
+};
+
+export const getLeague = cache(async (id: number) => {
+  return await getLeagueById(id, "american-football");
+});
+
+export const getFixture = cache(async (id: number, season: string) => {
+  return await getFixturesByLeagueIdAndSeason(id, season, "american-football");
+});
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
-  const queryClient = new QueryClient();
-  const league: Leagues = await queryClient.fetchQuery({
-    queryKey: [leagueId, "american-football", "league"],
-    queryFn: () => getLeagueById(leagueId, "american-football"),
-  });
 
-  if (!league) {
-    return <NotFound type="league" sport="american-football" />;
-  }
+  try {
+    const league = (await getLeague(leagueId)) as Leagues;
 
-  const season = league?.seasons?.[0]?.year.toString();
+    if (!league) {
+      return <NotFound type="league" sport="american-football" />;
+    }
 
-  const fixtures = await queryClient.fetchQuery({
-    queryKey: [leagueId, season, "american-football", "fixtures"],
-    queryFn: () =>
-      getFixturesByLeagueIdAndSeason(leagueId, season!, "american-football"),
-  });
+    const season = league?.seasons?.[0]?.year.toString();
 
-  if (typeof fixtures === "string") {
+    if (!season) {
+      return <NotFound type="season" sport="american-football" />;
+    }
+
+    const fixtures = await getFixture(leagueId, season);
+
     return (
-      <div className="h-screen w-full">
-        <Error message={fixtures} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative font-sans">
-      <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="relative font-sans">
         <LeagueOrTeamWrapper
           title={league.league.name}
           logo={league.league.logo}
           id={league.league.id}
-          seasons={league.seasons?.slice(0).reverse() ?? []}
+          seasons={league.seasons ?? []}
           sport="american-football"
           currSeason={season ?? "-"}
           fixtures={fixtures ?? []}
         />
-      </HydrationBoundary>
-    </div>
-  );
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div className="w-full h-screen">
+        <ErrorBoundary
+          message={(error as Error).message}
+          sport="american-football"
+        />
+      </div>
+    );
+  }
 };
 
 export default Page;

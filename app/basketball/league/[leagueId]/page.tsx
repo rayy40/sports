@@ -1,58 +1,53 @@
 import { League, Seasons } from "@/types/general";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
 import { getLeagueById } from "@/services/api";
 import { getFixturesByLeagueIdAndSeason } from "@/services/api";
 import LeagueOrTeamWrapper from "@/components/LeagueOrTeamWrapper";
 import { getNBASeasons } from "@/services/api";
-import Error from "@/components/Error";
+import ErrorBoundary from "@/components/Error";
 import NotFound from "@/components/ui/NotFound";
+import { cache } from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Basketball",
+  description: "Show various data for basketball.",
+};
+
+export const getLeague = cache(async (id: number) => {
+  return await getLeagueById(id, "basketball");
+});
+
+export const getFixture = cache(async (id: number, season: string) => {
+  return await getFixturesByLeagueIdAndSeason(id, season, "basketball");
+});
+
+export const getSeasons = cache(async () => {
+  return await getNBASeasons();
+});
 
 const Page = async ({ params }: { params: { leagueId: string } }) => {
   const leagueId = parseInt(params.leagueId);
-  let nbaSeasons: number[] | undefined = undefined;
-  const queryClient = new QueryClient();
 
-  const league: League<Seasons[]> = await queryClient.fetchQuery({
-    queryKey: [leagueId, "basketball", "league"],
-    queryFn: () => getLeagueById(leagueId, "basketball"),
-  });
+  try {
+    const league = (await getLeague(leagueId)) as League<Seasons[]>;
+    let nbaSeasons: number[] | null | undefined = undefined;
 
-  if (!league) {
-    return <NotFound type="league" sport="basketball" />;
-  }
+    if (!league) {
+      return <NotFound type="league" sport="basketball" />;
+    }
 
-  if (leagueId === 12) {
-    nbaSeasons = await queryClient.fetchQuery({
-      queryKey: [leagueId, "nba", "league", "seasons"],
-      queryFn: getNBASeasons,
-    });
-  }
+    if (leagueId === 12) {
+      nbaSeasons = await getSeasons();
+    }
 
-  const season = !nbaSeasons
-    ? league?.seasons[league?.seasons?.length - 1]?.season
-    : nbaSeasons?.[nbaSeasons?.length - 1]?.toString();
+    const season = !nbaSeasons
+      ? league?.seasons[league?.seasons?.length - 1]?.season
+      : nbaSeasons?.[nbaSeasons?.length - 1]?.toString();
 
-  const fixtures = await queryClient.fetchQuery({
-    queryKey: [leagueId, season, "basketball", "fixtures"],
-    queryFn: () =>
-      getFixturesByLeagueIdAndSeason(leagueId, season!, "basketball"),
-  });
+    const fixtures = await getFixture(leagueId, season);
 
-  if (typeof fixtures === "string") {
     return (
-      <div className="h-screen w-full">
-        <Error message={fixtures} />
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative font-sans">
-      <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="relative font-sans">
         <LeagueOrTeamWrapper
           title={league.name}
           logo={league.logo}
@@ -62,9 +57,15 @@ const Page = async ({ params }: { params: { leagueId: string } }) => {
           currSeason={season ?? "-"}
           fixtures={fixtures ?? []}
         />
-      </HydrationBoundary>
-    </div>
-  );
+      </div>
+    );
+  } catch (error) {
+    return (
+      <div className="w-full h-screen">
+        <ErrorBoundary message={(error as Error).message} sport="hockey" />
+      </div>
+    );
+  }
 };
 
 export default Page;
