@@ -20,19 +20,19 @@ const TabsHeader = ({
   value,
 }: Props) => {
   return (
-    <div className="flex py-2 items-center gap-2 lg:gap-4">
+    <div className="flex items-center gap-2 py-2 lg:gap-4">
       <ImageWithFallback
         className="w-[40px] lg:w-[50px]"
         src={logo}
         alt={`${title}-logo`}
       />
-      <h2 className="flex items-center text-lg lg:text-2xl font-medium">
+      <h2 className="flex items-center text-lg font-medium lg:text-2xl">
         {title}
         <span className="text-sm hidden lg:inline-block  lg:text-[1rem] ml-3 text-secondary-foreground">
           ({value ?? currValue})
         </span>
       </h2>
-      <div className="ml-auto hidden lg:block">
+      <div className="hidden ml-auto lg:block">
         <DropDown
           title="seasons"
           data={data}
