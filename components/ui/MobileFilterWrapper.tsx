@@ -95,7 +95,7 @@ const FilterBy = <TData, TValue>({
     <Sheet>
       <SheetTrigger asChild>
         <Button
-          className="flex items-center justify-between w-full p-6 border-b"
+          className="flex items-center justify-between w-full p-6 py-8 border-b"
           variant="ghost"
         >
           Filter By {type}
@@ -236,7 +236,7 @@ const MobileFilterWrapper = ({
       <Sheet>
         <SheetTrigger asChild>
           <Button
-            className="flex items-center justify-between w-full p-6 border-b"
+            className="flex items-center justify-between w-full p-6 py-8 border-b"
             variant="ghost"
           >
             More Sports
