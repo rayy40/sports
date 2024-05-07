@@ -9,25 +9,19 @@ import {
 } from "./Shadcn/drawer";
 import { Button } from "./Shadcn/button";
 import { ChevronsUpDown } from "lucide-react";
-import { DetailedTabsType, FixtureTabsType, Tabs } from "@/types/general";
-import { useFixtureTabsStore } from "@/lib/store";
+import { usePathname } from "next/navigation";
+import { getBaseUrl } from "@/lib/utils";
+import Link from "next/link";
 
 type Props = {
-  value?: string;
-  values?: (Tabs<DetailedTabsType> | FixtureTabsType)[];
-  setValue?: (value: DetailedTabsType) => void;
+  tabs: string[];
 };
 
-const DrawerWrapper = ({ value, values, setValue }: Props) => {
-  const { tab, setTab } = useFixtureTabsStore();
-
-  const handleClick = (status: DetailedTabsType | FixtureTabsType) => {
-    if (setValue) {
-      setValue(status as DetailedTabsType);
-    } else {
-      setTab(status as FixtureTabsType);
-    }
-  };
+const DrawerWrapper = ({ tabs }: Props) => {
+  const path = usePathname();
+  const baseURL = getBaseUrl(path);
+  const segments = path.split("/");
+  const lastSegment = segments[segments.length - 1];
 
   return (
     <Drawer>
@@ -36,25 +30,20 @@ const DrawerWrapper = ({ value, values, setValue }: Props) => {
           variant="outline"
           className="flex items-center justify-between w-full mt-1"
         >
-          <p>{value ?? tab}</p>
+          <p className="capitalize">{lastSegment}</p>
           <ChevronsUpDown size="15" />
         </Button>
       </DrawerTrigger>
       <DrawerContent className="font-sans">
-        <div className="mt-4 border-t">
-          {values?.map((tab) => (
-            <DrawerClose
-              key={typeof tab !== "string" ? tab.label : tab}
-              asChild
-            >
-              <p
-                onClick={() =>
-                  handleClick(typeof tab !== "string" ? tab.status : tab)
-                }
+        <div className="flex flex-col mt-4 border-t">
+          {tabs?.map((tab) => (
+            <DrawerClose key={tab} asChild>
+              <Link
+                href={`${baseURL}/${tab.toLowerCase().replaceAll(/\s/g, "-")}`}
                 className="p-4 text-sm border-b cursor-pointer"
               >
-                {typeof tab !== "string" ? tab.label : tab}
-              </p>
+                {tab}
+              </Link>
             </DrawerClose>
           ))}
         </div>

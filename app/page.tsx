@@ -1,145 +1,163 @@
-import {
-  getMLBFixtures,
-  getNBAFixtures,
-  getFeaturedFootballFixtures,
-  getFixturesByDate,
-} from "@/services/api";
 import { format } from "date-fns";
-import { cache } from "react";
-import ErrorBoundary from "@/components/Error";
 import Link from "next/link";
 import BoxFixture from "@/components/ui/BoxFixture";
 import { getFixtureData } from "@/lib/utils";
-import MobileFilterWrapper from "@/components/ui/MobileFilterWrapper";
+import { getFeaturedFixtures } from "@/services/getFixtures";
+import MobileFilter from "@/components/MobileFilter";
 
-const getNBAFeatuerdFixtures = cache(async (date: string) => {
-  return await getNBAFixtures(date);
-});
+const Page = async () => {
+  const date = new Date();
+  const today = format(date, "yyyy-MM-dd");
+  const previousYear = (date.getFullYear() - 1).toString();
+  const currentYear = date.getFullYear().toString();
 
-const getMLBFeaturedFixtures = cache(async (date: string) => {
-  return await getMLBFixtures(date);
-});
+  const mlbPromise = getFeaturedFixtures(today, currentYear, "baseball", "1");
+  const nbaPromise = getFeaturedFixtures(
+    today,
+    currentYear,
+    "basketball",
+    "12"
+  );
+  const premierLeaguePromise = getFeaturedFixtures(
+    today,
+    previousYear,
+    "football",
+    "39"
+  );
+  const laligaPromise = getFeaturedFixtures(
+    today,
+    previousYear,
+    "football",
+    "140"
+  );
+  const nflPromise = getFeaturedFixtures(
+    today,
+    currentYear,
+    "american-football"
+  );
+  const aflPromise = getFeaturedFixtures(
+    today,
+    previousYear,
+    "australian-football"
+  );
 
-const getFootballFeaturedFixtures = cache(async (date: string, id: number) => {
-  return await getFeaturedFootballFixtures(date, id);
-});
+  const [
+    nbaFixtures,
+    mlbFixtures,
+    premierLeagueFixtures,
+    laligaFixtures,
+    aflFixtures,
+    nflFixtures,
+  ] = await Promise.allSettled([
+    nbaPromise,
+    mlbPromise,
+    premierLeaguePromise,
+    laligaPromise,
+    aflPromise,
+    nflPromise,
+  ]);
 
-const getAFLFeaturedFixtures = cache(async (date: string) => {
-  return await getFixturesByDate(date, "australian-football");
-});
-const getNFLFeaturedFixtures = cache(async (date: string) => {
-  return await getFixturesByDate(date, "american-football");
-});
+  const nba =
+    nbaFixtures.status === "fulfilled" ? nbaFixtures.value : undefined;
+  const mlb =
+    mlbFixtures.status === "fulfilled" ? mlbFixtures.value : undefined;
+  const afl =
+    aflFixtures.status === "fulfilled" ? aflFixtures.value : undefined;
+  const nfl =
+    nflFixtures.status === "fulfilled" ? nflFixtures.value : undefined;
+  const laliga =
+    laligaFixtures.status === "fulfilled" ? laligaFixtures.value : undefined;
+  const premierLeague =
+    premierLeagueFixtures.status === "fulfilled"
+      ? premierLeagueFixtures.value
+      : undefined;
 
-export default async function Home() {
-  const formattedDate = format(new Date(), "yyyy-MM-dd");
-  try {
-    const nba = getNBAFeatuerdFixtures(formattedDate);
-    const mlb = getMLBFeaturedFixtures(formattedDate);
-    const premierLeague = getFootballFeaturedFixtures(formattedDate, 39);
-    const laliga = getFootballFeaturedFixtures(formattedDate, 140);
-    const afl = getAFLFeaturedFixtures(formattedDate);
-    const nfl = getNFLFeaturedFixtures(formattedDate);
+  const featuredFixtures = [
+    {
+      name: "NBA",
+      id: 12,
+      sport: "basketball",
+      fixtures: nba,
+    },
+    {
+      name: "Premier League",
+      id: 39,
+      sport: "football",
+      fixtures: premierLeague,
+    },
+    {
+      name: "MLB",
+      id: 1,
+      sport: "baseball",
+      fixtures: mlb,
+    },
+    {
+      name: "Laliga",
+      id: 140,
+      sport: "football",
+      fixtures: laliga,
+    },
+    {
+      name: "AFL",
+      id: 1,
+      sport: "australian-football",
+      fixtures: afl,
+    },
+    {
+      name: "NFL",
+      id: 1,
+      sport: "american-football",
+      fixtures: nfl,
+    },
+  ];
 
-    const [
-      nbaFixtures,
-      mlbFixtures,
-      premierLeagueFixtures,
-      laligaFixtures,
-      aflFixtures,
-      nflFixtures,
-    ] = await Promise.all([nba, mlb, premierLeague, laliga, afl, nfl]);
-
-    const featuredFixtures = [
-      {
-        name: "NBA",
-        id: 12,
-        sport: "basketball",
-        fixtures: nbaFixtures,
-      },
-      {
-        name: "Premier League",
-        id: 39,
-        sport: "football",
-        fixtures: premierLeagueFixtures,
-      },
-      {
-        name: "MLB",
-        id: 1,
-        sport: "baseball",
-        fixtures: mlbFixtures,
-      },
-      {
-        name: "Laliga",
-        id: 140,
-        sport: "football",
-        fixtures: laligaFixtures,
-      },
-      {
-        name: "AFL",
-        id: 1,
-        sport: "australian-football",
-        fixtures: aflFixtures,
-      },
-      {
-        name: "NFL",
-        id: 1,
-        sport: "american-football",
-        fixtures: nflFixtures,
-      },
-    ];
-
-    return (
-      <main className="flex flex-col w-full h-screen p-3 pt-0 overflow-y-auto font-sans lg:p-6 lg:pt-6">
-        <div className="sticky top-0 left-0 z-10 flex items-center justify-between w-full py-3 border-b shadow-sm bg-background lg:hidden">
-          <p className="items-end pl-3 text-lg font-medium">Scores</p>
-          <MobileFilterWrapper
-            sport="football"
-            isHome={false}
-            isLeague={false}
-            isTeam={false}
-          />
-        </div>
-        {featuredFixtures
-          .filter((league) => league.fixtures && league.fixtures?.length > 0)
-          .map((league, index) => (
-            <div
-              key={index}
-              className="w-full px-1 py-10 space-y-4 border-b first:pt-0 lg:px-6 lg:first:pt-6"
-            >
-              <div className="flex items-center justify-between w-full px-1 py-2 rounded-sm bg-secondary/70">
-                <Link
-                  className="text-[1rem] lg:text-lg font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
-                  href={`/${league.sport}/league/${league.id}`}
-                >
-                  {league.name}
-                </Link>
-                <Link
-                  href={`/${league.sport}/league/${league.id}`}
-                  className="mr-2 text-sm text-secondary-foreground underline-hover"
-                >
-                  See more
-                </Link>
-              </div>
-              <div className="grid gap-6 grid-cols-fixtures">
-                {league.fixtures?.map((fixture) => (
-                  <BoxFixture
-                    key={getFixtureData(fixture).fixtureId}
-                    sport={"football"}
-                    fixture={getFixtureData(fixture)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-      </main>
-    );
-  } catch (error) {
-    console.log(error);
-    return (
-      <div className="w-full h-screen">
-        <ErrorBoundary message={(error as Error).message} />
+  return (
+    <main className="flex flex-col w-full h-screen p-3 pt-0 overflow-y-auto font-sans lg:p-4">
+      <div className="sticky top-0 left-0 z-10 flex items-center justify-between w-full pt-3 border-b shadow-sm bg-background lg:hidden">
+        <p className="items-end hidden pl-3 text-lg font-medium lg:block">
+          Scores
+        </p>
+        <MobileFilter tabs={[]} isHome={true} labels={[]} isFixture={false} />
       </div>
-    );
-  }
-}
+      {featuredFixtures
+        .filter(
+          (league) =>
+            league.fixtures &&
+            league.fixtures.success &&
+            league.fixtures.success.length > 0
+        )
+        .map((league, index) => (
+          <div
+            key={index}
+            className="w-full px-1 py-10 space-y-4 border-b lg:px-4"
+          >
+            <div className="flex items-center justify-between w-full px-1 py-2 rounded-sm bg-secondary/70">
+              <Link
+                className="text-[1rem] lg:text-lg font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
+                href={`/${league.sport}/league/${league.id}`}
+              >
+                {league.name}
+              </Link>
+              <Link
+                href={`/${league.sport}/league/${league.id}`}
+                className="mr-2 text-sm text-secondary-foreground underline-hover"
+              >
+                See more
+              </Link>
+            </div>
+            <div className="grid gap-6 grid-cols-fixtures">
+              {league.fixtures?.success?.map((fixture) => (
+                <BoxFixture
+                  key={getFixtureData(fixture).fixtureId}
+                  sport={"football"}
+                  fixture={getFixtureData(fixture)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+    </main>
+  );
+};
+
+export default Page;

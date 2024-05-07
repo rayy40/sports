@@ -1,63 +1,75 @@
 import { Country, Seasons, Sports, League } from "@/types/general";
-import React, { ChangeEvent } from "react";
-import { Input } from "./ui/Shadcn/input";
 import BoxList from "./ui/BoxList";
-import { filterSearch } from "@/lib/utils";
-import { League as FootballLeague } from "@/types/football";
+import { Leagues as FootballLeague } from "@/types/football";
+import NotFound from "./NotFound";
+import SearchFilter from "./SearchFilter";
 
 type Props<T> = {
-  initialData: T[];
-  value: string;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
-  values: T[];
-  setValues: React.Dispatch<React.SetStateAction<T[]>>;
+  data?: T[];
   type: "league" | "countries";
   sport: Sports;
+  query: string;
 };
 
 const CountriesWrapper = <
   T extends Country | League<Seasons[]> | FootballLeague
 >({
-  initialData,
-  value,
-  values,
-  setValue,
-  setValues,
+  data,
   type,
   sport,
+  query,
 }: Props<T>) => {
-  const handleFilter = (e: ChangeEvent<HTMLInputElement>) => {
-    filterSearch(e, initialData, setValues, setValue);
-  };
+  if (!data) return <NotFound type={type} />;
+
+  function getName(item: T) {
+    return "name" in item ? item.name : item.league.name;
+  }
+
+  function getImage(item: T) {
+    return "logo" in item
+      ? item.logo
+      : "flag" in item
+      ? item.flag
+      : item.league.logo;
+  }
+
+  function getUrl(item: T) {
+    const id =
+      "code" in item ? item.code : "id" in item ? item.id : item.league.id;
+    return `/${sport}/${type}/${id}/${type === "league" ? "" : "league"}`;
+  }
+
+  const values = data.filter((item) => {
+    const searchQuery = query.toLowerCase().replace(/\s/g, "");
+    const itemName =
+      "name" in item ? item.name.toLowerCase().replace(/\s/g, "") : "";
+    const leagueName =
+      "league" in item ? item.league.name.toLowerCase().replace(/\s/g, "") : "";
+    return itemName.includes(searchQuery) || leagueName.includes(searchQuery);
+  });
 
   return (
-    <div className="font-sans flex flex-col h-screen">
-      <div className="flex sticky p-6 shadow-sm bg-background top-0 items-center justify-between">
-        <h2 className="font-medium text-xl lg:text-2xl">Countries</h2>
-        <Input
-          className="max-w-[200px] lg:max-w-[300px]"
-          value={value}
-          type="search"
-          onChange={(e) => handleFilter(e)}
-          placeholder="Search country"
-        />
+    <div className="flex flex-col h-screen font-sans">
+      <div className="sticky top-0 flex items-center justify-between p-6 shadow-sm bg-background">
+        <h2 className="text-xl font-medium capitalize lg:text-2xl">{type}</h2>
+        <SearchFilter />
       </div>
       {values.length > 0 ? (
-        <div className="grid flex-1 p-3 lg:p-6 overflow-y-auto gap-3 lg:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {values.map((item, index) => (
-            <BoxList
-              key={index}
-              logo={"flag" in item ? item?.flag : item.logo!}
-              name={item?.name}
-              url={`/${sport}/${type}/${"code" in item ? item.code : item.id}/${
-                type === "league" ? "" : "league"
-              }`}
-            />
-          ))}
+        <div className="grid flex-1 grid-cols-1 gap-3 p-3 overflow-y-auto lg:p-6 lg:gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {values.map((item, index) => {
+            return (
+              <BoxList
+                key={index}
+                logo={getImage(item)!}
+                name={getName(item)}
+                url={getUrl(item)}
+              />
+            );
+          })}
         </div>
       ) : (
-        <div className="h-full w-full flex items-center justify-center">
-          <p>No Country found.</p>
+        <div className="flex items-center justify-center w-full h-full">
+          <p>No {type} found.</p>
         </div>
       )}
     </div>

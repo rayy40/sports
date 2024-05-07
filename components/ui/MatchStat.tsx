@@ -5,22 +5,19 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/Shadcn/table";
-import { FixtureStatisticsResponse } from "@/types/football";
+import { FixtureStatisticsResponse as FootballStats } from "@/types/football";
 import {
   mergeStatistics,
   mergeStatisticsForAFL,
   mergeStatisticsForNFL,
 } from "@/lib/utils";
-import { NFLTeamsStatisticsResponse } from "@/types/american-football";
-import { AustralianFootballFixtureStatistics } from "@/types/australian-football";
+import { NFLTeamsStatisticsResponse as NFLStats } from "@/types/american-football";
+import { AustralianFootballFixtureStatistics as AFLStats } from "@/types/australian-football";
+import NotFound from "../NotFound";
 
 export function isNFLTeamStats(
-  item: (
-    | FixtureStatisticsResponse
-    | NFLTeamsStatisticsResponse
-    | AustralianFootballFixtureStatistics<number>
-  )[]
-): item is NFLTeamsStatisticsResponse[] {
+  item: (FootballStats | NFLStats | AFLStats<number>)[]
+): item is NFLStats[] {
   return (
     item[0].statistics !== null &&
     item[0].statistics !== undefined &&
@@ -29,12 +26,8 @@ export function isNFLTeamStats(
 }
 
 export function isAFLTeamStats(
-  item: (
-    | FixtureStatisticsResponse
-    | NFLTeamsStatisticsResponse
-    | AustralianFootballFixtureStatistics<number>
-  )[]
-): item is AustralianFootballFixtureStatistics<number>[] {
+  item: (FootballStats | NFLStats | AFLStats<number>)[]
+): item is AFLStats<number>[] {
   return (
     item[0].statistics !== null &&
     item[0].statistics !== undefined &&
@@ -43,12 +36,8 @@ export function isAFLTeamStats(
 }
 
 export function isFootballTeamStats(
-  item: (
-    | FixtureStatisticsResponse
-    | NFLTeamsStatisticsResponse
-    | AustralianFootballFixtureStatistics<number>
-  )[]
-): item is FixtureStatisticsResponse[] {
+  item: (FootballStats | NFLStats | AFLStats<number>)[]
+): item is FootballStats[] {
   return (
     item[0].statistics !== null &&
     item[0].statistics !== undefined &&
@@ -57,19 +46,11 @@ export function isFootballTeamStats(
 }
 
 type Props = {
-  stats:
-    | (
-        | FixtureStatisticsResponse
-        | NFLTeamsStatisticsResponse
-        | AustralianFootballFixtureStatistics<number>
-      )[]
-    | undefined;
+  stats: (FootballStats | NFLStats | AFLStats<number>)[] | undefined;
 };
 
 const MatchStat = ({ stats }: Props) => {
-  if (!stats) {
-    return <p>No Statistics found for this fixture.</p>;
-  }
+  if (!stats) return <NotFound type="statistics" />;
 
   const mergedStats = isFootballTeamStats(stats)
     ? mergeStatistics([stats[0], stats[1]], stats[0].team.name)

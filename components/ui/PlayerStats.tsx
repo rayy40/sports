@@ -1,11 +1,5 @@
-import { PlayerStats as TPlayerStats } from "@/types/football";
-import {
-  getCoreRowModel,
-  useReactTable,
-  flexRender,
-} from "@tanstack/react-table";
+import { Player, PlayerStats as TPlayerStats, Team } from "@/types/football";
 import React from "react";
-import { topScoreColumns } from "../Table/topScorersColumns";
 import {
   Table,
   TableHeader,
@@ -14,80 +8,156 @@ import {
   TableCell,
   TableRow,
 } from "./Shadcn/table";
-import { topAssistColumns } from "../Table/topAssistColumns";
+import NotFound from "../NotFound";
+import ImageWithFallback from "../ImageWithFallback";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 type Props = {
-  data: TPlayerStats[];
-  stat: string | null;
+  data?: TPlayerStats[];
+  stat: string;
+};
+
+const topScorersHeaders = [
+  "rank",
+  "player",
+  "team",
+  "played",
+  "goals",
+  "assists",
+  "minutes",
+  "total shots",
+  "shot accuracy",
+  "penalty",
+];
+const topAssistHeaders = [
+  "rank",
+  "player",
+  "team",
+  "played",
+  "assists",
+  "goals",
+  "minutes",
+  "key passes",
+  "total passes",
+  "pass accuracy",
+];
+
+const StandingTableHeader = ({ headers }: { headers: string[] }) => {
+  return (
+    <TableHeader className="sticky top-0 z-10 shadow-sm pointer-events-none bg-background">
+      {headers.map((head, index) => (
+        <TableHead
+          className={cn("text-center capitalize bg-background", {
+            "text-left sticky min-w-[40px] left-0": index === 0,
+            "min-w-[160px] text-left sticky z-20 left-[70px] -ml-2":
+              index === 1,
+          })}
+          key={index}
+        >
+          {head}
+        </TableHead>
+      ))}
+    </TableHeader>
+  );
+};
+
+const StandingPlayer = ({ player }: { player: Player }) => {
+  return (
+    <div className="flex items-center gap-3">
+      {/* Add fallback profile image*/}
+      <ImageWithFallback src={player?.photo} alt={`${player.name}-logo`} />
+      <p className="text-sm lg:text-[1rem]">{player?.name}</p>
+    </div>
+  );
+};
+
+const StandingTeam = ({ team }: { team?: Team }) => {
+  return (
+    <Link href={`/football/teams/${team?.id}`}>
+      <p className="text-sm text-center">{team?.name}</p>
+    </Link>
+  );
+};
+
+const TopScorersStandings = ({ standings }: { standings: TPlayerStats[] }) => {
+  return (
+    <Table className="border-t ">
+      <StandingTableHeader headers={topAssistHeaders} />
+      <TableBody className="w-full overflow-x-auto">
+        {standings.map((item, index) => {
+          const stats = item.statistics?.[0];
+          return (
+            <TableRow className="text-center" key={index}>
+              <TableCell className="sticky left-0 pl-6 text-left lg:left-6 bg-background">
+                {index + 1}
+              </TableCell>
+              <TableCell className="sticky left-[70px] bg-background">
+                <StandingPlayer player={item.player} />
+              </TableCell>
+              <TableCell>
+                <StandingTeam team={stats?.team} />
+              </TableCell>
+              <TableCell>{stats?.games.appearences ?? "-"}</TableCell>
+              <TableCell>{stats?.games.minutes ?? "-"}</TableCell>
+              <TableCell className="font-medium">
+                {stats?.goals.total ?? "-"}
+              </TableCell>
+              <TableCell>{stats?.goals.assists ?? "-"}</TableCell>
+              <TableCell>{stats?.shots.total ?? "-"}</TableCell>
+              <TableCell>{stats?.shots.on ?? "-"}</TableCell>
+              <TableCell>{stats?.penalty.scored ?? "-"}</TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
+  );
+};
+
+const TopAssistsStandings = ({ standings }: { standings: TPlayerStats[] }) => {
+  return (
+    <Table className="border-t">
+      <StandingTableHeader headers={topScorersHeaders} />
+      <TableBody className="w-full overflow-x-auto">
+        {standings.map((item, index) => {
+          const stats = item.statistics?.[0];
+          return (
+            <TableRow className="text-center" key={index}>
+              <TableCell className="sticky left-0 pl-6 text-left lg:left-6 bg-background">
+                {index + 1}
+              </TableCell>
+              <TableCell className="sticky left-[70px] bg-background">
+                <StandingPlayer player={item.player} />
+              </TableCell>
+              <TableCell>
+                <StandingTeam team={stats?.team} />
+              </TableCell>
+              <TableCell>{stats?.games.appearences ?? "-"}</TableCell>
+              <TableCell>{stats?.games.minutes ?? "-"}</TableCell>
+              <TableCell>{stats?.goals.total ?? "-"}</TableCell>
+              <TableCell className="font-medium">
+                {stats?.goals.assists ?? "-"}
+              </TableCell>
+              <TableCell>{stats?.passes.total ?? "-"}</TableCell>
+              <TableCell>{stats?.passes.key ?? "-"}</TableCell>
+              <TableCell>{stats?.passes.accuracy ?? "-"}</TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
+  );
 };
 
 const PlayerStats = ({ data, stat }: Props) => {
-  const selectColumns = (stat: string | null) => {
-    switch (stat) {
-      case "top assists":
-        return topAssistColumns;
-      default:
-        return topScoreColumns;
-    }
-  };
+  if (!data) return <NotFound type={"player stats"} />;
 
-  const playerStatsTable = useReactTable({
-    data: data ?? [],
-    columns: selectColumns(stat),
-    getCoreRowModel: getCoreRowModel(),
-  });
-
-  return (
-    <div className="h-full overflow-y-auto">
-      <Table>
-        <TableHeader>
-          {playerStatsTable?.getHeaderGroups().map((headerGroup) => (
-            <TableRow
-              className="sticky top-0 z-10 shadow-sm pointer-events-none bg-background"
-              key={headerGroup.id}
-            >
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead
-                    className="first:sticky [&:nth-child(2)]:sticky first:left-0
-                  [&:nth-child(2)]:left-[70px] bg-background first:w-[40px] [&:nth-child(2)]:-ml-2 lg:first:w-[100px] [&:not(:first-child,:nth-child(2))]:text-center first:pl-6 lg:first:pl-9"
-                    key={header.id}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {playerStatsTable?.getRowModel().rows?.map((row) => {
-            return (
-              <TableRow
-                className="cursor-pointer hover:bg-secondary/80"
-                key={row.id}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    className="first:sticky [&:nth-child(2)]:sticky first:left-0
-                  [&:nth-child(2)]:left-[70px] bg-background"
-                    key={cell.id}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-  );
+  if (stat === "topscorers") {
+    return <TopScorersStandings standings={data} />;
+  } else if (stat === "topassists") {
+    return <TopAssistsStandings standings={data} />;
+  }
 };
 
 export default PlayerStats;

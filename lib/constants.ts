@@ -1,13 +1,16 @@
-import {
-  DetailedTabsType,
-  ShortStatusMap,
-  StatusType,
-  Tabs,
-} from "@/types/general";
+export const sports = [
+  "football",
+  "basketball",
+  "baseball",
+  "american-football",
+  "australian-football",
+  "hockey",
+  "rugby",
+];
 
-export const shortStatusMap: ShortStatusMap = {
-  Scheduled: ["TBD", "NS"],
-  InPlay: [
+export const shortStatusMap: { [key: string]: string[] } = {
+  "not started": ["TBD", "NS"],
+  live: [
     "1H",
     "HT",
     "2H",
@@ -24,12 +27,12 @@ export const shortStatusMap: ShortStatusMap = {
     "BT",
     "HT",
   ],
-  Finished: ["FT", "AET", "PEN", "AOT"],
-  Postponed: ["PST", "POST"],
-  Cancelled: ["CANC"],
-  Abandoned: ["ABD"],
-  NotPlayed: ["AWD", "WO"],
-  AllGames: [
+  finished: ["FT", "AET", "PEN", "AOT"],
+  postponed: ["PST", "POST"],
+  cancelled: ["CANC"],
+  abandoned: ["ABD"],
+  "not played": ["AWD", "WO"],
+  "all games": [
     "TBD",
     "NS",
     "1H",
@@ -52,33 +55,7 @@ export const shortStatusMap: ShortStatusMap = {
   ],
 };
 
-export const statusTabs: Tabs<StatusType>[] = [
-  { status: "AllGames", label: "All Games" },
-  { status: "Scheduled", label: "Not Started" },
-  { status: "InPlay", label: "Live" },
-  { status: "Finished", label: "Finished" },
-];
-
-export const detailedTabs: Tabs<DetailedTabsType>[] = [
-  { status: "Fixtures", label: "Fixtures" },
-  { status: "Standings", label: "Standings" },
-  { status: "Stats", label: "Stats" },
-  { status: "Squads", label: "Squads" },
-];
-
-export const statusFilters = [
-  { id: "AllGames", name: "All Games" },
-  { id: "Scheduled", name: "Not Started" },
-  { id: "InPlay", name: "Live" },
-  { id: "Finished", name: "Finished" },
-];
-
-export const statsFilters = [
-  { id: "top scorers", name: "Top Scorers" },
-  { id: "top assists", name: "Top Assists" },
-  { id: "yellow cards", name: "Yellow Cards" },
-  { id: "red cards", name: "Red Cards" },
-];
+export const statusFilters = ["All Games", "Not Started", "Live", "Finished"];
 
 export const basketballSeasons = [
   "2016-2017",
@@ -92,8 +69,6 @@ export const basketballSeasons = [
 ];
 
 export const seasonsList = [2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016];
-
-export const NBAGroup = ["conference", "division"];
 
 export const impFootballLeagueIds = [
   1032, 128, 188, 78, 79, 82, 218, 219, 39, 116, 233, 235, 288, 145, 144, 73,

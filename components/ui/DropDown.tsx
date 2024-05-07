@@ -9,6 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/Shadcn/dropdown-menu";
 import { ButtonVariants } from "@/types/general";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useState } from "react";
 
 type Props = {
   title: string;
@@ -19,6 +26,24 @@ type Props = {
 };
 
 export function DropDown({ title, data, value, variant, setValue }: Props) {
+  const [item, setItem] = useState(value);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const handleValueChange = (e: string) => {
+    const current = new URLSearchParams(searchParams);
+
+    current.set(title, e);
+
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+
+    setItem(e);
+
+    router.push(`${pathname}${query}`);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,7 +55,10 @@ export function DropDown({ title, data, value, variant, setValue }: Props) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="max-h-[200px] overflow-y-auto w-[130px]">
-        <DropdownMenuRadioGroup value={value} onValueChange={setValue}>
+        <DropdownMenuRadioGroup
+          value={item}
+          onValueChange={(e) => handleValueChange(e)}
+        >
           {data?.map((v, index) => (
             <DropdownMenuRadioItem
               className="font-sans font-medium text-center capitalize"

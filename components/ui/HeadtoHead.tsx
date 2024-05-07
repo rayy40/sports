@@ -5,19 +5,22 @@ import ImageWithFallback from "../ImageWithFallback";
 import Link from "next/link";
 import { getFixtureData } from "@/lib/utils";
 import { shortStatusMap } from "@/lib/constants";
+import NotFound from "../NotFound";
 
 type Props = {
-  fixtures: AllSportsFixtures[];
+  fixtures?: AllSportsFixtures[];
   sport: Sports;
 };
 
 const HeadtoHead = ({ fixtures, sport }: Props) => {
+  if (!fixtures) return <NotFound type="head to head fixtures" />;
+
   return (
     <div className="max-w-[1000px] w-full mx-auto">
       {fixtures
         .filter((fixture) => {
           const { fixtureStatus } = getFixtureData(fixture);
-          return shortStatusMap["Finished"].includes(
+          return shortStatusMap["finished"].includes(
             fixtureStatus.short.toString()
           );
         })

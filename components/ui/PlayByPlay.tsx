@@ -13,9 +13,10 @@ import CardIcon from "@/Assets/Icons/YellowOrRedCard";
 import { Football } from "@/Assets/Icons/Sports";
 import { HockeyEvents } from "@/types/hockey";
 import { NFLEvents } from "@/types/american-football";
+import NotFound from "../NotFound";
 
 type Props = {
-  events: (Timeline | HockeyEvents | NFLEvents)[];
+  events?: (Timeline | HockeyEvents | NFLEvents)[];
   sport: Sports;
 };
 
@@ -44,7 +45,7 @@ const Event = ({
   sport: Sports;
 }) => {
   return (
-    <div className="flex py-3 lg:py-6 px-2 border-b items-center gap-5 lg:gap-10">
+    <div className="flex items-center gap-5 px-2 py-3 border-b lg:py-6 lg:gap-10">
       <p className="text-xs text-muted-foreground min-w-[30px]">
         {"minute" in event ? event?.minute : `${event?.time?.elapsed}'`}
       </p>
@@ -79,17 +80,20 @@ const Event = ({
 const PlayByPlay = ({ events, sport }: Props) => {
   const eventsByPeriods = useMemo(
     () =>
-      sport !== "football" &&
-      groupEventsByPeriods(events as (HockeyEvents | NFLEvents)[]),
+      sport !== "football" && events
+        ? groupEventsByPeriods(events as (HockeyEvents | NFLEvents)[])
+        : undefined,
     [events, sport]
   );
+
+  if (!events) return <NotFound type="events" />;
 
   return (
     <div className="max-w-[1000px] w-full mx-auto">
       {eventsByPeriods &&
         Object.keys(eventsByPeriods).map((period) => (
           <div key={period}>
-            <div className="capitalize px-2 text-sm text-secondary-foreground py-4 lg:py-6 border-b">
+            <div className="px-2 py-4 text-sm capitalize border-b text-secondary-foreground lg:py-6">
               {period}
             </div>
             {eventsByPeriods[period].map((event, index) => (

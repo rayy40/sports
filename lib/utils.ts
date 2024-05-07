@@ -34,6 +34,7 @@ import {
   isNBAFixture,
   isAFLFixture,
   isNFLFixture,
+  Sports,
 } from "@/types/general";
 import { impFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
@@ -49,216 +50,46 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export async function getAPIData<T>(param: string) {
-  const response = await fetch(`https://v3.football.api-sports.io/${param}`, {
-    method: "GET",
-    headers: {
-      "x-rapidapi-host": "v3.football.api-sports.io",
-      "x-rapidapi-key":
-        process.env.RAPIDAPI_KEY ?? process.env.NEXT_PUBLIC_RAPIDAPI_KEY!,
-    },
-  });
-  const data: Promise<APIResponse<T>> = response.json();
-  return data;
+export function getBaseUrl(url: string) {
+  const segments = url.split("/");
+  segments.pop();
+  return segments.join("/");
 }
 
-export async function fetchAPI<T>(param: string) {
-  try {
-    const response = await fetch(
-      `https://v1.basketball.api-sports.io${param}`,
-      {
-        method: "GET",
-        headers: {
-          "x-rapidapi-host": "v1.basketball.api-sports.io",
-          "x-rapidapi-key": process.env.RAPIDAPI_KEY!,
-        },
-        cache: "force-cache",
-      }
-    );
-    const data: APIResponse<T> = await response.json();
-    if (!response.ok) {
-      throw Error("Something went wrong, Please try again.");
-    }
-    return { data: data?.response, error: null };
-  } catch (error) {
-    return { data: null, error: error as Error };
-  }
-}
-
-export const formatDate = (timestamp: number) => {
-  const date = new Date(timestamp * 1000);
-  const day = date.getDate();
-  const month = date.toLocaleString("en", { month: "short" });
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-
-  return { date: `${day} ${month}`, time: `${hours}:${minutes}` };
-};
-
-export const filterDataByStatus = (
-  data: AllSportsFixtures[],
-  isFootball: boolean = false
-) => {
-  const filteredData: Record<string, AllSportsFixtures[]> = {
-    AllGames: [],
-    Scheduled: [],
-    InPlay: [],
-    Finished: [],
-    Postponed: [],
-    Cancelled: [],
-    Abandoned: [],
-    NotPlayed: [],
-  };
-
-  data.forEach((item) => {
-    let fixtureStatus: string;
-
-    if (isFootballFixture(item)) {
-      fixtureStatus = item.fixture.status.short;
-    } else if (isNFLFixture(item)) {
-      fixtureStatus = item.game.status.short;
-    } else {
-      fixtureStatus = item.status.short.toString();
-    }
-
-    if (fixtureStatus.length === 0) return;
-
-    if (
-      isFootball &&
-      isFootballFixture(item) &&
-      !impFootballLeagueIds.includes(item.league.id)
-    ) {
-      return;
-    }
-
-    if (!["CANC", "ABD", "PST", "AWD", "WO"].includes(fixtureStatus)) {
-      filteredData.AllGames.push(item);
-    }
-
-    const statusType = Object.keys(shortStatusMap).find((type) =>
-      shortStatusMap[type as StatusType]?.includes(fixtureStatus)
-    );
-    if (statusType) {
-      filteredData[statusType].push(item);
-    }
-  });
-
-  return filteredData;
-};
-
-export const getTeams = <T extends { teams: Teams | NBATeams }>(
-  fixtures: T[]
-) => {
-  const teamInfo: Filters[] = [];
-  const uniqueIds = new Set<number>();
+export const getTeams = (fixtures: AllSportsFixtures[]) => {
+  const teamInfo: string[] = [];
+  const uniqueIds = new Set<string>();
 
   fixtures?.forEach((fixture) => {
-    let awayId, awayName;
-    const homeId = fixture.teams.home.id;
-    const homeName = fixture.teams.home.name;
-    if ("visitors" in fixture.teams) {
-      awayId = fixture.teams.visitors.id;
-      awayName = fixture.teams.visitors.name;
-    } else {
-      awayId = fixture.teams.away.id;
-      awayName = fixture.teams.away.name;
+    const { homeTeam, awayTeam } = getFixtureData(fixture);
+
+    if (!uniqueIds.has(homeTeam.name.toLowerCase())) {
+      teamInfo.push(homeTeam.name);
+      uniqueIds.add(homeTeam.name);
     }
 
-    if (!uniqueIds.has(homeId)) {
-      teamInfo.push({
-        id: homeId,
-        name: homeName,
-      });
-      uniqueIds.add(homeId);
-    }
-
-    if (!uniqueIds.has(awayId)) {
-      teamInfo.push({
-        id: awayId,
-        name: awayName,
-      });
-      uniqueIds.add(awayId);
+    if (!uniqueIds.has(awayTeam.name)) {
+      teamInfo.push(awayTeam.name);
+      uniqueIds.add(awayTeam.name);
     }
   });
 
   return teamInfo;
 };
 
-export const getLeagues = <
-  T extends { league: string | { name: string; id: number } }
->(
-  items: T[],
-  isFixture: boolean = true
-) => {
-  const leagueInfo: Filters[] = [];
+export const getLeagues = (fixtures: AllSportsFixtures[]) => {
+  const leagueInfo: string[] = [];
   const uniqueIds = new Set<string>();
 
-  items?.forEach((item, index) => {
-    if (typeof item.league !== "string") {
-      if (
-        "id" in item.league &&
-        isFixture &&
-        !impFootballLeagueIds.includes(item.league.id)
-      )
-        return;
-      if (!uniqueIds.has(item.league.name)) {
-        leagueInfo.push({ id: item.league.id, name: item.league.name });
-        uniqueIds.add(item.league.name);
-      }
-    } else {
-      if (!uniqueIds.has(item.league)) {
-        leagueInfo.push({ id: index, name: item.league });
-        uniqueIds.add(item.league);
-      }
+  fixtures?.forEach((fixture) => {
+    const { fixtureLeague } = getFixtureData(fixture);
+    if (!uniqueIds.has(fixtureLeague.name)) {
+      leagueInfo.push(fixtureLeague.name);
+      uniqueIds.add(fixtureLeague.name);
     }
   });
 
   return leagueInfo;
-};
-
-export const refactorLeagues = (leagues: Leagues[]) => {
-  const leaguesData: FootballLeague[] = [];
-  leagues.forEach((league) => {
-    leaguesData.push(league.league);
-  });
-  return leaguesData;
-};
-
-export const formatDatePattern = (date: Date) => {
-  const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
-    .toString()
-    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-  return formattedDate;
-};
-
-export const formatDatePatternLong = (dt: string) => {
-  const date = new Date(dt);
-  const formattedDate = date.toLocaleString("en-US", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-  return formattedDate;
-};
-
-export const filterSearch = <T extends { name: string }>(
-  e: ChangeEvent<HTMLInputElement>,
-  data: T[],
-  setData: Dispatch<SetStateAction<T[]>>,
-  setValue: Dispatch<SetStateAction<string>>
-) => {
-  const keyword = e.target.value;
-
-  if (keyword !== "") {
-    const results = data?.filter((d) => {
-      return d.name.toLowerCase().includes(keyword.toLowerCase());
-    });
-    setData(results ?? []);
-  } else {
-    setData(data ?? []);
-  }
-
-  setValue(keyword);
 };
 
 export const getSeasonsList = <
@@ -445,6 +276,7 @@ export const getFixtureData = (
     fixtureVenue,
     fixtureStatus,
     fixtureRound,
+    fixtureLeague,
     homeTeamScore,
     awayTeamScore;
   if (isFootballFixture(fixture)) {
@@ -453,6 +285,7 @@ export const getFixtureData = (
     fixtureVenue = fixture.fixture.venue.name;
     fixtureStatus = fixture.fixture.status;
     fixtureRound = fixture.league.round;
+    fixtureLeague = { name: fixture.league.name, id: fixture.league.id };
     homeTeamScore = fixture.goals.home;
     awayTeamScore = fixture.goals.away;
   } else if (isNBAFixture(fixture)) {
@@ -461,6 +294,7 @@ export const getFixtureData = (
     fixtureVenue = fixture.arena.name;
     fixtureStatus = fixture.status;
     fixtureRound = fixture.stage;
+    fixtureLeague = { name: fixture.league, id: 0 };
     homeTeamScore = fixture.scores.home.points;
     awayTeamScore = fixture.scores.visitors.points;
   } else if (isAFLFixture(fixture)) {
@@ -468,6 +302,7 @@ export const getFixtureData = (
     fixtureDate = fixture.date;
     fixtureStatus = fixture.status;
     fixtureRound = fixture.round;
+    fixtureLeague = { name: "AFL", id: 1 };
     homeTeamScore = fixture.scores.home.score;
     awayTeamScore = fixture.scores.away.score;
   } else if (isNFLFixture(fixture)) {
@@ -475,6 +310,7 @@ export const getFixtureData = (
     fixtureDate = fixture.game.date.date;
     fixtureStatus = fixture.game.status;
     fixtureRound = fixture.game.stage;
+    fixtureLeague = { name: fixture.league.name, id: fixture.league.id };
     homeTeamScore = fixture.scores.home.total;
     awayTeamScore = fixture.scores.away.total;
   } else {
@@ -482,6 +318,7 @@ export const getFixtureData = (
     fixtureDate = fixture.date;
     fixtureStatus = fixture.status;
     fixtureRound = fixture.week;
+    fixtureLeague = { name: fixture.league.name, id: fixture.league.id };
     homeTeamScore =
       typeof fixture.scores.home === "number"
         ? fixture.scores.home
@@ -507,6 +344,7 @@ export const getFixtureData = (
     fixtureDate,
     fixtureStatus,
     fixtureRound,
+    fixtureLeague,
     isHomeTeamWinner,
     isAwayTeamWinner,
   };
@@ -654,7 +492,7 @@ export const getAFLTeamsRequiredStatistics = (
   return requiredStats;
 };
 
-type GroupedData<T extends Standings | NBAStandings | NFLStandings> = {
+export type GroupedData<T extends Standings | NBAStandings | NFLStandings> = {
   [groupName: string]: T[];
 };
 
@@ -952,4 +790,21 @@ export const groupEventsByPeriods = (events: (HockeyEvents | NFLEvents)[]) => {
   });
 
   return periods;
+};
+
+export const getTabs = (sport: Sports) => {
+  let tabs: string[] = [];
+  if (["baseball", "basketball", "rugby"].includes(sport)) {
+    tabs = ["Head to head"];
+  } else if (sport === "american-football") {
+    tabs = ["Events", "Match Stat"];
+  } else if (sport === "australian-football") {
+    tabs = ["Match Stat"];
+  } else if (sport === "hockey") {
+    tabs = ["Head to Head", "Events"];
+  } else if (sport === "football") {
+    tabs = ["Head to Head", "Events", "Match Stat", "Lineups"];
+  }
+
+  return tabs;
 };

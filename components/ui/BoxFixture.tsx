@@ -5,6 +5,7 @@ import ImageWithFallback from "../ImageWithFallback";
 import { Sports, Status } from "@/types/general";
 import { Status as FootballStatus } from "@/types/football";
 import { NBAStatus } from "@/types/basketball";
+import { getTabs } from "@/lib/utils";
 
 type StatusCollections = Status | NBAStatus | FootballStatus;
 
@@ -67,20 +68,23 @@ const BoxFixture = ({ sport, fixture }: Props) => {
         return timer ? `${timer}'` : "";
     }
   };
+
+  const tab = getTabs(sport)[0].toLowerCase().replaceAll(" ", "-");
+
   return (
-    <Link href={`/${sport}/fixture/${id}`}>
+    <Link href={`/${sport}/fixture/${id}/${tab}`}>
       <div className="border relative h-[160px] lg:h-[200px] border-secondary hover:border-secondary-foreground/30 transition-colors cursor-pointer rounded-sm p-5 lg:p-6 space-y-5 lg:space-y-6 shadow-sm">
         <div className="flex min-h-[10px] lg:min-h-[20px] text-secondary-foreground text-sm items-center justify-between">
           <p className="whitespace-nowrap max-w-[80%] text-ellipsis overflow-hidden">
             {round}
           </p>
-          <span className="whitespace-nowrap -mr-1">
+          <span className="-mr-1 whitespace-nowrap">
             {renderStatus(status)}
           </span>
         </div>
         <div className="flex flex-col justify-end gap-3">
-          <div className="flex gap-4 items-center justify-between">
-            <div className="flex gap-4 items-center">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               <ImageWithFallback
                 className="w-8 lg:w-10"
                 src={homeTeam.logo}
@@ -98,8 +102,8 @@ const BoxFixture = ({ sport, fixture }: Props) => {
               {homeTeamScore}
             </p>
           </div>
-          <div className="flex gap-4 items-center justify-between">
-            <div className="flex gap-4 items-center">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
               <ImageWithFallback
                 className="w-8 lg:w-10"
                 src={awayTeam.logo}
@@ -118,8 +122,8 @@ const BoxFixture = ({ sport, fixture }: Props) => {
             </p>
           </div>
           {status.short === "NS" && (
-            <div className="absolute bg-background flex justify-center items-center border-l h-full right-0 px-4 top-1/2 -translate-y-1/2">
-              <span className="text-secondary-foreground text-sm">
+            <div className="absolute right-0 flex items-center justify-center h-full px-4 -translate-y-1/2 border-l bg-background top-1/2">
+              <span className="text-sm text-secondary-foreground">
                 {format(date, "HH:mm")}
               </span>
             </div>

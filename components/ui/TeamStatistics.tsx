@@ -11,9 +11,10 @@ import {
   getTeamsRequiredStatistics,
 } from "@/lib/utils";
 import React from "react";
+import NotFound from "../NotFound";
 
 type Props = {
-  data: AllSportsTeamStats;
+  data?: AllSportsTeamStats;
 };
 
 type RequiredStats = {
@@ -22,6 +23,8 @@ type RequiredStats = {
 }[];
 
 const TeamStatistics = ({ data }: Props) => {
+  if (!data) return <NotFound type="statistics" />;
+
   let requiredStats: RequiredStats = [];
   if (isFootballTeamStats(data)) {
     requiredStats = getFootballTeamsRequiredStatistics(data);
@@ -42,7 +45,7 @@ const TeamStatistics = ({ data }: Props) => {
             className="py-4 lg:py-8 border-b lg:w-[260px] border-b-secondary-foreground/50"
           >
             <h3 className="font-medium">{stat.label}</h3>
-            <div className="font-semibold text-4xl lg:text-7xl">
+            <div className="text-4xl font-semibold lg:text-7xl">
               {stat.value}
             </div>
           </div>

@@ -1,54 +1,50 @@
 "use client";
+import { cn, getBaseUrl } from "@/lib/utils";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
-import { useFixtureTabsStore, useStatusStore, useTabsStore } from "@/lib/store";
-import { DetailedTabsType, FixtureTabsType, StatusType } from "@/types/general";
-import { ColumnFiltersState } from "@tanstack/react-table";
-import React, { Dispatch, SetStateAction } from "react";
-
-type Props<T> = {
-  label: string;
-  id: T;
-  setColumnFilters?: Dispatch<SetStateAction<ColumnFiltersState>>;
-  isStatus: boolean;
-  isStat?: boolean;
+type Props = {
+  id: string;
+  leagueId?: string;
+  isTeam?: boolean;
 };
 
-const Tabs = <T,>({
-  label,
-  id,
-  setColumnFilters,
-  isStatus = true,
-  isStat = false,
-}: Props<T>) => {
-  const { status, setStatus } = useStatusStore();
-  const { tab, setTab } = useTabsStore();
-  const { tab: fixtureTab, setTab: setFixtureTab } = useFixtureTabsStore();
-  const handleTabClick = () => {
-    if (isStatus) {
-      setStatus(id as StatusType);
-    } else if (isStat) {
-      setFixtureTab(id as FixtureTabsType);
-    } else {
-      setTab(id as DetailedTabsType);
-    }
-    if (setColumnFilters) {
-      setColumnFilters(() => {
-        return [{ id: "fixture", value: id }];
-      });
-    }
+const Tabs = ({ id, leagueId, isTeam = false }: Props) => {
+  const path = usePathname();
+  const searchParams = useSearchParams();
+
+  const handleSearchParams = (title: string, value?: string) => {
+    if (!isTeam || !value) return;
+    const current = new URLSearchParams(searchParams);
+
+    current.set(title, value);
+
+    const search = current.toString();
+    const query = search ? `${search}` : "";
+
+    return query;
   };
 
+  const baseURL = getBaseUrl(path);
+  const segments = path.split("/");
+  const lastSegment = segments[segments.length - 1];
+
   return (
-    <div
-      onClick={handleTabClick}
-      className={`p-3 hidden lg:block text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${
-        id === (isStatus ? status : isStat ? fixtureTab : tab)
-          ? "text-primary-foreground/95 underline-tabs"
-          : "text-muted-foreground"
-      } hover:text-primary-foreground/95`}
+    <Link
+      href={{
+        pathname: `${baseURL}/${id.toLowerCase().replaceAll(/\s/g, "-")}`,
+        query: handleSearchParams("league", leagueId?.toLowerCase()),
+      }}
+      className={cn(
+        "p-[10px] hidden lg:inline-block text-sm font-medium whitespace-nowrap transition-all cursor-pointer text-muted-foreground hover:text-primary-foreground/95",
+        {
+          "text-primary-foreground/95 underline-tabs":
+            id.toLowerCase().replaceAll(/\s/g, "-") === lastSegment,
+        }
+      )}
     >
-      {label}
-    </div>
+      {id}
+    </Link>
   );
 };
 

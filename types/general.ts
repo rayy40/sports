@@ -4,6 +4,7 @@ import {
   DetailedFixture,
   Fixtures,
   TeamStatistics as FootballTeamStatistics,
+  SeasonsEntity,
   Squads,
   StandingsEntity,
 } from "./football";
@@ -46,24 +47,24 @@ export type ButtonVariants =
   | undefined;
 
 export type StatusType =
-  | "Scheduled"
-  | "InPlay"
-  | "Finished"
-  | "Postponed"
-  | "Cancelled"
-  | "Abandoned"
-  | "NotPlayed"
-  | "AllGames";
+  | "scheduled"
+  | "inplay"
+  | "finished"
+  | "postponed"
+  | "cancelled"
+  | "abandoned"
+  | "notplayed"
+  | "allgames";
 
 export interface ShortStatusMap {
-  Scheduled: string[];
-  InPlay: string[];
-  Finished: string[];
-  Postponed: string[];
-  Cancelled: string[];
-  Abandoned: string[];
-  NotPlayed: string[];
-  AllGames: string[];
+  scheduled: string[];
+  inplay: string[];
+  finished: string[];
+  postponed: string[];
+  cancelled: string[];
+  abandoned: string[];
+  notplayed: string[];
+  allgames: string[];
 }
 
 export interface Filters {
@@ -336,6 +337,12 @@ export function isAFLTeamStats(
 
 export function isAPIError(item: any): item is string {
   return typeof item === "string";
+}
+
+export function isSeasons(
+  item: (Seasons | SeasonsEntity)[] | (number | string)[]
+): item is (Seasons | SeasonsEntity)[] {
+  return Array.isArray(item) && item.length > 0 && typeof item[0] !== "number";
 }
 
 export type FilterWrappers = {
