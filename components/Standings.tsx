@@ -17,8 +17,8 @@ import {
   TableRow,
 } from "./ui/Shadcn/table";
 import { GroupedData, cn, groupStandingsByProperty } from "@/lib/utils";
-import { AustralianFootballStandings as AFLStandings } from "@/types/australian-football";
-import { NFLStandings } from "@/types/american-football";
+import { AustralianFootballStandings as TAFLStandings } from "@/types/australian-football";
+import { NFLStandings as TNFLStandings } from "@/types/american-football";
 import ImageWithFallback from "./ImageWithFallback";
 import Link from "next/link";
 import NotFound from "./NotFound";
@@ -31,11 +31,11 @@ function isOtherSportStandingsResponse(data: any): data is TStandings[] {
   return data && "position" in data?.[0];
 }
 
-function isAFLStandingsResponse(data: any): data is AFLStandings[] {
+function isAFLStandingsResponse(data: any): data is TAFLStandings[] {
   return data && "last_5" in data?.[0];
 }
 
-function isNFLStandingsResponse(data: any): data is NFLStandings[] {
+function isNFLStandingsResponse(data: any): data is TNFLStandings[] {
   return data && "ncaa_conference" in data?.[0];
 }
 
@@ -162,7 +162,7 @@ const NFLStandings = ({
   standings,
   sport,
 }: {
-  standings: GroupedData<NFLStandings>;
+  standings: GroupedData<TNFLStandings>;
   sport: Sports;
 }) => {
   return Object.keys(standings).map((key, index) => (
@@ -198,7 +198,7 @@ const AFLStandings = ({
   standings,
   sport,
 }: {
-  standings: AFLStandings[];
+  standings: TAFLStandings[];
   sport: Sports;
 }) => {
   return (
