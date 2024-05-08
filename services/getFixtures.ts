@@ -1,6 +1,36 @@
 import { APIResponse, AllSportsFixtures, Sports } from "@/types/general";
 import { getBaseURL, getHeaders } from "./api";
 
+export async function getFixturesByDate(date: string, sport: Sports) {
+  try {
+    const BASE_URL = getBaseURL(sport);
+    const response = await fetch(
+      `${BASE_URL}/${sport === "football" ? "fixtures" : "games"}?date=${date}`,
+      {
+        headers: getHeaders(sport),
+        next: { revalidate: 15 * 60 },
+      }
+    );
+    const data: APIResponse<AllSportsFixtures> = await response.json();
+    if (!Array.isArray(data.errors)) {
+      console.log(data.errors);
+      throw new Error(
+        "There is an error while fetching data from the API. Please come back after sometime."
+      );
+    }
+    if (!data.response) {
+      throw new Error("No fixtures found.");
+    }
+    return { success: data.response };
+  } catch (e) {
+    if (e instanceof Error) {
+      console.log(e.message);
+      return { error: e.message };
+    }
+    return { error: "Something went wrong." };
+  }
+}
+
 export async function getFixturesByLeagueId(
   id: string,
   season: string,
