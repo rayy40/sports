@@ -12,13 +12,13 @@ type Props = {
   params: { teamId: string; sport: Sports };
 };
 
-export function isFootballTeam(
+function isFootballTeam(
   item: TeamResponse | FootballTeamResponse
 ): item is FootballTeamResponse {
   return "venue" in item && "team" in item;
 }
 
-export function isNonFootballTeam(
+function isNonFootballTeam(
   item: TeamResponse | FootballTeamResponse
 ): item is TeamResponse {
   return "id" in item && "name" in item && "logo" in item;

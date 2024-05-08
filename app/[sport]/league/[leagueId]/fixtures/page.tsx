@@ -4,7 +4,7 @@ import Await from "@/components/Await";
 import Loading from "@/components/Loading";
 import MobileFilter from "@/components/MobileFilter";
 import { FilterDropDown } from "@/components/FilterDropDown";
-import FixturesTable from "@/components/ui/FixturesTable";
+import FixturesTable from "@/components/FixturesTable";
 import Tabs from "@/components/ui/Tabs";
 import { sports, statusFilters } from "@/lib/constants";
 import { getTeams } from "@/lib/utils";

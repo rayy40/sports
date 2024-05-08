@@ -14,19 +14,19 @@ type Props = {
   params: { leagueId: string; sport: Sports };
 };
 
-export function isFootballLeagues(
+function isFootballLeagues(
   item: Leagues | League<Seasons[]> | AFLLeague
 ): item is Leagues {
   return "league" in item && "country" in item;
 }
 
-export function isNonFootballLeagues(
+function isNonFootballLeagues(
   item: Leagues | League<Seasons[]> | AFLLeague
 ): item is League<Seasons[]> {
   return !("league" in item && "country" in item) && "seasons" in item;
 }
 
-export function isAmericanFootballLeague(
+function isAmericanFootballLeague(
   item: (Leagues | League<Seasons[]> | AFLLeague)[]
 ): item is AFLLeague[] {
   return !("league" in item[0] && "country" in item[0]) && "season" in item[0];
