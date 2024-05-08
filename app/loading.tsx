@@ -1,10 +1,10 @@
 import React from "react";
-import BounceLoading from "@/components/Loading";
+import BounceLoader from "@/components/ui/BounceLoader";
 
 const Loading = () => {
   return (
     <div className="w-full h-screen">
-      <BounceLoading />
+      <BounceLoader />
     </div>
   );
 };

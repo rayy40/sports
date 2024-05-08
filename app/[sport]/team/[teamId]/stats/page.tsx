@@ -1,5 +1,5 @@
 import Await from "@/components/Await";
-import Loading from "@/components/Loading";
+import BounceLoader from "@/components/ui/BounceLoader";
 import MobileFilter from "@/components/MobileFilter";
 import { FilterDropDown } from "@/components/FilterDropDown";
 import Tabs from "@/components/ui/Tabs";
@@ -51,7 +51,7 @@ const Page = async ({ searchParams, params }: Props) => {
         </div>
         <MobileFilter tabs={tabs} isHome={false} isFixture={false} />
       </div>
-      <Suspense key={key} fallback={<Loading />}>
+      <Suspense key={key} fallback={<BounceLoader />}>
         <Await promise={promise}>
           {({ success, error }) => {
             if (error) {

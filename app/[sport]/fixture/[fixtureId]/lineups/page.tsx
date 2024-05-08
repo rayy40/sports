@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import Await from "@/components/Await";
-import Loading from "@/components/Loading";
+import BounceLoader from "@/components/ui/BounceLoader";
 import MobileFilter from "@/components/MobileFilter";
 import Tabs from "@/components/ui/Tabs";
 import { sports } from "@/lib/constants";
@@ -46,7 +46,7 @@ const Page = async ({ searchParams, params }: Props) => {
           isFixture={false}
         />
       </div>
-      <Suspense key={key} fallback={<Loading />}>
+      <Suspense key={key} fallback={<BounceLoader />}>
         <Await promise={promise}>
           {({ success, error }) => {
             if (error) {

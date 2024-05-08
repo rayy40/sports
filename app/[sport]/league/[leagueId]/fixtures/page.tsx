@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import Await from "@/components/Await";
-import Loading from "@/components/Loading";
+import BounceLoader from "@/components/ui/BounceLoader";
 import MobileFilter from "@/components/MobileFilter";
 import { FilterDropDown } from "@/components/FilterDropDown";
 import FixturesTable from "@/components/FixturesTable";
@@ -57,7 +57,7 @@ const Page = async ({ searchParams, params }: Props) => {
           isFixture={true}
         />
       </div>
-      <Suspense key={key} fallback={<Loading />}>
+      <Suspense key={key} fallback={<BounceLoader />}>
         <Await promise={promise}>
           {({ success, error }) => {
             if (error) {

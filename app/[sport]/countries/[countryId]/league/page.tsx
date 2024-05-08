@@ -2,7 +2,7 @@ import { Suspense } from "react";
 
 import Await from "@/components/Await";
 import CountriesWrapper from "@/components/CountriesWrapper";
-import Loading from "@/components/Loading";
+import BounceLoader from "@/components/ui/BounceLoader";
 import { sports } from "@/lib/constants";
 import { getLeagueByCode } from "@/services/getLeagues";
 import { Sports } from "@/types/general";
@@ -28,7 +28,7 @@ const Page = async ({ params, searchParams }: Props) => {
   const query = searchParams.search || "";
 
   return (
-    <Suspense key={key} fallback={<Loading />}>
+    <Suspense key={key} fallback={<BounceLoader />}>
       <Await promise={promise}>
         {({ success, error }) => {
           if (error) {
