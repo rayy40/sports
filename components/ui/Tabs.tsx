@@ -27,7 +27,7 @@ const Tabs = ({ id, leagueId, isTeam = false, isHome = false }: Props) => {
   };
 
   const baseURL = getBaseUrl(path);
-  const status = searchParams.get("status");
+  const status = searchParams.get("status") || "all games";
   const segments = path.split("/");
   const lastSegment = segments[segments.length - 1];
 
