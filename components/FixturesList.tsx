@@ -1,5 +1,5 @@
 import { Table as TableProp, flexRender } from "@tanstack/react-table";
-import { TableBody, Table, TableRow, TableCell } from "./Shadcn/table";
+import { TableBody, Table, TableRow, TableCell } from "./ui/Shadcn/table";
 import { forwardRef } from "react";
 import { AllSportsFixtures } from "@/types/general";
 import { TableVirtuoso } from "react-virtuoso";

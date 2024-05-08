@@ -3,9 +3,9 @@
 import { AllSportsFixtures, Sports } from "@/types/general";
 import { forwardRef, useEffect, useMemo } from "react";
 import { TableVirtuoso } from "react-virtuoso";
-import { Table, TableBody, TableCell, TableRow } from "./Shadcn/table";
+import { Table, TableBody, TableCell, TableRow } from "./ui/Shadcn/table";
 import { cn, getBaseUrl, getFixtureData, getTabs } from "@/lib/utils";
-import ImageWithFallback from "../ImageWithFallback";
+import ImageWithFallback from "./ImageWithFallback";
 import { shortStatusMap } from "@/lib/constants";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
