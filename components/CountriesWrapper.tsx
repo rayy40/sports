@@ -36,7 +36,7 @@ const CountriesWrapper = <
   function getUrl(item: T) {
     const id =
       "code" in item ? item.code : "id" in item ? item.id : item.league.id;
-    return `/${sport}/${type}/${id}/${type === "league" ? "" : "league"}`;
+    return `/${sport}/${type}/${id}/${type === "league" ? "fixtures" : "league"}`;
   }
 
   const values = data.filter((item) => {
