@@ -33,13 +33,13 @@ const BoxHeader = ({
     <div className="flex items-center justify-between w-full px-1 py-2 rounded-sm bg-secondary/70">
       <Link
         className="text-sm lg:text-[1rem] capitalize font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
-        href={id ? `/${sport}/league/${id}` : `/${sport}/countries`}
+        href={id ? `/${sport}/league/${id}/fixtures` : `/${sport}/countries`}
       >
         {name}
       </Link>
       <Link
         className="mr-2 text-xs lg:text-sm text-secondary-foreground underline-hover"
-        href={id ? `/${sport}/league/${id}` : `/${sport}/countries`}
+        href={id ? `/${sport}/league/${id}/fixtures` : `/${sport}/countries`}
       >
         See more
       </Link>
