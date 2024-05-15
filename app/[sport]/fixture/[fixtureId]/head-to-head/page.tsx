@@ -44,16 +44,18 @@ const Page = async ({ searchParams, params }: Props) => {
     <>
       <div className="flex bg-secondary/30 items-center justify-center w-full px-3 pt-3 shadow-sm border-b-2 lg:px-6">
         <div className="items-end hidden gap-6 lg:flex">
-          {tabs.map((tab, index) => (
+          {tabs?.map((tab, index) => (
             <Tabs key={index} id={tab} />
           ))}
         </div>
-        <MobileFilter
-          tabs={tabs}
-          isHome={false}
-          labels={[]}
-          isFixture={false}
-        />
+        {tabs && (
+          <MobileFilter
+            tabs={tabs}
+            isHome={false}
+            labels={[]}
+            isFixture={false}
+          />
+        )}
       </div>
       <Suspense key={key} fallback={<BounceLoader />}>
         <Await promise={promise}>
