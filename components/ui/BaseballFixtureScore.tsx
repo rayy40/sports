@@ -15,10 +15,9 @@ export const BaseballFixtureScore = ({
 }: {
   fixture?: Games<BaseballScores>;
 }) => {
-  console.log(fixture);
   if (!fixture) return;
 
-  const getLastName = (key: "home" | "away") => {
+  const getFirstName = (key: "home" | "away") => {
     return fixture?.teams[key].name.split(" ")[0];
   };
   return (
@@ -29,36 +28,58 @@ export const BaseballFixtureScore = ({
           {Object.keys(fixture.scores.home.innings)
             .filter((_, index) => index < 9)
             .map((inning) => (
-              <TableHead className="px-2 lg:px-4" key={inning}>
+              <TableHead className="text-center px-2 lg:px-4" key={inning}>
                 {inning}
               </TableHead>
             ))}
-          <TableHead className="px-2 lg:px-4">R</TableHead>
-          <TableHead className="px-2 lg:px-4">H</TableHead>
-          <TableHead className="px-2 lg:px-4">E</TableHead>
+          <TableHead className="text-center font-bold px-2 lg:px-4">
+            R
+          </TableHead>
+          <TableHead className="text-center font-bold px-2 lg:px-4">
+            H
+          </TableHead>
+          <TableHead className="text-center font-bold px-2 lg:px-4">
+            E
+          </TableHead>
         </TableHeader>
         <TableBody>
           <TableRow>
-            <TableCell>{getLastName("home")}</TableCell>
+            <TableCell>{getFirstName("home")}</TableCell>
             {Object.values(fixture.scores.home.innings)
               .filter((_, index) => index < 9)
               .map((value, index) => (
-                <TableCell key={index}>{value ?? "-"}</TableCell>
+                <TableCell className="text-center" key={index}>
+                  {value ?? "-"}
+                </TableCell>
               ))}
-            <TableCell>{fixture.scores.home.total ?? "-"}</TableCell>
-            <TableCell>{fixture.scores.home.hits ?? "-"}</TableCell>
-            <TableCell>{fixture.scores.home.errors ?? "-"}</TableCell>
+            <TableCell className="text-center font-bold">
+              {fixture.scores.home.total ?? "-"}
+            </TableCell>
+            <TableCell className="text-center font-bold">
+              {fixture.scores.home.hits ?? "-"}
+            </TableCell>
+            <TableCell className="text-center font-bold">
+              {fixture.scores.home.errors ?? "-"}
+            </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell>{getLastName("away")}</TableCell>
+            <TableCell>{getFirstName("away")}</TableCell>
             {Object.values(fixture.scores.away.innings)
               .filter((_, index) => index < 9)
               .map((value, index) => (
-                <TableCell key={index}>{value ?? "-"}</TableCell>
+                <TableCell className="text-center" key={index}>
+                  {value ?? "-"}
+                </TableCell>
               ))}
-            <TableCell>{fixture.scores.away.total ?? "-"}</TableCell>
-            <TableCell>{fixture.scores.away.hits ?? "-"}</TableCell>
-            <TableCell>{fixture.scores.away.errors ?? "-"}</TableCell>
+            <TableCell className="text-center font-bold">
+              {fixture.scores.away.total ?? "-"}
+            </TableCell>
+            <TableCell className="text-center font-bold">
+              {fixture.scores.away.hits ?? "-"}
+            </TableCell>
+            <TableCell className="text-center font-bold">
+              {fixture.scores.away.errors ?? "-"}
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
