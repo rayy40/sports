@@ -110,7 +110,7 @@ export interface Games<T> {
   time: string;
   timestamp: number;
   timezone: string;
-  stage: string | null;
+  stage?: string | null;
   week: string | null;
   status: Status;
   league: League;
@@ -131,14 +131,15 @@ export interface GamesWithPeriodsAndEvents<T> extends Games<T> {
 export interface Status {
   long: string;
   short: string;
-  timer: number | null;
+  timer?: number | null;
 }
 
-export interface League<T = string> {
+export interface League<T = string | number> {
   id: number;
   name: string;
   type: string;
-  seasons: T;
+  seasons?: T;
+  season?: T;
   logo: string | null;
 }
 
@@ -295,6 +296,12 @@ export function isFootballDetailedFixture(
   item: AllSportsFixtures | DetailedFixture
 ): item is DetailedFixture {
   return "fixture" in item && "goals" in item && "lineups" in item;
+}
+
+export function isBaseballFixture(item: any): item is Games<BaseballScores> {
+  return (
+    "scores" in item && "home" in item.scores && "innings" in item.scores.home
+  );
 }
 
 export function isNBAFixture(item: AllSportsFixtures): item is NBAGames {

@@ -5,19 +5,19 @@ const FootballFixtureScore = ({
   events,
   homeTeam,
 }: {
-  events: Timeline[];
-  homeTeam: number;
+  events?: Timeline[];
+  homeTeam?: number;
 }) => {
-  const homePlayers = events.filter(
+  const homePlayers = events?.filter(
     (event) => event.team.id === homeTeam && event.type.toLowerCase() === "goal"
   );
-  const awayPlayers = events.filter(
+  const awayPlayers = events?.filter(
     (event) => event.team.id !== homeTeam && event.type.toLowerCase() === "goal"
   );
   return (
     <div className="flex px-2 text-xs lg:text-sm justify-between items-start">
       <div className="flex flex-col items-start">
-        {homePlayers.map((event, index) => (
+        {homePlayers?.map((event, index) => (
           <p key={index} className="capitalize">
             {event.player.name}
             <span className="text-secondary-foreground font-medium ml-3">
@@ -28,7 +28,7 @@ const FootballFixtureScore = ({
         ))}
       </div>
       <div className="flex flex-col items-end">
-        {awayPlayers.map((event, index) => (
+        {awayPlayers?.map((event, index) => (
           <p key={index} className="capitalize">
             {event.player.name}
             <span className="text-secondary-foreground font-medium ml-3">
