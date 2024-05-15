@@ -6,7 +6,11 @@ import {
   NFLTeamsStatisticsResponse as NFLStatsResponse,
 } from "@/types/american-football";
 import { AustralianFootballFixtureStatisticsResponse as AFLStatsResponse } from "@/types/australian-football";
-import { FixtureStatisticsResponse, Lineups, Timeline } from "@/types/football";
+import {
+  FixtureLineups,
+  FixtureStatisticsResponse,
+  Timeline,
+} from "@/types/football";
 
 export async function getFixtureEvents(id: string, sport: Sports) {
   try {
@@ -130,7 +134,7 @@ export async function getFixtureLineups(id: string, sport: Sports) {
       headers: getHeaders(sport),
       next: { revalidate: 15 * 60 },
     });
-    const data: APIResponse<Lineups> = await response.json();
+    const data: APIResponse<FixtureLineups> = await response.json();
 
     if (data.errors && Object.keys(data.errors).length > 0) {
       const key = Object.keys(data.errors)[0];

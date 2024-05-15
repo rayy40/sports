@@ -4,7 +4,7 @@ export interface Fixtures {
   fixture: Fixture;
   league: League;
   teams: Teams;
-  goals: HalftimeOrGoals;
+  goals: HalftimeOrFulltimeOrExtratimeOrPenalty;
   score: Score;
 }
 export interface Fixture {
@@ -14,14 +14,14 @@ export interface Fixture {
   date: string;
   timestamp: number;
   periods: Periods;
-  venue: Venue;
+  venue: FixtureVenue;
   status: Status;
 }
 export interface Periods {
-  first: number;
-  second?: null;
+  first: number | null;
+  second?: number | null;
 }
-export interface Venue {
+export interface FixtureVenue {
   id: number;
   name: string;
   city: string;
@@ -50,20 +50,15 @@ export interface HomeOrAway {
   logo: string;
   winner: boolean;
 }
-export interface HalftimeOrGoals {
-  home: number;
-  away: number;
-}
-
 export interface Score {
-  halftime: HalftimeOrGoals;
-  fulltime: FulltimeOrExtratimeOrPenalty;
-  extratime: FulltimeOrExtratimeOrPenalty;
-  penalty: FulltimeOrExtratimeOrPenalty;
+  halftime: HalftimeOrFulltimeOrExtratimeOrPenalty;
+  fulltime: HalftimeOrFulltimeOrExtratimeOrPenalty;
+  extratime: HalftimeOrFulltimeOrExtratimeOrPenalty;
+  penalty: HalftimeOrFulltimeOrExtratimeOrPenalty;
 }
-export interface FulltimeOrExtratimeOrPenalty {
-  home?: null;
-  away?: null;
+export interface HalftimeOrFulltimeOrExtratimeOrPenalty {
+  home?: number | null;
+  away?: number | null;
 }
 
 export interface Leagues {
@@ -168,12 +163,13 @@ export interface Birth {
   country: string;
 }
 export interface PlayerStatistics {
-  team: Team;
-  league: League;
+  team?: Team;
+  league?: League;
   games: Games;
-  substitutes: Substitutes;
+  offsides: number | null;
+  substitutes?: Substitutes;
   shots: Shots;
-  goals: Goals;
+  goals: FixtureGoals;
   passes: Passes;
   tackles: Tackles;
   duels: Duels;
@@ -196,13 +192,14 @@ export interface League {
   season: number;
 }
 export interface Games {
-  appearences: number;
-  lineups: number;
-  minutes: number;
-  number?: null;
-  position: string;
-  rating: string;
-  captain: boolean;
+  appearences?: number | null;
+  lineups?: string | null;
+  minutes: number | null;
+  number: number | null;
+  position: string | null;
+  rating: string | null;
+  captain: boolean | null;
+  substitute: boolean | null;
 }
 export interface Substitutes {
   in: number;
@@ -210,49 +207,49 @@ export interface Substitutes {
   bench: number;
 }
 export interface Shots {
-  total: number;
-  on: number;
+  total: number | null;
+  on: number | null;
 }
-export interface Goals {
-  total: number;
-  conceded?: null;
-  assists: number;
-  saves: number;
+export interface FixtureGoals {
+  total: number | null;
+  conceded: number | null;
+  assists: number | null;
+  saves: number | null;
 }
 export interface Passes {
-  total: number;
-  key: number;
-  accuracy: number;
+  total: number | null;
+  key: number | null;
+  accuracy: string | null;
 }
 export interface Tackles {
-  total: number;
-  blocks: number;
-  interceptions: number;
+  total: number | null;
+  blocks: number | null;
+  interceptions: number | null;
 }
 export interface Duels {
-  total: number;
-  won: number;
+  total: number | null;
+  won: number | null;
 }
 export interface Dribbles {
-  attempts: number;
-  success: number;
-  past?: null;
+  attempts: number | null;
+  success: number | null;
+  past: number | null;
 }
 export interface Fouls {
-  drawn: number;
-  committed: number;
+  drawn: number | null;
+  committed: number | null;
 }
 export interface Cards {
-  yellow: number;
-  yellowred: number;
-  red: number;
+  yellow: number | null;
+  yellowred?: number | null;
+  red: number | null;
 }
 export interface Penalty {
-  won: number;
-  commited?: null;
-  scored: number;
-  missed: number;
-  saved?: null;
+  won: number | null;
+  commited: number | null;
+  scored: number | null;
+  missed: number | null;
+  saved: number | null;
 }
 
 export interface Squads {
@@ -390,10 +387,10 @@ export interface FixtureStatisticsResponse {
 }
 export interface FixtureStatistics {
   type: string;
-  value?: number | string;
+  value?: number | string | null;
 }
 
-export interface Lineups {
+export interface FixtureLineups {
   team: Team & { colors: Colors };
   coach: Coach;
   formation: string;
@@ -422,7 +419,7 @@ export interface LineupPlayer {
   name: string;
   number: number;
   pos: string;
-  grid?: string;
+  grid: string | null;
 }
 
 export interface Timeline {
@@ -443,8 +440,21 @@ export interface PlayerOrAssist {
   name: string | null;
 }
 
+export interface PlayerStatisticsEntity {
+  player: {
+    id: number;
+    name: string;
+    photo: string | null;
+  };
+  statistics?: PlayerStatistics[] | null;
+}
+
 export interface DetailedFixture extends Fixtures {
   statistics: FixtureStatisticsResponse[];
-  lineups: Lineups[];
+  lineups: FixtureLineups[];
   events: Timeline[];
+  players: {
+    team: Team & { update: string | null };
+    players: PlayerStatisticsEntity[] | null;
+  }[];
 }

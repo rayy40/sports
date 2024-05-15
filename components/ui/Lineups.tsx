@@ -1,12 +1,18 @@
-import { Lineups as TLineups } from "@/types/football";
+import { FixtureLineups } from "@/types/football";
 import React from "react";
 import NotFound from "../NotFound";
 
 type Props = {
-  lineups?: TLineups[];
+  lineups?: FixtureLineups[];
 };
 
-const Lineup = ({ lineup, isAway }: { lineup: TLineups; isAway: boolean }) => {
+const Lineup = ({
+  lineup,
+  isAway,
+}: {
+  lineup: FixtureLineups;
+  isAway: boolean;
+}) => {
   if (!lineup) return <p>No lineup found.</p>;
 
   return (
