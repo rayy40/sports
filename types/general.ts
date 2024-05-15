@@ -303,6 +303,16 @@ export function isBaseballFixture(item: any): item is Games<BaseballScores> {
     "scores" in item && "home" in item.scores && "innings" in item.scores.home
   );
 }
+export function isBasketballFixture(
+  item: any
+): item is Games<BasketballScores> {
+  return (
+    "scores" in item &&
+    "home" in item.scores &&
+    "quarter_1" in item.scores.home &&
+    "over_time" in item.scores.home
+  );
+}
 
 export function isNBAFixture(item: AllSportsFixtures): item is NBAGames {
   return typeof item.league === "string";
