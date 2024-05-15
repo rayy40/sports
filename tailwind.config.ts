@@ -79,6 +79,7 @@ const config = {
       },
       gridTemplateColumns: {
         list: "1fr 100px 1fr",
+        fixture: "minmax(0, 1fr) 120px minmax(0, 1fr)",
         fixtures: "repeat(auto-fill, minmax(300px, 1fr))",
       },
       keyframes: {

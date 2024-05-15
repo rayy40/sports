@@ -62,11 +62,11 @@ const MatchStat = ({ stats }: Props) => {
 
   return (
     <div className="max-w-[1000px] w-full mx-auto">
-      <Table className="my-6">
+      <Table className="my-2 ">
         <TableBody>
           {mergedStats &&
             Object.keys(mergedStats).map((stat, index) => (
-              <TableRow key={index}>
+              <TableRow className="even:bg-secondary/10" key={index}>
                 <TableCell className="text-center">
                   {mergedStats[stat]?.home ?? "-"}
                 </TableCell>
