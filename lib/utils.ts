@@ -793,18 +793,18 @@ export const groupEventsByPeriods = (events: (HockeyEvents | NFLEvents)[]) => {
 };
 
 export const getTabs = (sport: Sports) => {
-  let tabs: string[] = [];
-  if (["baseball", "basketball", "rugby"].includes(sport)) {
-    tabs = ["Head to head"];
-  } else if (sport === "american-football") {
-    tabs = ["Events", "Match Stat"];
-  } else if (sport === "australian-football") {
-    tabs = ["Match Stat"];
-  } else if (sport === "hockey") {
-    tabs = ["Head to Head", "Events"];
-  } else if (sport === "football") {
-    tabs = ["Head to Head", "Events", "Match Stat", "Lineups"];
+  switch (sport) {
+    case "baseball":
+    case "basketball":
+    case "rugby":
+      return ["Head to head"];
+    case "american-football":
+      return ["Events", "Match Stat"];
+    case "australian-football":
+      return ["Match Stat"];
+    case "hockey":
+      return ["Head to Head", "Events"];
+    case "football":
+      return ["Head to Head", "Events", "Match Stat", "Lineups"];
   }
-
-  return tabs;
 };
