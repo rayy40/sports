@@ -29,11 +29,11 @@ const Page = async ({ searchParams, params }: Props) => {
 
   const promise = getFixtureLineups(fixtureId, params.sport);
 
-  const tabs = ["Head to Head", "Events", "Lineups", "Match Stat"];
+  const tabs = ["Head to Head", "Events", "Match Stat", "Lineups"];
 
   return (
     <>
-      <div className="flex items-center justify-center w-full px-3 pt-3 shadow-sm lg:px-6 bg-background">
+      <div className="flex bg-secondary/30 items-center justify-center w-full px-3 pt-3 shadow-sm border-b-2 lg:px-6">
         <div className="items-end hidden gap-6 lg:flex">
           {tabs.map((tab, index) => (
             <Tabs key={index} id={tab} />
