@@ -4,6 +4,7 @@ import BoxFixture from "@/components/ui/BoxFixture";
 import { getFixtureData } from "@/lib/utils";
 import { getFeaturedFixtures } from "@/services/getFixtures";
 import MobileFilter from "@/components/MobileFilter";
+import { Sports } from "@/types/general";
 
 const Page = async () => {
   const date = new Date();
@@ -151,7 +152,7 @@ const Page = async () => {
               {league.fixtures?.success?.map((fixture) => (
                 <BoxFixture
                   key={getFixtureData(fixture).fixtureId}
-                  sport={"football"}
+                  sport={league.sport as Sports}
                   fixture={getFixtureData(fixture)}
                 />
               ))}
