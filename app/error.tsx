@@ -16,7 +16,7 @@ export default function Error({
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-screen gap-2 font-sans">
-      <h2 className="text-lg font-medium text-red-500">
+      <h2 className="text-lg text-center font-medium text-red-500">
         {error.message ?? "Something went wrong"}
       </h2>
       <Button variant={"outline"} onClick={() => window.location.reload()}>
