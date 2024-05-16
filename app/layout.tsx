@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import Providers from "@/lib/Providers";
 import Navbar from "@/components/Navbar";
+import { Analytics } from "@vercel/analytics/react";
 
 const roboto = Roboto({
   weight: ["100", "300", "400", "500", "700", "900"],
@@ -33,6 +34,7 @@ export default function RootLayout({
           <Providers>{children}</Providers>
         </div>
       </body>
+      <Analytics />
     </html>
   );
 }
