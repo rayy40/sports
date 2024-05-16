@@ -1,19 +1,13 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
-  Leagues,
   League as FootballLeague,
   PlayersEntity,
   TeamStatistics as FootballTeamStatistics,
   FixtureStatisticsResponse,
   Timeline,
 } from "@/types/football";
-import {
-  NBAPlayer,
-  NBAStandings,
-  NBAStatistics,
-  NBATeams,
-} from "@/types/basketball";
+import { NBAPlayer, NBAStandings, NBAStatistics } from "@/types/basketball";
 import {
   NFLEvents,
   League as NFLLeague,
@@ -22,13 +16,9 @@ import {
   NFLTeamsStatisticsResponse,
 } from "@/types/american-football";
 import {
-  Filters,
-  APIResponse,
-  StatusType,
   TeamStatistics,
   Standings,
   League,
-  Teams,
   AllSportsFixtures,
   isFootballFixture,
   isNBAFixture,
@@ -36,11 +26,8 @@ import {
   isNFLFixture,
   Sports,
 } from "@/types/general";
-import { impFootballLeagueIds, shortStatusMap } from "./constants";
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import {
   AustralianFootballFixtureStatistics,
-  AustralianFootballLeagueOrTeamInfo,
   AustralianFootballStatistics,
   TotalOrAverageStats,
 } from "@/types/australian-football";
