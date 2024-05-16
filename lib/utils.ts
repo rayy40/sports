@@ -797,7 +797,7 @@ export const getTabs = (sport: Sports) => {
     case "baseball":
     case "basketball":
     case "rugby":
-      return null;
+      return ["Head to Head"];
     case "american-football":
       return ["Events", "Match Stat"];
     case "australian-football":

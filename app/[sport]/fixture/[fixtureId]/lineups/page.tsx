@@ -8,6 +8,7 @@ import { sports } from "@/lib/constants";
 import { Sports } from "@/types/general";
 import { getFixtureLineups } from "@/services/getFixtureStat";
 import Lineups from "@/components/ui/Lineups";
+import { getTabs } from "@/lib/utils";
 
 type Props = {
   searchParams: {
@@ -29,22 +30,26 @@ const Page = async ({ searchParams, params }: Props) => {
 
   const promise = getFixtureLineups(fixtureId, params.sport);
 
-  const tabs = ["Head to Head", "Events", "Match Stat", "Lineups"];
+  const tabs = getTabs(params.sport);
 
   return (
     <>
       <div className="flex bg-secondary/30 items-center justify-center w-full px-3 pt-3 shadow-sm border-b-2 lg:px-6">
         <div className="items-end hidden gap-6 lg:flex">
-          {tabs.map((tab, index) => (
-            <Tabs key={index} id={tab} />
-          ))}
+          {tabs
+            .filter((_, index) => index > 0)
+            .map((tab, index) => (
+              <Tabs key={index} id={tab} />
+            ))}
         </div>
-        <MobileFilter
-          tabs={tabs}
-          isHome={false}
-          labels={[]}
-          isFixture={false}
-        />
+        {tabs.length > 0 && (
+          <MobileFilter
+            tabs={tabs}
+            isHome={false}
+            labels={[]}
+            isFixture={false}
+          />
+        )}
       </div>
       <Suspense key={key} fallback={<BounceLoader />}>
         <Await promise={promise}>
