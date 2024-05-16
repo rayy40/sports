@@ -61,8 +61,14 @@ const LeagueLayout = async ({ children, params }: Props) => {
 
     if (!Array.isArray(data.success) && isNonFootballLeagues(data.success)) {
       season =
-        data.success.seasons?.[data.success.seasons?.length - 1].season || "";
-      seasonsList = data.success.seasons.map((item) => item.season);
+        "season" in data.success
+          ? data.success.season?.[data.success.season.length - 1].season || ""
+          : data.success.seasons?.[data.success.seasons?.length - 1].season ||
+            "";
+      seasonsList =
+        data.success.season?.map((item) => item.season) ??
+        data.success.seasons?.map((item) => item.season) ??
+        [];
       league = data.success;
     }
 
