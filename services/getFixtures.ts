@@ -8,7 +8,7 @@ export async function getFixturesByDate(date: string, sport: Sports) {
       `${BASE_URL}/${sport === "football" ? "fixtures" : "games"}?date=${date}`,
       {
         headers: getHeaders(sport),
-        next: { revalidate: 15 * 60 },
+        next: { revalidate: 5 * 60 },
       }
     );
     const data: APIResponse<AllSportsFixtures> = await response.json();
@@ -44,7 +44,7 @@ export async function getFixturesByLeagueId(
       }?season=${season}&league=${id}`,
       {
         headers: getHeaders(sport),
-        next: { revalidate: 15 * 60 },
+        next: { revalidate: 10 * 60 },
       }
     );
     const data: APIResponse<AllSportsFixtures> = await response.json();
@@ -87,7 +87,7 @@ export async function getFixturesByTeamId(
       }?${paramsString}`,
       {
         headers: getHeaders(sport),
-        next: { revalidate: 15 * 60 },
+        next: { revalidate: 10 * 60 },
       }
     );
     const data: APIResponse<AllSportsFixtures> = await response.json();
@@ -119,7 +119,7 @@ export async function getFixtureById(id: string, sport: Sports) {
       `${BASE_URL}/${sport === "football" ? "fixtures" : "games"}?id=${id}`,
       {
         headers: getHeaders(sport),
-        next: { revalidate: 15 * 60 },
+        next: { revalidate: 2 * 60 },
       }
     );
     const data: APIResponse<AllSportsFixtures> = await response.json();
@@ -166,7 +166,7 @@ export async function getHeadtoHeadFixtures(
       }?h2h=${teamId1}-${teamId2}`,
       {
         headers: getHeaders(sport),
-        next: { revalidate: 15 * 60 },
+        next: { revalidate: 60 * 60 },
       }
     );
     const data: APIResponse<AllSportsFixtures> = await response.json();
@@ -216,7 +216,7 @@ export async function getFeaturedFixtures(
       }?${paramsString}`,
       {
         headers: getHeaders(sport),
-        next: { revalidate: 15 * 60 },
+        next: { revalidate: 5 * 60 },
       }
     );
     const data: APIResponse<AllSportsFixtures> = await response.json();
