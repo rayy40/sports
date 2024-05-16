@@ -7,7 +7,7 @@ import DetailedFixtureScore from "@/components/ui/DetailedFixtureScore";
 import { sports } from "@/lib/constants";
 import { cn, getFixtureData } from "@/lib/utils";
 import { getFixtureById } from "@/services/getFixtures";
-import { Sports, Team } from "@/types/general";
+import { Sports, type Team } from "@/types/general";
 
 type Props = {
   children: ReactNode;
