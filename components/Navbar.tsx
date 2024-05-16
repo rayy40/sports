@@ -59,7 +59,6 @@ const Navbar = () => {
   return (
     <div className="sticky top-0 left-0 z-50 flex-col items-center justify-between hidden w-16 h-screen p-6 font-sans border shadow-sm lg:flex bg-background">
       <Link
-        prefetch={true}
         href={"/"}
         className={`rounded-full ${
           currSport === "/"
@@ -74,7 +73,6 @@ const Navbar = () => {
       {sports.map((sport, index) => (
         <Link
           key={index}
-          prefetch={true}
           href={sport.link}
           className={`rounded-full ${
             currSport === sport.link

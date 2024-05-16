@@ -11,7 +11,7 @@ type Props = {
 
 const BoxList = ({ name, logo, url }: Props) => {
   return (
-    <Link prefetch={true} href={url}>
+    <Link href={url}>
       <div className="min-w-[200px] flex gap-8 items-center justify-between p-4 border hover:border-secondary-foreground/30 border-secondary rounded-sm cursor-pointer transition-colors">
         <h3>{name}</h3>
         {logo ? (

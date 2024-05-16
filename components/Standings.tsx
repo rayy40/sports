@@ -104,7 +104,7 @@ const StandingHeader = ({ title }: { title: string }) => {
 
 const StandingTeam = ({ team, sport }: { team: Team; sport: Sports }) => {
   return (
-    <Link prefetch={true} href={`/${sport}/team/${team.id}/fixtures`}>
+    <Link href={`/${sport}/team/${team.id}/fixtures`}>
       <div className="flex items-center gap-1 lg:gap-3">
         <ImageWithFallback
           className="w-[25px] lg:w-[40px]"

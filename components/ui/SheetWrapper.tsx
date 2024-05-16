@@ -96,7 +96,6 @@ const SheetWrapper = ({
             {labels.map((label, index) => (
               <SheetClose asChild key={index}>
                 <Link
-                  prefetch={true}
                   href={
                     query.length > 0
                       ? `?${handleSearchParams(

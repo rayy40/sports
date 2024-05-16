@@ -74,7 +74,7 @@ const StandingPlayer = ({ player }: { player: Player }) => {
 
 const StandingTeam = ({ team }: { team?: Team }) => {
   return (
-    <Link prefetch={true} href={`/football/teams/${team?.id}`}>
+    <Link href={`/football/teams/${team?.id}`}>
       <p className="text-sm text-center">{team?.name}</p>
     </Link>
   );

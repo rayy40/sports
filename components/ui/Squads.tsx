@@ -67,17 +67,14 @@ const Squads = ({ data, sport }: Props) => {
                   >
                     <div className="flex items-center gap-3">
                       {player?.photo?.length > 0 && (
-                        <Link prefetch={true} href={`/player/${player.id}`}>
+                        <Link href={`/player/${player.id}`}>
                           <ImageWithFallback
                             src={player.photo}
                             alt={`${player.name}-profile`}
                           />
                         </Link>
                       )}
-                      <Link
-                        prefetch={true}
-                        href={`/${sport}/player/${player.id}`}
-                      >
+                      <Link href={`/${sport}/player/${player.id}`}>
                         <p>{player?.name}</p>
                       </Link>
                     </div>

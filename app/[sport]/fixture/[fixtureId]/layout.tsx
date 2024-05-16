@@ -51,14 +51,14 @@ const Team = ({
         }
       )}
     >
-      <Link prefetch={true} href={`/${sport}/team/${team.id}/fixtures`}>
+      <Link href={`/${sport}/team/${team.id}/fixtures`}>
         <ImageWithFallback
           className="w-[40px] lg:w-[70px]"
           src={team.logo}
           alt={`${team.name}-logo`}
         />
       </Link>
-      <Link prefetch={true} href={`/${sport}/team/${team.id}/fixtures`}>
+      <Link href={`/${sport}/team/${team.id}/fixtures`}>
         <h3 className="text-[1rem] text-center font-medium lg:text-lg">
           {team.name}
         </h3>
@@ -94,7 +94,6 @@ const FixtureLayout = async ({ children, params }: Props) => {
                 {format(fixture.fixtureDate, "EEEE, do MMMM")}
               </p>
               <Link
-                prefetch={true}
                 href={`/${params.sport}/league/${fixture.fixtureLeague.id}/fixtures`}
                 className="text-sm underline-hover"
               >
