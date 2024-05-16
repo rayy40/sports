@@ -129,7 +129,7 @@ const FixturesBox = ({ fixtures, sport, countries }: Props) => {
                   {fixtures?.map((fixture) => (
                     <BoxFixture
                       key={getFixtureData(fixture).fixtureId}
-                      sport={"football"}
+                      sport={sport}
                       fixture={getFixtureData(fixture)}
                     />
                   ))}
