@@ -40,6 +40,7 @@ import { impFootballLeagueIds, shortStatusMap } from "./constants";
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import {
   AustralianFootballFixtureStatistics,
+  AustralianFootballLeagueOrTeamInfo,
   AustralianFootballStatistics,
   TotalOrAverageStats,
 } from "@/types/australian-football";
@@ -226,7 +227,7 @@ export const getLeagueIdForTeam = (
 export const getLeagueName = (
   league:
     | string
-    | League<string>
+    | League<string | number>
     | {
         id: number;
         season: number;

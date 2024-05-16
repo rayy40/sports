@@ -124,6 +124,7 @@ export interface GamesWithPeriods<T> extends Games<T> {
 }
 
 export interface GamesWithPeriodsAndEvents<T> extends Games<T> {
+  timer?: null;
   periods: HockeyPeriods;
   events: boolean;
 }
@@ -292,25 +293,40 @@ export function isFootballFixture(item: AllSportsFixtures): item is Fixtures {
   return "goals" in item;
 }
 
-export function isFootballDetailedFixture(
-  item: AllSportsFixtures | DetailedFixture
-): item is DetailedFixture {
+export function isFootballDetailedFixture(item: any): item is DetailedFixture {
   return "fixture" in item && "goals" in item && "lineups" in item;
 }
 
 export function isBaseballFixture(item: any): item is Games<BaseballScores> {
   return (
-    "scores" in item && "home" in item.scores && "innings" in item.scores.home
+    typeof item.scores === "object" &&
+    "home" in item.scores &&
+    typeof item.scores.home === "object" &&
+    "innings" in item.scores.home
   );
 }
+
 export function isBasketballFixture(
   item: any
 ): item is Games<BasketballScores> {
   return (
     "scores" in item &&
+    typeof item.scores === "object" &&
     "home" in item.scores &&
+    typeof item.scores.home === "object" &&
     "quarter_1" in item.scores.home &&
     "over_time" in item.scores.home
+  );
+}
+
+export function isHockeyFixture(
+  item: any
+): item is GamesWithPeriodsAndEvents<number | null> {
+  return (
+    "periods" in item &&
+    typeof item.periods === "object" &&
+    "first" in item.periods &&
+    typeof item.periods.home !== "object"
   );
 }
 
@@ -324,12 +340,21 @@ export function isAFLFixture(
   return "game" in item && "id" in item.game && !("country" in item.league);
 }
 
-export function isNFLFixture(item: AllSportsFixtures): item is NFLGames {
-  return "game" in item && "country" in item.league;
+export function isNFLFixture(item: any): item is NFLGames {
+  return (
+    "game" in item &&
+    typeof item.league === "object" &&
+    "country" in item.league &&
+    typeof item.scores === "object" &&
+    "home" in item.scores &&
+    typeof item.scores.home === "object" &&
+    "quarter_1" in item.scores.home &&
+    "total" in item.scores.home
+  );
 }
 
 export function isHockeyOrRugbyFixture(
-  item: AllSportsFixtures
+  item: any
 ): item is GamesWithPeriods<number | null> {
   return "periods" in item;
 }
