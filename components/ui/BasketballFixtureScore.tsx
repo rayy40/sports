@@ -17,24 +17,35 @@ export const BasketballFixtureScore = ({
 }) => {
   if (!fixture) return;
 
+  const { teams, scores } = fixture;
+
   const getFirstName = (key: "home" | "away") => {
-    return fixture?.teams[key].name.split(" ")[0];
+    return teams[key]?.name?.split(" ")[0] ?? "";
   };
+
+  const renderQuarters = (teamScores: BasketballScores) => {
+    return Object.values(teamScores)
+      .filter((_, index) => index < 4)
+      .map((value, index) => (
+        <TableCell className="text-center" key={index}>
+          {value ?? "-"}
+        </TableCell>
+      ));
+  };
+
   return (
     <div className="flex flex-col px-2 border-t border-t-secondary justify-between items-start">
       <Table className="pointer-events-none">
         <TableHeader>
           <TableHead className="px-2 lg:px-4">Team</TableHead>
-          {Object.keys(fixture.scores.home)
-            .filter((_, index) => index < 4)
-            .map((quarter) => (
-              <TableHead
-                className="capitalize text-center px-2 lg:px-4"
-                key={quarter}
-              >
-                {quarter.split("")[0] + quarter.split("_")[1]}
-              </TableHead>
-            ))}
+          {Array.from({ length: 4 }).map((_, index) => (
+            <TableHead
+              className="capitalize text-center px-2 lg:px-4"
+              key={index}
+            >
+              Q{index + 1}
+            </TableHead>
+          ))}
           <TableHead className="text-center font-bold px-2 lg:px-4">
             Total
           </TableHead>
@@ -42,28 +53,16 @@ export const BasketballFixtureScore = ({
         <TableBody>
           <TableRow>
             <TableCell>{getFirstName("home")}</TableCell>
-            {Object.values(fixture.scores.home)
-              .filter((_, index) => index < 4)
-              .map((value, index) => (
-                <TableCell className="text-center" key={index}>
-                  {value ?? "-"}
-                </TableCell>
-              ))}
+            {renderQuarters(scores.home)}
             <TableCell className="font-bold text-center">
-              {fixture.scores.home.total ?? "-"}
+              {scores.home.total ?? "-"}
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>{getFirstName("away")}</TableCell>
-            {Object.values(fixture.scores.away)
-              .filter((_, index) => index < 4)
-              .map((value, index) => (
-                <TableCell className="text-center" key={index}>
-                  {value ?? "-"}
-                </TableCell>
-              ))}
+            {renderQuarters(scores.away)}
             <TableCell className="font-bold text-center">
-              {fixture.scores.away.total ?? "-"}
+              {scores.away.total ?? "-"}
             </TableCell>
           </TableRow>
         </TableBody>

@@ -1,4 +1,4 @@
-import { BaseballScores } from "@/types/baseball";
+import { BaseballScores, InningsScore } from "@/types/baseball";
 import { Games } from "@/types/general";
 import React from "react";
 import {
@@ -17,21 +17,35 @@ export const BaseballFixtureScore = ({
 }) => {
   if (!fixture) return;
 
+  const { teams, scores } = fixture;
+
   const getFirstName = (key: "home" | "away") => {
-    return fixture?.teams[key].name.split(" ")[0];
+    return teams[key]?.name?.split(" ")[0] ?? "-";
   };
+
+  const renderInnings = (inningScores: InningsScore) => {
+    return Object.values(inningScores)
+      .filter((_, index) => index < 9)
+      .map((value, index) => (
+        <TableCell className="text-center" key={index}>
+          {value ?? "-"}
+        </TableCell>
+      ));
+  };
+
   return (
     <div className="flex flex-col px-2 border-t border-t-secondary justify-between items-start">
       <Table className="pointer-events-none">
         <TableHeader>
           <TableHead className="px-2 lg:px-4">Team</TableHead>
-          {Object.keys(fixture.scores.home.innings)
-            .filter((_, index) => index < 9)
-            .map((inning) => (
-              <TableHead className="text-center px-2 lg:px-4" key={inning}>
-                {inning}
-              </TableHead>
-            ))}
+          {Array.from({ length: 9 }).map((_, index) => (
+            <TableHead
+              className="capitalize text-center px-2 lg:px-4"
+              key={index}
+            >
+              {index + 1}
+            </TableHead>
+          ))}
           <TableHead className="text-center font-bold px-2 lg:px-4">
             R
           </TableHead>
@@ -45,13 +59,7 @@ export const BaseballFixtureScore = ({
         <TableBody>
           <TableRow>
             <TableCell>{getFirstName("home")}</TableCell>
-            {Object.values(fixture.scores.home.innings)
-              .filter((_, index) => index < 9)
-              .map((value, index) => (
-                <TableCell className="text-center" key={index}>
-                  {value ?? "-"}
-                </TableCell>
-              ))}
+            {renderInnings(scores.home.innings)}
             <TableCell className="text-center font-bold">
               {fixture.scores.home.total ?? "-"}
             </TableCell>
@@ -64,13 +72,7 @@ export const BaseballFixtureScore = ({
           </TableRow>
           <TableRow>
             <TableCell>{getFirstName("away")}</TableCell>
-            {Object.values(fixture.scores.away.innings)
-              .filter((_, index) => index < 9)
-              .map((value, index) => (
-                <TableCell className="text-center" key={index}>
-                  {value ?? "-"}
-                </TableCell>
-              ))}
+            {renderInnings(scores.away.innings)}
             <TableCell className="text-center font-bold">
               {fixture.scores.away.total ?? "-"}
             </TableCell>
