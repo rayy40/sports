@@ -124,7 +124,7 @@ export interface GamesWithPeriods<T> extends Games<T> {
 }
 
 export interface GamesWithPeriodsAndEvents<T> extends Games<T> {
-  timer?: null;
+  timer?: string | null;
   periods: HockeyPeriods;
   events: boolean;
 }
@@ -326,7 +326,21 @@ export function isHockeyFixture(
     "periods" in item &&
     typeof item.periods === "object" &&
     "first" in item.periods &&
-    typeof item.periods.home !== "object"
+    "penalties" in item.periods &&
+    "overtime" in item.periods &&
+    !("second_overtime" in item.periods)
+  );
+}
+
+export function isRugbyFixture(
+  item: any
+): item is GamesWithPeriods<number | null> {
+  return (
+    "periods" in item &&
+    typeof item.periods === "object" &&
+    "first" in item.periods &&
+    "overtime" in item.periods &&
+    "second_overtime" in item.periods
   );
 }
 
@@ -351,12 +365,6 @@ export function isNFLFixture(item: any): item is NFLGames {
     "quarter_1" in item.scores.home &&
     "total" in item.scores.home
   );
-}
-
-export function isHockeyOrRugbyFixture(
-  item: any
-): item is GamesWithPeriods<number | null> {
-  return "periods" in item;
 }
 
 export function isFootballTeamStats(
