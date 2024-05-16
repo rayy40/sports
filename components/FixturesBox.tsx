@@ -34,14 +34,14 @@ const BoxHeader = ({
       <Link
         prefetch={true}
         className="text-sm lg:text-[1rem] capitalize font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
-        href={id ? `/${sport}/league/${id}` : `/${sport}/countries`}
+        href={id ? `/${sport}/league/${id}/fixtures` : `/${sport}/countries`}
       >
         {name}
       </Link>
       <Link
         prefetch={true}
         className="mr-2 text-xs lg:text-sm text-secondary-foreground underline-hover"
-        href={id ? `/${sport}/league/${id}` : `/${sport}/countries`}
+        href={id ? `/${sport}/league/${id}/fixtures` : `/${sport}/countries`}
       >
         See more
       </Link>
