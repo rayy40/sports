@@ -2,14 +2,129 @@ import React, { ReactNode } from "react";
 
 import ImageWithFallback from "@/components/ImageWithFallback";
 import { sports } from "@/lib/constants";
-import { Sports } from "@/types/general";
+import {
+  AllSportsFixtures,
+  Games,
+  GamesWithPeriodsAndEvents,
+  Sports,
+  Team,
+  isAFLFixture,
+  isBaseballFixture,
+  isBasketballFixture,
+  isFootballDetailedFixture,
+  isHockeyOrRugbyFixture,
+  isNFLFixture,
+} from "@/types/general";
+import { AustralianFootballGames as AFLGames } from "@/types/australian-football";
 import { getFixtureById } from "@/services/getFixtures";
 import { cn, getFixtureData } from "@/lib/utils";
 import { format } from "date-fns";
+import { Timeline } from "@/types/football";
+import Link from "next/link";
+import FootballFixtureScore from "@/components/ui/FootballFixtureScore";
+import { BaseballFixtureScore } from "@/components/ui/BaseballFixtureScore";
+import { BaseballScores } from "@/types/baseball";
+import { BasketballScores } from "@/types/basketball";
+import { BasketballFixtureScore } from "@/components/ui/BasketballFixtureScore";
+import { HockeyFixtureScore } from "@/components/ui/HockeyFixtureScore";
+import AmericanFixtureScore from "@/components/ui/AmericanFixtureScore";
+import { NFLGames } from "@/types/american-football";
+import AustralianFixtureScore from "@/components/ui/AustralianFixtureScore";
 
 type Props = {
   children: ReactNode;
   params: { fixtureId: string; sport: Sports };
+};
+interface DetailedScoreProps {
+  sport: Sports;
+  homeTeam?: number;
+  fixture?: AllSportsFixtures;
+  events?: Timeline[];
+}
+
+const DetailedScore = ({
+  sport,
+  events,
+  fixture,
+  homeTeam,
+}: DetailedScoreProps) => {
+  switch (sport) {
+    case "football":
+      return <FootballFixtureScore events={events} homeTeam={homeTeam} />;
+    case "baseball":
+      return (
+        <BaseballFixtureScore fixture={fixture as Games<BaseballScores>} />
+      );
+    case "basketball":
+      return (
+        <BasketballFixtureScore fixture={fixture as Games<BasketballScores>} />
+      );
+    case "hockey":
+      return (
+        <HockeyFixtureScore
+          fixture={fixture as GamesWithPeriodsAndEvents<number>}
+        />
+      );
+    case "american-football":
+      return <AmericanFixtureScore fixture={fixture as NFLGames} />;
+    case "australian-football":
+      return <AustralianFixtureScore fixture={fixture as AFLGames} />;
+    default:
+      return;
+  }
+};
+
+const Score = ({
+  isWinner,
+  score,
+}: {
+  isWinner: boolean;
+  score?: number | null;
+}) => {
+  return (
+    <p
+      className={cn({
+        "text-secondary-foreground": isWinner,
+        "text-foreground": !isWinner,
+      })}
+    >
+      {score ?? ""}
+    </p>
+  );
+};
+
+const Team = ({
+  team,
+  sport,
+  isAway = false,
+}: {
+  team: Team;
+  sport: Sports;
+  isAway?: boolean;
+}) => {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-start gap-2 lg:flex-row lg:gap-4",
+        {
+          "lg:flex-row-reverse": isAway,
+        }
+      )}
+    >
+      <Link prefetch={true} href={`/${sport}/team/${team.id}/fixtures`}>
+        <ImageWithFallback
+          className="w-[40px] lg:w-[70px]"
+          src={team.logo}
+          alt={`${team.name}-logo`}
+        />
+      </Link>
+      <Link prefetch={true} href={`/${sport}/team/${team.id}/fixtures`}>
+        <h3 className="text-[1rem] text-center font-medium lg:text-lg">
+          {team.name}
+        </h3>
+      </Link>
+    </div>
+  );
 };
 
 const FixtureLayout = async ({ children, params }: Props) => {
@@ -30,57 +145,61 @@ const FixtureLayout = async ({ children, params }: Props) => {
 
     return (
       <div className="flex flex-col h-screen font-sans">
-        <div className="sticky top-0 z-20 flex flex-col gap-3 p-3 pb-0 lg:gap-6 lg:px-6 lg:pb-0 lg:pt-4 bg-background">
-          <div className="flex flex-col gap-4 max-w-[1000px] mx-auto">
+        <div className="sticky bg-secondary/30 top-0 z-20 flex flex-col gap-3 p-3 pb-0 lg:gap-6 lg:px-6 lg:pb-0 lg:pt-6">
+          <div className="flex flex-col gap-6 w-full max-w-[1000px] mx-auto">
             <div className="flex items-start justify-between">
               <p className="text-sm">
                 {format(fixture.fixtureDate, "EEEE, do MMMM")}
               </p>
-              <p className="text-sm">
-                {fixture.fixtureVenue ?? fixture.fixtureStatus.long}
-              </p>
+              <Link
+                prefetch={true}
+                href={`/${params.sport}/league/${fixture.fixtureLeague.id}/fixtures`}
+                className="text-sm underline-hover"
+              >
+                {fixture.fixtureLeague.name}
+              </Link>
             </div>
-            <div className="grid pt-2 pb-8 lg:pb-12 grid-cols-3 lg:grid-cols-[1fr_150px_1fr] items-center gap-6">
-              <div className="flex flex-col items-center justify-start gap-2 lg:flex-row lg:gap-4">
-                <ImageWithFallback
-                  className="w-[40px] lg:w-[70px]"
-                  src={fixture.homeTeam.logo}
-                  alt={`${fixture.homeTeam.name}-logo`}
-                />
-                <h3 className="text-[1rem] lg:text-xl">
-                  {fixture.homeTeam.name}
-                </h3>
-              </div>
+            <div className="grid py-2 lg:py-4 grid-cols-fixture justify-between items-center gap-6">
+              <Team team={fixture.homeTeam} sport={params.sport} />
               <div className="flex items-center justify-between gap-1 text-lg font-medium lg:gap-3 lg:text-2xl">
-                <p
-                  className={cn({
-                    "text-secondary-foreground": fixture.isHomeTeamWinner,
-                    "text-foreground": !fixture.isHomeTeamWinner,
-                  })}
-                >
-                  {fixture.homeTeamScore}
-                </p>
+                <Score
+                  isWinner={Boolean(fixture.isHomeTeamWinner)}
+                  score={fixture.homeTeamScore}
+                />
                 <span>-</span>
-                <p
-                  className={cn({
-                    "text-secondary-foreground": fixture.isAwayTeamWinner,
-                    "text-foreground": !fixture.isAwayTeamWinner,
-                  })}
-                >
-                  {fixture.awayTeamScore}
-                </p>
-              </div>
-              <div className="flex flex-col items-center justify-end gap-2 lg:flex-row lg:gap-4">
-                <h3 className="text-[1rem] order-2 lg:order-1 lg:text-xl">
-                  {fixture.awayTeam.name}
-                </h3>
-                <ImageWithFallback
-                  className="w-[40px] lg:w-[70px] order-1 lg:-order-2"
-                  src={fixture.awayTeam.logo}
-                  alt={`${fixture.awayTeam.name}-logo`}
+                <Score
+                  isWinner={Boolean(fixture.isAwayTeamWinner)}
+                  score={fixture.awayTeamScore}
                 />
               </div>
+              <Team
+                team={fixture.awayTeam}
+                sport={params.sport}
+                isAway={true}
+              />
             </div>
+            {isFootballDetailedFixture(data.success) && (
+              <DetailedScore
+                sport={params.sport}
+                events={data.success.events}
+                homeTeam={fixture.homeTeam.id}
+              />
+            )}
+            {isBaseballFixture(data.success) && (
+              <DetailedScore sport={params.sport} fixture={data.success} />
+            )}
+            {isBasketballFixture(data.success) && (
+              <DetailedScore sport={params.sport} fixture={data.success} />
+            )}
+            {isHockeyOrRugbyFixture(data.success) && (
+              <DetailedScore sport={params.sport} fixture={data.success} />
+            )}
+            {isNFLFixture(data.success) && (
+              <DetailedScore sport={params.sport} fixture={data.success} />
+            )}
+            {isAFLFixture(data.success) && (
+              <DetailedScore sport={params.sport} fixture={data.success} />
+            )}
           </div>
         </div>
         {children}
