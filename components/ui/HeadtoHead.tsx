@@ -42,7 +42,7 @@ const HeadtoHead = ({ fixtures, sport }: Props) => {
               <div className="w-full py-4 text-xs text-center border-b text-muted-foreground">
                 {format(fixtureDate, "EEEE d MMMM yyyy")}
               </div>
-              <Link href={`/${sport}/fixture/${fixtureId}`}>
+              <Link prefetch={true} href={`/${sport}/fixture/${fixtureId}`}>
                 <div className="grid px-4 grid-cols-[1fr_50px_1fr] lg:grid-cols-list gap-2 lg:gap-4 py-4 lg:py-6">
                   <div className="flex items-center gap-2 lg:gap-4">
                     <ImageWithFallback

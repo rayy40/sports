@@ -14,7 +14,7 @@ const NotFound = ({
     <div {...props} className="flex items-center justify-center w-full h-full">
       <p>No {type} found.</p>
       {sport && (
-        <Link href={`/${sport}`} className="underline-hover">
+        <Link prefetch={true} href={`/${sport}`} className="underline-hover">
           Go back
         </Link>
       )}

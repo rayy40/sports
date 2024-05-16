@@ -7,8 +7,7 @@ import { Table, TableBody, TableCell, TableRow } from "./ui/Shadcn/table";
 import { cn, getBaseUrl, getFixtureData, getTabs } from "@/lib/utils";
 import ImageWithFallback from "./ImageWithFallback";
 import { shortStatusMap } from "@/lib/constants";
-import { usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type Props = {
   sport: Sports;
@@ -17,13 +16,10 @@ type Props = {
 };
 
 type TeamInfoProps = {
-  id: number;
   isWinner: boolean;
   name: string;
   logo: string;
   isHome: boolean;
-  tab: string;
-  sport: Sports;
 };
 
 type TeamScoreProps = {
@@ -31,42 +27,26 @@ type TeamScoreProps = {
   score: number;
 };
 
-const TeamInfo = ({
-  id,
-  isWinner,
-  isHome,
-  name,
-  logo,
-  sport,
-  tab,
-}: TeamInfoProps) => {
+const TeamInfo = ({ isWinner, isHome, name, logo }: TeamInfoProps) => {
   return (
     <div
-      className={cn("flex items-center gap-1 lg:gap-3", {
-        "justify-start": isHome,
-        "justify-end": !isHome,
+      className={cn("flex items-center gap-1 lg:gap-3 justify-start", {
+        "flex-row-reverse": !isHome,
       })}
     >
+      <ImageWithFallback
+        className="w-[25px] lg:w-[40px]"
+        src={logo}
+        alt={`${name}-logo`}
+      />
       <p
         className={cn("text-sm text-right lg:text-[1.075rem]", {
           "text-primary-foreground": isWinner,
           "text-secondary-foreground": !isWinner,
-          "order-2": isHome,
-          "order-1": !isHome,
         })}
       >
         {name}
       </p>
-      <Link href={`/${sport}/fixture/${id}/${tab}`}>
-        <ImageWithFallback
-          className={cn("w-[25px] lg:w-[40px]", {
-            "order-1": isHome,
-            "order-2": !isHome,
-          })}
-          src={logo}
-          alt={`${name}-logo`}
-        />
-      </Link>
     </div>
   );
 };
@@ -85,6 +65,7 @@ const TeamScore = ({ isWinner, score }: TeamScoreProps) => {
 };
 
 const FixturesTable = ({ fixtures, sport, leagues }: Props) => {
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -171,15 +152,18 @@ const FixturesTable = ({ fixtures, sport, leagues }: Props) => {
               awayTeamScore,
             } = getFixtureData(fixture);
             return (
-              <TableRow {...props} className="hover:bg-secondary/80">
+              <TableRow
+                onClick={() =>
+                  router.prefetch(`/${sport}/fixture/${fixtureId}/${tab}`)
+                }
+                {...props}
+                className="hover:bg-secondary/80 cursor-pointer"
+              >
                 <TableCell className="pl-4 py-4 max-w-[200px]">
                   <TeamInfo
-                    id={fixtureId}
                     name={homeTeam.name}
                     logo={homeTeam.logo}
                     isWinner={Boolean(isHomeTeamWinner)}
-                    sport={sport}
-                    tab={tab}
                     isHome={true}
                   />
                 </TableCell>
@@ -200,12 +184,9 @@ const FixturesTable = ({ fixtures, sport, leagues }: Props) => {
                 </TableCell>
                 <TableCell className="py-4 max-w-[200px] pr-4">
                   <TeamInfo
-                    id={fixtureId}
                     name={awayTeam.name}
                     logo={awayTeam.logo}
                     isWinner={Boolean(isAwayTeamWinner)}
-                    sport={sport}
-                    tab={tab}
                     isHome={false}
                   />
                 </TableCell>

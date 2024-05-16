@@ -133,12 +133,14 @@ const Page = async () => {
           >
             <div className="flex items-center justify-between w-full px-1 py-2 rounded-sm bg-secondary/70">
               <Link
-                className="text-sm lg:text-[1rem] font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
+                prefetch={true}
                 href={`/${league.sport}/league/${league.id}`}
+                className="text-sm lg:text-[1rem] font-medium p-1 opacity-90 hover:opacity-100 transition-opacity"
               >
                 {league.name}
               </Link>
               <Link
+                prefetch={true}
                 href={`/${league.sport}/league/${league.id}`}
                 className="mr-2 text-xs lg:text-sm text-secondary-foreground underline-hover"
               >

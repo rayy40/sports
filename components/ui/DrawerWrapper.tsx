@@ -39,6 +39,7 @@ const DrawerWrapper = ({ tabs }: Props) => {
           {tabs?.map((tab) => (
             <DrawerClose key={tab} asChild>
               <Link
+                prefetch={true}
                 href={`${baseURL}/${tab.toLowerCase().replaceAll(/\s/g, "-")}`}
                 className="p-4 text-sm border-b cursor-pointer"
               >

@@ -33,6 +33,7 @@ const Tabs = ({ id, leagueId, isTeam = false, isHome = false }: Props) => {
 
   return (
     <Link
+      prefetch={true}
       href={{
         pathname: isHome
           ? path

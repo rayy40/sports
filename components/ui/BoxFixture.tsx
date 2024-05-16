@@ -54,7 +54,9 @@ const BoxFixture = ({ sport, fixture }: Props) => {
         ? status.timer
         : "elapsed" in status
         ? status.elapsed
-        : status.clock;
+        : "clock" in status
+        ? status.clock
+        : status.short;
     switch (shortStatus) {
       case "FT":
       case "AET":
@@ -72,7 +74,7 @@ const BoxFixture = ({ sport, fixture }: Props) => {
   const tab = getTabs(sport)[0].toLowerCase().replaceAll(" ", "-");
 
   return (
-    <Link href={`/${sport}/fixture/${id}/${tab}`}>
+    <Link prefetch={true} href={`/${sport}/fixture/${id}/${tab}`}>
       <div className="border relative h-[160px] lg:h-[200px] border-secondary hover:border-secondary-foreground/30 transition-colors cursor-pointer rounded-sm p-5 lg:p-6 space-y-5 lg:space-y-6 shadow-sm">
         <div className="flex min-h-[10px] lg:min-h-[20px] text-secondary-foreground text-sm items-center justify-between">
           <p className="whitespace-nowrap max-w-[80%] text-ellipsis overflow-hidden">
