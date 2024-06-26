@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/Shadcn/button";
 import { useEffect } from "react";
+
+import { Button } from "@/components/ui/Shadcn/button";
 
 export default function Error({
   error,
@@ -15,8 +16,8 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-screen gap-2 font-sans">
-      <h2 className="text-lg text-center font-medium text-red-500">
+    <div className="flex max-w-[60ch] p-4 mx-auto flex-col items-center justify-center w-full h-screen gap-2 font-sans">
+      <h2 className="text-lg font-medium text-center text-red-500">
         {error.message ?? "Something went wrong"}
       </h2>
       <Button variant={"outline"} onClick={() => window.location.reload()}>
