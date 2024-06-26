@@ -34,9 +34,10 @@ const Page = async ({ searchParams, params }: Props) => {
 
   const { success } = await promise;
 
-  const fixture = success ? getFixtureData(success[0]) : undefined;
+  const fixture = success?.[0] ? getFixtureData(success[0]) : undefined;
 
-  const leagues = success ? getLeagues(success) : undefined;
+  const leagues =
+    success && success.length > 0 ? getLeagues(success) : undefined;
 
   const tabs = ["Fixtures", "Standings", "Stats"];
 

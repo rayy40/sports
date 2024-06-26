@@ -34,7 +34,7 @@ const Page = async ({ searchParams, params }: Props) => {
 
   const { success } = await promise;
 
-  const teams = success ? getTeams(success) : undefined;
+  const teams = success && success.length > 0 ? getTeams(success) : undefined;
 
   const tabs = ["Fixtures", "Standings"];
 
