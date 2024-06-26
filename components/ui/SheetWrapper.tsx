@@ -102,9 +102,9 @@ const SheetWrapper = ({
                           query.toLowerCase(),
                           label.toLowerCase().trim()
                         )}`
-                      : `/${label.toLowerCase()}/fixtures`
+                      : `/${label.toLowerCase()}`
                   }
-                  className="p-6 text-sm capitalize border-b cursor-pointer"
+                  className="w-full p-6 text-sm capitalize border-b cursor-pointer"
                 >
                   {label}
                 </Link>
